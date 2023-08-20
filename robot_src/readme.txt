@@ -1,0 +1,1 @@
+The robot we are using is a Unitree GO1 robot quadpad
