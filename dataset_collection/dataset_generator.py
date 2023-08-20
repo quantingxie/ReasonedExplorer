@@ -2,6 +2,30 @@ import cv2
 import numpy as np
 import os
 
+
+
+
+"""Code to check camreas"""
+
+# cap = cv2.VideoCapture(8)
+
+# if not cap.isOpened():
+#     print("Cannot open camera")
+#     exit()
+
+# while True:
+#     ret, frame = cap.read()
+#     if not ret:
+#         print("Can't receive frame. Exiting ...")
+#         break
+#     cv2.imshow('frame', frame)
+#     if cv2.waitKey(1) == ord('q'):
+#         break
+
+# cap.release()
+# cv2.destroyAllWindows()
+
+
 def resize_frame(frame, width=None, height=220):
     aspect = frame.shape[1] / float(frame.shape[0])
     
@@ -11,10 +35,10 @@ def resize_frame(frame, width=None, height=220):
     return cv2.resize(frame, (width, height))
 
 # Open handles to the webcams
-cap1 = cv2.VideoCapture(2)
-cap2 = cv2.VideoCapture(0)
-cap3 = cv2.VideoCapture(8)
-cap4 = cv2.VideoCapture(4)
+cap1 = cv2.VideoCapture(1)
+cap2 = cv2.VideoCapture(8)
+cap3 = cv2.VideoCapture(4)
+cap4 = cv2.VideoCapture(2)
 
 angles = [[0, 90, 180, 270], [45, 135, 225, 315]]
 
@@ -25,7 +49,7 @@ while True:
         break
 
     # Create a directory for the current point
-    point_directory = os.path.join("captured_images", point_name)
+    point_directory = os.path.join("dataset", point_name)
     if not os.path.exists(point_directory):
         os.makedirs(point_directory)
 

@@ -15,8 +15,19 @@ def LLM_evaluator(node, goal, model):
         User's goal: {goal}
         Described scene:
         """ + str(node)
-    response = openai.Completion.create(model=model, prompt=prompt, max_tokens=3000)
-    return response.choices[0].text.strip()
+    
+    message=[{"role": "user", "content": prompt}]
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages = message,
+        temperature=0.2,
+        max_tokens=3000,
+        frequency_penalty=0.0
+    )
+    print(response['choices'][0]['message']['content'].strip())
+    score = int(response['choices'][0]['message']['content'].strip())
+    print(score)
+    return score
 
 def LLM_world_model(node, model):
     prompt = f"""
@@ -24,20 +35,41 @@ def LLM_world_model(node, model):
 
     Current scene observation: {node}
     """
-    response = openai.Completion.create(model=model, prompt=prompt, max_tokens=3000)
-    return response.choices[0].text.strip()
+    message=[{"role": "user", "content": prompt}]
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages = message,
+        temperature=0.2,
+        max_tokens=3000,
+        frequency_penalty=0.0
+    )
+    return response.choices[0].message['content'].strip()
 
 def LLM_abstractor(nodes, model):
     prompt = f"""
     You are an AI trained to distill multiple scene descriptions into a higher, more abstract form. Your goal is to create a concise abstraction that encompasses the key information and underlying themes from all the provided scenes. 
     Given scene descriptions: {nodes}
     """
-    response = openai.Completion.create(model=model, prompt=prompt, max_tokens=3000)
-    return response.choices[0].text.strip()
+    message=[{"role": "user", "content": prompt}]
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages = message,
+        temperature=0.2,
+        max_tokens=3000,
+        frequency_penalty=0.0
+    )
+    return response.choices[0].message['content'].strip()
 
 def LLM_rephraser(node, global_context, model):
     prompt = f"""
     You are an AI tasked to rephrase and refine scene descriptions using broader context. Please reword the following scene description: '{node}' by incorporating the global context: '{global_context}'
     """    
-    response = openai.Completion.create(model=model, prompt=prompt, max_tokens=3000)
-    return response.choices[0].text.strip()
+    message=[{"role": "user", "content": prompt}]
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages = message,
+        temperature=0.2,
+        max_tokens=3000,
+        frequency_penalty=0.0
+    )
+    return response.choices[0].message['content'].strip()

@@ -30,7 +30,6 @@ class Exploration:
         self.mcts = mcts
         self.Q_list = {}  # Dictionary to store Q-values for nodes
 
-        self.graph = {}  # Dictionary where key: node and value: list of connected nodes
         self.current_node = None  # Track the current position of the agent
 
     """Methods for graph"""
@@ -99,11 +98,9 @@ class Exploration:
         return False
 
     def explore(self) -> None:
-        # Open handle for camera
-        camera = cv2.VideoCapture(0)
-        if not camera.isOpened():
-            print("Error: Could not open camera.")
-            return
+        # Initialize current_node at the beginning of exploration
+        initial_gps, initial_yaw = get_GPS()
+        self.current_node = self.add_node_to_graph("", initial_gps, initial_yaw)
         while True:
             current_gps, current_yaw = get_GPS()  # Fetching the current position and yaw of the agent
             
@@ -114,16 +111,15 @@ class Exploration:
             for i in range(self.n):
                 angle_increment = self.rom / self.n
                 angle = current_yaw + i * angle_increment - (self.rom / 2) 
-
-                image = capture_image_at_angle(camera, angle)
+                print("angle", angle)
+                image = capture_image_at_angle(angle)
                 print('captured one image')
                 if image is not None:
                     description, bbox = VLM_query(image)
                     print("VLM set")  
-                    curr_nodes_data.append(description)
-                    bounding_boxes.append(bbox)
+                    curr_nodes_data.append((description, bbox))
             
-            if self.is_goal_reached(bounding_boxes):
+            if self.is_goal_reached([bbox for _, bbox in curr_nodes_data]):
                 break
 
             # Calculate yaw angles and GPS coordinates for each captured image
@@ -147,7 +143,7 @@ class Exploration:
                 self.connect_nodes(self.current_node, node)
                 nodes.append(node)
 
-            S_0 = LLM_abstractor([node.description for node in nodes])
+            S_0 = LLM_abstractor([node.description for node in nodes], model=self.model)
             print("abstracted base nodes")
             self.H[0].append(S_0)
             print("abstracted top nodes")

@@ -19,10 +19,10 @@ class MCTS:
         # If S_t is a leaf node
         if self.is_leaf(S_t):
             values = []
-            for S_t1 in self.n:
+            for S_t1 in range(self.n):
                 q_value = self.Q.get(str(S_t1), 0)
                 n_value = self.N.get(str(S_t1), 0)
-                val = q_value + self.eta * LLM_evaluator(S_t1, model= self.model) / (1 + n_value ** self.gamma)
+                val = q_value + self.eta * LLM_evaluator(S_t1, goal= self.goal, model= self.model) / (1 + n_value ** self.gamma)
                 values.append(val)
             return self.n[np.argmax(values)], depth
         # Otherwise, continue the recursive selection
@@ -58,7 +58,7 @@ class MCTS:
 
     def is_leaf(self, S_t: List) -> bool:
         """Determines if the given node is a leaf node."""
-        return not S_t in self.Q
+        return not str(S_t) in self.Q
     
     def run_mcts(self, K: int, S_t1_list: List) -> None:
         """Executes the MCTS algorithm."""
