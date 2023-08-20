@@ -158,5 +158,4 @@ class Exploration:
                 self.mcts.run_mcts(self.k, [node.description])
                 self.Q_list[str(node)] = self.mcts.Q.get(str(node.description), 0)
 
-            LLM_update_state(G)
             self.action()

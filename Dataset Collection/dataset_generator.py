@@ -19,7 +19,7 @@ cap4 = cv2.VideoCapture(4)
 angles = [[0, 90, 180, 270], [45, 135, 225, 315]]
 
 while True:
-    point_name = input("Enter the name of the point (or type 'exit' to quit): ")
+    point_name = input("Enter the GPS(Lat, Lon) of the point (or type 'exit' to quit): ")
     
     if point_name.lower() == "exit":
         break
