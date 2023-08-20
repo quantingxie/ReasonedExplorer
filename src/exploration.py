@@ -99,6 +99,7 @@ class Exploration:
         return False
 
     def explore(self) -> None:
+        # Open handle for camera
         camera = cv2.VideoCapture(0)
         if not camera.isOpened():
             print("Error: Could not open camera.")
@@ -115,8 +116,10 @@ class Exploration:
                 angle = current_yaw + i * angle_increment - (self.rom / 2) 
 
                 image = capture_image_at_angle(camera, angle)
+                print('captured one image')
                 if image is not None:
-                    description, bbox = VLM_query(image)  
+                    description, bbox = VLM_query(image)
+                    print("VLM set")  
                     curr_nodes_data.append(description)
                     bounding_boxes.append(bbox)
             
@@ -140,22 +143,27 @@ class Exploration:
                 yaw_angle = current_yaw + direction - self.rom  # Adjusting for center of the FOV
 
                 node = self.add_node_to_graph(description, (new_lat, new_lon), yaw_angle)
+                print("node expanded")
                 self.connect_nodes(self.current_node, node)
                 nodes.append(node)
 
             S_0 = LLM_abstractor([node.description for node in nodes])
+            print("abstracted base nodes")
             self.H[0].append(S_0)
+            print("abstracted top nodes")
             self.abstract(self.H[0], 1)
             G = [h[-1] for h in self.H if h]
 
             # Use LLM_rephraser to get new descriptions for nodes
             rephrased_nodes = [LLM_rephraser(node.description, G, model=self.model) for node in nodes]
-            
+            print("expaned nodes rephrased")
+
             for i, node in enumerate(nodes):
                 node.description = rephrased_nodes[i]
 
             for node in nodes:
                 self.mcts.run_mcts(self.k, [node.description])
+                print("Running MCTS")
                 self.Q_list[str(node)] = self.mcts.Q.get(str(node.description), 0)
 
             self.action()

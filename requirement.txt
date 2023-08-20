@@ -1,0 +1,4 @@
+openai
+gmplot
+numpy
+opencv-python
