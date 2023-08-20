@@ -1,6 +1,6 @@
 import numpy as np
 from typing import List, Tuple
-from LLM_functions import LLM_evaluator, LLM_world_model
+from .LLM_functions import LLM_evaluator, LLM_world_model
 
 class MCTS:
     def __init__(self, eta, gamma, n, l, goal, model):
