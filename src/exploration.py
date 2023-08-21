@@ -106,7 +106,6 @@ class Exploration:
             
             # Capture images at different angles and get their descriptions and bounding boxes
             curr_nodes_data = []
-            bounding_boxes = []
 
             for i in range(self.n):
                 angle_increment = self.rom / self.n
@@ -157,9 +156,11 @@ class Exploration:
             for i, node in enumerate(nodes):
                 node.description = rephrased_nodes[i]
 
-            for node in nodes:
-                self.mcts.run_mcts(self.k, [node.description])
-                print("Running MCTS")
-                self.Q_list[str(node)] = self.mcts.Q.get(str(node.description), 0)
+            print("Running MCTS")
+            descriptions = [node.description for node in nodes]
+            self.mcts.run_mcts(self.k, descriptions)
 
+            for node in nodes:
+                self.Q_list[str(node)] = self.mcts.Q.get(str(node.description), 0)
+                
             self.action()

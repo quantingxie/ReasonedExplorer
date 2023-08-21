@@ -14,24 +14,34 @@ class MCTS:
         self.Q = {}  # Placeholder for Q-values
         self.N = {}  # Placeholder for N-values
     
-    def selection(self, S_t: List, depth: int) -> Tuple[List, int]:
+    def selection(self, S_t1: List[str], depth: int) -> Tuple[str, int]:
         """Recursively selects the best node."""
-        # If S_t is a leaf node
-        if self.is_leaf(S_t):
+        print("Doing Selection")
+        
+        # If S_t1 is a leaf node
+        if self.is_leaf(S_t1):
             values = []
-            for S_t1 in range(self.n):
-                q_value = self.Q.get(str(S_t1), 0)
-                n_value = self.N.get(str(S_t1), 0)
-                val = q_value + self.eta * LLM_evaluator(S_t1, goal= self.goal, model= self.model) / (1 + n_value ** self.gamma)
+            for idx, description in enumerate(S_t1):  # Iterate over descriptions directly
+                print("Evaluating action for description", idx)
+                q_value = self.Q.get(description, 0)
+                n_value = self.N.get(description, 0)
+                val = q_value + self.eta * LLM_evaluator(description, goal=self.goal, model=self.model) / (1 + n_value ** self.gamma)
+                print("Q_value of action for description", idx, "=", val)
                 values.append(val)
-            return self.n[np.argmax(values)], depth
+            
+            # Return the description with the highest value and the depth
+            return S_t1[np.argmax(values)], depth
+        
         # Otherwise, continue the recursive selection
         else:
-            selected_node, new_depth = self.selection(max(self.n, key=lambda x: self.Q.get(str(x), 0)), depth+1)
+            selected_node, new_depth = self.selection(max(S_t1, key=lambda desc: self.Q.get(desc, 0)), depth+1)
             return selected_node, new_depth
+
 
     def expansion(self, S_t1_star: List) -> List:
         """Generates a list of possible nodes and selects one based on the probabilities."""
+        print("Doing Expansion")
+
         S_t2_list = []
         S_t2_pi_list = []
         for _ in range(self.n):
@@ -39,10 +49,15 @@ class MCTS:
             pi = LLM_evaluator(S_t2, self.goal, model=self.model)
             S_t2_list.append(S_t2)
             S_t2_pi_list.append(pi)
+
+        # Normalize the probabilities to ensure they sum to 1
+        S_t2_pi_list = [pi/sum(S_t2_pi_list) for pi in S_t2_pi_list]
         return np.random.choice(S_t2_list, p=S_t2_pi_list)
 
     def simulation(self, S_t1_list: List) -> float:
         """Predicts the outcome for a series of nodes."""
+        print("Doing simulation")
+
         pi_list = []
         for l in range(1, self.l+1):
             S_t2_plus_l = LLM_world_model(S_t1_list[l+1], model=self.model)
@@ -52,6 +67,8 @@ class MCTS:
 
     def back_propagation(self, pi_mean: float, depth: int, S_t1_star: List) -> None:
         """Updates the Q-values and N-values."""
+        print("Doing back_propagation")
+
         Q_star = self.Q.get(str(S_t1_star), 0)
         self.Q[str(S_t1_star)] = (Q_star + pi_mean) / depth
         self.N[str(S_t1_star)] = self.N.get(str(S_t1_star), 0) + 1

@@ -10,7 +10,7 @@ def LLM_evaluator(node, goal, model):
         4: Likely the user will find the goal.
         5: Very likely the user will find the goal.
 
-        Your response should only be the score (a number between 1 and 5) without any additional commentary.
+        Your response should only be the score (a number between 1 and 5) without any additional commentary. For instance, if it's very likely, simply reply with "5".
 
         User's goal: {goal}
         Described scene:
@@ -24,9 +24,13 @@ def LLM_evaluator(node, goal, model):
         max_tokens=3000,
         frequency_penalty=0.0
     )
-    print(response['choices'][0]['message']['content'].strip())
-    score = int(response['choices'][0]['message']['content'].strip())
-    print(score)
+    # print(f"Node: {node}")
+    try:
+        score = int(response['choices'][0]['message']['content'].strip())
+    except ValueError:
+        # Handle unexpected output
+        score = 3  # Default to a neutral score or handle differently as needed    
+    print("Score:", score)
     return score
 
 def LLM_world_model(node, model):
@@ -43,7 +47,11 @@ def LLM_world_model(node, model):
         max_tokens=3000,
         frequency_penalty=0.0
     )
-    return response.choices[0].message['content'].strip()
+    print(f"Current scene observation: {node}")
+    extrapolated_scene = response.choices[0].message['content'].strip()
+    print("Extrapolated scene:", extrapolated_scene)
+
+    return extrapolated_scene
 
 def LLM_abstractor(nodes, model):
     prompt = f"""
@@ -58,7 +66,12 @@ def LLM_abstractor(nodes, model):
         max_tokens=3000,
         frequency_penalty=0.0
     )
-    return response.choices[0].message['content'].strip()
+
+    print(f"Given scene descriptions: {nodes}")
+    abstracted_description = response.choices[0].message['content'].strip()
+    print("Abstracted description:", abstracted_description)
+
+    return abstracted_description
 
 def LLM_rephraser(node, global_context, model):
     prompt = f"""
@@ -72,4 +85,10 @@ def LLM_rephraser(node, global_context, model):
         max_tokens=3000,
         frequency_penalty=0.0
     )
-    return response.choices[0].message['content'].strip()
+
+    print(f"Node to rephrase: {node}")
+    print(f"Using global context: {global_context}")
+
+    rephrased_description = response.choices[0].message['content'].strip()
+    print("Rephrased description:", rephrased_description)
+    return rephrased_description
