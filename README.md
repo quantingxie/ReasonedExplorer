@@ -15,6 +15,7 @@ In the realm of outdoor object navigation, understanding and reasoning about uns
 - `src/`: Contains the source code of MCTS-PPT and Exploration algorithms
   - `utils/`: Utility scripts and helper functions.
 - `example/`: Usecase Example
+- `robot_src/`: Contains the source code to run this project on a Unitree GO1
 
 ### Getting Started:
 1. **Dependencies**: (List the software dependencies and versions here.)
