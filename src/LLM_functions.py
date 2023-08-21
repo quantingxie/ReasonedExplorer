@@ -20,8 +20,8 @@ def LLM_evaluator(node, goal, model):
     response = openai.ChatCompletion.create(
         model="gpt-4",
         messages = message,
-        temperature=0.2,
-        max_tokens=3000,
+        temperature=0.9,
+        max_tokens=1000,
         frequency_penalty=0.0
     )
     # print(f"Node: {node}")
@@ -35,15 +35,19 @@ def LLM_evaluator(node, goal, model):
 
 def LLM_world_model(node, model):
     prompt = f"""
-    You are an AI tasked with extrapolating from a given scene description. Based on the details provided in this scene, envision what this setting could evolve into if one were to continue forward. Your response should be a detailed scene description, focusing on potential elements that may logically appear ahead based on the current context. 
+    You are an AI tasked with extrapolating from a given scene description. Based on the details provided in this scene, envision what this setting could evolve into if one were to continue forward. Your response should be a detailed scene description, focusing on potential elements that may logically appear ahead based on the current context.
 
+    You should provide a concise description of the given environment that don't exceed 100 words. Emphasize physical structures and natural elements, ensuring specific details about their conditions and characteristics are included. Refrain from mentioning people or activities
+
+    An example of the answer: Moving forward from the curb pavement, the walkway broadens into a cobblestone plaza. Ahead, dense trees form a shaded canopy, under which modern LED streetlights stand at regular intervals. The path leads to a large stone fountain surrounded by a manicured lawn and symmetrical plant beds filled with seasonal flowers. The cobblestone trail continues, branching into multiple paths lined with metal bicycle racks.
+    
     Current scene observation: {node}
     """
     message=[{"role": "user", "content": prompt}]
     response = openai.ChatCompletion.create(
         model="gpt-4",
         messages = message,
-        temperature=0.2,
+        temperature=0.5,
         max_tokens=3000,
         frequency_penalty=0.0
     )
@@ -62,7 +66,7 @@ def LLM_abstractor(nodes, model):
     response = openai.ChatCompletion.create(
         model="gpt-4",
         messages = message,
-        temperature=0.2,
+        temperature=0.5,
         max_tokens=3000,
         frequency_penalty=0.0
     )
@@ -81,7 +85,7 @@ def LLM_rephraser(node, global_context, model):
     response = openai.ChatCompletion.create(
         model="gpt-4",
         messages = message,
-        temperature=0.2,
+        temperature=0.8,
         max_tokens=3000,
         frequency_penalty=0.0
     )

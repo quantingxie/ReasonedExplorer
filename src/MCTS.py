@@ -16,7 +16,8 @@ class MCTS:
     
     def selection(self, S_t1: List[str], depth: int) -> Tuple[str, int]:
         """Recursively selects the best node."""
-        print("Doing Selection")
+        print("\n")
+        print("==========Doing Selection==========")
         
         # If S_t1 is a leaf node
         if self.is_leaf(S_t1):
@@ -40,7 +41,8 @@ class MCTS:
 
     def expansion(self, S_t1_star: List) -> List:
         """Generates a list of possible nodes and selects one based on the probabilities."""
-        print("Doing Expansion")
+        print("\n")
+        print("==========Doing Expansion==========")
 
         S_t2_list = []
         S_t2_pi_list = []
@@ -54,20 +56,22 @@ class MCTS:
         S_t2_pi_list = [pi/sum(S_t2_pi_list) for pi in S_t2_pi_list]
         return np.random.choice(S_t2_list, p=S_t2_pi_list)
 
-    def simulation(self, S_t1_list: List) -> float:
-        """Predicts the outcome for a series of nodes."""
-        print("Doing simulation")
+    def simulation(self, S_t1) -> float:  # Changing the parameter to S_t1
+        """Predicts the outcome for a single node."""  # Updated the description
+        print("\n")
+        print("==========Doing simulation==========")
 
         pi_list = []
         for l in range(1, self.l+1):
-            S_t2_plus_l = LLM_world_model(S_t1_list[l+1], model=self.model)
+            S_t2_plus_l = LLM_world_model(S_t1, model=self.model)  # Updated to work with the single state
             pi_t2_plus_l = LLM_evaluator(S_t2_plus_l, self.goal, model=self.model)
             pi_list.append(pi_t2_plus_l)
         return np.mean(pi_list)
 
     def back_propagation(self, pi_mean: float, depth: int, S_t1_star: List) -> None:
         """Updates the Q-values and N-values."""
-        print("Doing back_propagation")
+        print("\n")
+        print("==========Doing back_propagation==========")
 
         Q_star = self.Q.get(str(S_t1_star), 0)
         self.Q[str(S_t1_star)] = (Q_star + pi_mean) / depth

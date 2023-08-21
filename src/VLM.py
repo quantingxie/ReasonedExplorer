@@ -2,7 +2,7 @@ import random
 
 def VLM_query(image):
     """Mock function to simulate capturing a picture and generating a node."""
-    mock_description = "You are looking at a park with various restaurants"
+    mock_description = "This scene features a park, likely an urban park area, with a curb pavement. You see a bicycle, a car, a meter parking meter, and a pole to your front"
     
     # Randomly generate bounding box coordinates
     x1 = random.randint(0, 192)  # 192 ensures the bbox has room on the screen for width
