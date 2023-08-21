@@ -32,15 +32,16 @@ async def LLM_evaluator_async(node, goal, model):
         "frequency_penalty": 0.0
     }
     url="https://api.openai.com/v1/chat/completions"
+    api_key = os.getenv("OPENAI_API_KEY")
     headers = {
-        "Authorization": os.getenv("OPAI_KEY"),  # replace with your API key
+        "Authorization": f"Bearer {api_key}",  # replace with your API key
         "Content-Type": "application/json"
     }
-
+    print(headers)
     async with aiohttp.ClientSession() as session:
         response = await fetch(session, url, headers, request_payload)
      
-    # print(f"Node: {node}")
+    print(response)
     try:
         score = int(response['choices'][0]['message']['content'].strip())
     except ValueError:
@@ -68,16 +69,18 @@ async def LLM_world_model_async(node, model):
         "frequency_penalty": 0.0
     }
     url="https://api.openai.com/v1/chat/completions"
+    api_key = os.getenv("OPENAI_API_KEY")
     headers = {
-        "Authorization": os.getenv("OPAI_KEY"),  # replace with your API key
+        "Authorization": f"Bearer {api_key}",  # replace with your API key
         "Content-Type": "application/json"
     }
-
+    print(headers)
+    
     async with aiohttp.ClientSession() as session:
         response = await fetch(session, url, headers, request_payload)
-     
+    print(response)
     print(f"Current scene observation: {node}")
-    extrapolated_scene = response.choices[0].message['content'].strip()
+    extrapolated_scene = response['choices'][0]['message']['content'].strip()
     print("Extrapolated scene:", extrapolated_scene)
 
     return extrapolated_scene
@@ -96,8 +99,9 @@ async def LLM_abstractor_async(nodes, model):
         "frequency_penalty": 0.0
     }
     url="https://api.openai.com/v1/chat/completions"
+    api_key = os.getenv("OPENAI_API_KEY")
     headers = {
-        "Authorization": os.getenv("OPAI_KEY"),  # replace with your API key
+        "Authorization": f"Bearer {api_key}",  # replace with your API key
         "Content-Type": "application/json"
     }
 
@@ -105,7 +109,7 @@ async def LLM_abstractor_async(nodes, model):
         response = await fetch(session, url, headers, request_payload)
      
     print(f"Given scene descriptions: {nodes}")
-    abstracted_description = response.choices[0].message['content'].strip()
+    abstracted_description = response['choices'][0]['message']['content'].strip()
     print("Abstracted description:", abstracted_description)
 
     return abstracted_description
@@ -123,8 +127,9 @@ async def LLM_rephraser_async(node, global_context, model):
         "frequency_penalty": 0.0
     }
     url="https://api.openai.com/v1/chat/completions"
+    api_key = os.getenv("OPENAI_API_KEY")
     headers = {
-        "Authorization": os.getenv("OPAI_KEY"),  # replace with your API key
+        "Authorization": f"Bearer {api_key}",  # replace with your API key
         "Content-Type": "application/json"
     }
 
@@ -134,6 +139,6 @@ async def LLM_rephraser_async(node, global_context, model):
     async with aiohttp.ClientSession() as session:
         response = await fetch(session, url, headers, request_payload) 
 
-    rephrased_description = response.choices[0].message['content'].strip()
+    rephrased_description = response['choices'][0]['message']['content'].strip()
     print("Rephrased description:", rephrased_description)
     return rephrased_description

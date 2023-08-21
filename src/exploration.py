@@ -2,10 +2,10 @@ import math
 import networkx as nx
 import cv2
 from typing import List, Tuple
-from .LLM_functions import LLM_abstractor, LLM_rephraser
-from .VLM import VLM_query
-from .utils import *
-from .robot_utils import *
+from LLM_functions import LLM_abstractor, LLM_rephraser
+from VLM import VLM_query
+from utils import *
+from robot_utils import *
 
 class Node:
     def __init__(self, description, gps, yaw_angle):
