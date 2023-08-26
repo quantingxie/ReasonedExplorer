@@ -2,8 +2,10 @@ import os
 import socket
 import serial
 
-port = '/dev/serial/by-id/usb-u-blox_AG_-_www.u-blox.com_u-blox_GNSS_receiver-if00'
-baud_rate = 9600
+# port = '/dev/serial/by-id/usb-u-blox_AG_-_www.u-blox.com_u-blox_GNSS_receiver-if00'
+port = '/dev/ttyUSB0'
+# baud_rate = 9600
+baud_rate = 38400 # default value from manufacturer
 timeout = 1
 host = '127.0.0.1'  # Local host
 socket_port = 12345  # Ensure the port is available
@@ -33,7 +35,8 @@ try:
             while True:
                 line = ser.readline()
                 try:
-                    line = line.decode('ISO-8859-1').strip()
+                    # line = line.decode('ISO-8859-1').strip()
+                    line = ser.readline().decode('ascii', errors='replace').strip()
                     if line.startswith('$GNGLL'):
                         split_line = line.split(',')
                         lat = str(float(split_line[1])/100)
