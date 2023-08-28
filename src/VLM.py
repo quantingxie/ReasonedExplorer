@@ -26,6 +26,7 @@ def VLM_query(image_path):
             print(f"Found {goal}:", data['found'])
         if 'all_objects' in data:
             print(f"Found all objects:", data['all_objects'])
+        return data['result'],data['found']
 
     except requests.exceptions.RequestException as e:
         print("Request Error:", e)

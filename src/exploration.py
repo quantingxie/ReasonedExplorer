@@ -70,15 +70,6 @@ class Exploration:
             self.H[l].append(S_l)
             self.abstract(self.H[l], l+1)
 
-    def is_goal_reached(self, bounding_boxes: List[Tuple[int, int, int, int]]) -> bool:
-        screen_area = 384 * 384
-        for box in bounding_boxes:
-            x1, y1, x2, y2 = box
-            box_area = (x2 - x1) * (y2 - y1)
-            if box_area >= 0.5 * screen_area:
-                return True
-        return False
-
     def explore(self) -> None:
         # Initialize current_node at the beginning of exploration
         initial_gps, initial_yaw = get_GPS()
@@ -92,12 +83,15 @@ class Exploration:
 
             # Process the captured images to get their descriptions and bounding boxes
             curr_nodes_data = []
+            reached_goal = False
             for image in captured_images:
-                description, bbox = VLM_query(image)
+                description, found = VLM_query(image)
                 print("VLM set")  
-                curr_nodes_data.append((description, bbox))
+                curr_nodes_data.append((description, found))
+                if found:
+                    reached_goal=True
             
-            if self.is_goal_reached([bbox for _, bbox in curr_nodes_data]):
+            if reached_goal:
                 break
 
             # Calculate yaw angles and GPS coordinates for each captured image
