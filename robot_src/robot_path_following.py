@@ -107,7 +107,7 @@ EPSILON = 1e-6  # A small value
 
 def calculate_velocity_yaw(current_pos, waypoint, current_yaw, dt, integral, previous_error, yaw_integral, previous_yaw_error):
     # For the distance PID control
-    error = 1000*calculate_distance(current_pos, waypoint)
+    error = 100000*calculate_distance(current_pos, waypoint)
     # print("error", error)
     integral += error * dt
     derivative = (error - previous_error) / (dt + EPSILON)
