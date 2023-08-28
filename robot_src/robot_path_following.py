@@ -25,10 +25,6 @@ next_point = np.array([40.444741, -79.947536])
 
 
 # Set PID gains for the controller
-Kp = 2
-Ki = 0.2
-Kd = 0.02
-
 Kp_yaw = 0.8
 Ki_yaw = 0.2
 Kd_yaw = 0.02
@@ -105,24 +101,22 @@ def calculate_distance(pos1, pos2):
 
 EPSILON = 1e-6  # A small value
 
-def calculate_velocity_yaw(current_pos, waypoint, current_yaw, dt, integral, previous_error, yaw_integral, previous_yaw_error):
-    # For the distance PID control
-    error = 100000*calculate_distance(current_pos, waypoint)
-    # print("error", error)
-    integral += error * dt
-    derivative = (error - previous_error) / (dt + EPSILON)
-    velocity = Kp * error + Ki * integral + Kd * derivative
-    # print("velocity", velocity)
-    # For the yaw PID control
+def calculate_yaw_control(current_pos, current_yaw, waypoint):
     desired_yaw = math.atan2(waypoint[1] - current_pos[1], waypoint[0] - current_pos[0])
     yaw_error = desired_yaw - current_yaw
-    # Ensure yaw_error is between -pi and pi
     yaw_error = (yaw_error + np.pi) % (2 * np.pi) - np.pi
+    
+    Kp_yaw = 0.8
+    Ki_yaw = 0.2
+    Kd_yaw = 0.02
+    yaw_integral = 0  # Initialize this in your global scope if you want integral action
+    previous_yaw_error = 0  # Initialize this in your global scope
+
+    dt = 0.01  # Consider adjusting this as per your needs
     yaw_integral += yaw_error * dt
     yaw_derivative = (yaw_error - previous_yaw_error) / (dt + EPSILON)
-
     yaw_speed = Kp_yaw * yaw_error + Ki_yaw * yaw_integral + Kd_yaw * yaw_derivative
-    return velocity, yaw_speed, error, yaw_error, waypoint, desired_yaw
+    return 0.2, yaw_speed
 
 
 
@@ -182,9 +176,10 @@ if __name__ == '__main__':
                     cmd.gaitType = 1
                     cmd.bodyHeight = 0.1
 
-                    v, y, previous_error, previous_yaw_error, waypoint, desired_yaw = calculate_velocity_yaw(current_pos, waypoint, current_yaw, dt, integral, previous_error, yaw_integral, previous_yaw_error)
+                    # v, y, previous_error, previous_yaw_error, waypoint, desired_yaw = calculate_velocity_yaw(current_pos, waypoint, current_yaw, dt, integral, previous_error, yaw_integral, previous_yaw_error)
                     # print(v)
-                    v = np.clip(v, -0.2, 0.2)
+                    v, y = calculate_yaw_control(current_pos, current_yaw, waypoint)
+
                     cmd.velocity = [v,0]
                     cmd.yawSpeed = y
                     if time.time() - last_print_time >= print_frequency:
@@ -192,7 +187,7 @@ if __name__ == '__main__':
                         print(f"Current Position: {current_pos}")
                         print(f"Current yaw: {current_yaw}")
                         print(f"Sending command velocity: {v}, yaw speed: {y}")
-                        print(f"Goal: {waypoint}, desired_yaw: {desired_yaw}")
+                        # print(f"Goal: {waypoint}, desired_yaw: {desired_yaw}")
                         print(f"Position Error: {previous_error}, Yaw Error: {previous_yaw_error}\n")
                         #print(f"PID error: {previous_error}, integral: {integral}, derivative: {derivative}\n")
 
