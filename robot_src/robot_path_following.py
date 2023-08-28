@@ -25,7 +25,7 @@ next_point = np.array([40.444741, -79.947536])
 
 
 # Set PID gains for the controller
-Kp = 0.8
+Kp = 2
 Ki = 0.2
 Kd = 0.02
 
