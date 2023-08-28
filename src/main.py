@@ -14,7 +14,6 @@ if __name__ == '__main__':
     K = 10  # How many iterations to run MCTS at each step
     N = 5 # Action space and tree width
     L = 3  # Tree length
-    r = 100 # radius of selection
     fov = 86 # Field of View
     rom = 70 # Range of motion
 
@@ -24,7 +23,7 @@ if __name__ == '__main__':
     mcts_instance = MCTS(ETA, GAMMA, N, L, goal, MODEL)
 
     # Initialize Exploration with the MCTS instance
-    explorer_instance = Exploration(mcts_instance, X, K, N, r, fov, rom, MODEL)
+    explorer_instance = Exploration(mcts_instance, X, K, N, fov, rom, MODEL)
 
     # Run the exploration process
     explorer_instance.explore()

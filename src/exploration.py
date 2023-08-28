@@ -14,11 +14,10 @@ class Node:
         self.yaw_angle = yaw_angle  # Yaw angle
 
 class Exploration:
-    def __init__(self, mcts, x, k, n, r, fov, rom, model):
+    def __init__(self, mcts, x, k, n, fov, rom, model):
         self.x = x
         self.k = k
         self.n = n
-        self.r = r
         self.fov = fov
         self.rom = rom
         self.graph = nx.Graph()
@@ -31,6 +30,8 @@ class Exploration:
         self.Q_list = {}  # Dictionary to store Q-values for nodes
 
         self.current_node = None  # Track the current position of the agent
+        threading.Thread(target=socket_client_thread, daemon=True).start() # Start the socket client thread for fetching GPS data
+
 
     """Methods for graph"""
     def add_node_to_graph(self, description, gps, yaw_angle):
@@ -69,25 +70,6 @@ class Exploration:
             self.H[l].append(S_l)
             self.abstract(self.H[l], l+1)
 
-    def action(self) -> None:
-        """Chooses and executes an action based on the Q-values."""
-        # Compute distances to frontier nodes using Euclidean distance
-        current_node_gps = self.current_node.gps
-        nodes_gps_list = [node.gps for node in self.nodes]
-        d_values = compute_euclidean_distances_from_current(current_node_gps, nodes_gps_list)
-        
-        r = self.r
-
-        # Select node with the highest Q-value adjusted by distance
-        self.chosen_node = max(self.nodes, key=lambda node: self.Q_list[str(node.description)] * r / d_values[self.nodes.index(node)])
-
-        # Remove the chosen node from the list of unexplored nodes to prevent revisiting it in future iterations
-        self.nodes.remove(self.chosen_node)
-
-        # Update the current node to be the chosen node
-        self.current_node = self.chosen_node
-        del self.Q_list[str(self.chosen_node.description)]
-
     def is_goal_reached(self, bounding_boxes: List[Tuple[int, int, int, int]]) -> bool:
         screen_area = 384 * 384
         for box in bounding_boxes:
@@ -101,22 +83,19 @@ class Exploration:
         # Initialize current_node at the beginning of exploration
         initial_gps, initial_yaw = get_GPS()
         self.current_node = self.add_node_to_graph("", initial_gps, initial_yaw)
+        
         while True:
             current_gps, current_yaw = get_GPS()  # Fetching the current position and yaw of the agent
             
-            # Capture images at different angles and get their descriptions and bounding boxes
-            curr_nodes_data = []
+            # Capture images at different angles using the integrated function
+            captured_images = capture_images_by_rotate(self.n, self.rom)
 
-            for i in range(self.n):
-                angle_increment = self.rom / self.n
-                angle = current_yaw + i * angle_increment - (self.rom / 2) 
-                print("angle", angle)
-                image = capture_image_at_angle(angle)
-                print('captured one image')
-                if image is not None:
-                    description, bbox = VLM_query(image)
-                    print("VLM set")  
-                    curr_nodes_data.append((description, bbox))
+            # Process the captured images to get their descriptions and bounding boxes
+            curr_nodes_data = []
+            for image in captured_images:
+                description, bbox = VLM_query(image)
+                print("VLM set")  
+                curr_nodes_data.append((description, bbox))
             
             if self.is_goal_reached([bbox for _, bbox in curr_nodes_data]):
                 break
@@ -164,3 +143,23 @@ class Exploration:
                 self.Q_list[str(node)] = self.mcts.Q.get(str(node.description), 0)
                 
             self.action()
+
+    def action(self) -> None:
+        """Chooses and executes an action based on the Q-values."""
+        # Compute distances to frontier nodes using Euclidean distance
+        current_node_gps = self.current_node.gps
+        nodes_gps_list = [node.gps for node in self.nodes]
+        d_values = compute_euclidean_distances_from_current(current_node_gps, nodes_gps_list)
+        
+        # Select node with the highest Q-value adjusted by distance
+        self.chosen_node = max(self.nodes, key=lambda node: self.Q_list[str(node.description)] / d_values[self.nodes.index(node)])
+
+        # Remove the chosen node from the list of unexplored nodes to prevent revisiting it in future iterations
+        self.nodes.remove(self.chosen_node)
+
+        # Make the robot move to the chosen node's location
+        move_to_next_point(current_position=current_node_gps, next_position=self.chosen_node.gps)
+
+        # Update the current node to be the chosen node
+        self.current_node = self.chosen_node
+        del self.Q_list[str(self.chosen_node.description)]
