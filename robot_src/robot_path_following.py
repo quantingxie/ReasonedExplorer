@@ -104,7 +104,7 @@ EPSILON = 1e-6  # A small value
 
 def calculate_yaw_control(current_pos, current_yaw, waypoint):
     position_error = calculate_distance(current_pos, waypoint)
-    desired_yaw = math.atan2(waypoint[1] - current_pos[1], waypoint[0] - current_pos[0])
+    desired_yaw = math.atan2(abs(waypoint[1] - current_pos[1]), waypoint[0] - current_pos[0])
     yaw_error = desired_yaw - current_yaw
     yaw_error = (yaw_error + np.pi) % (2 * np.pi) - np.pi
     
