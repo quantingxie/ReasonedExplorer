@@ -19,7 +19,9 @@ current_lat = None
 current_lon = None
 
 # Set desired path as a list of (x, y) waypoints
-relative_path = np.array([[0.0, 0.0], [1.0, 0.0], [0.0, 0.0]])
+relative_path = np.array([[0, 0], [1.0, 0.0], [0.0, 0.0]])
+next_point = np.array([40.444741, -79.947536])
+
 
 
 # Set PID gains for the controller
@@ -140,10 +142,10 @@ if __name__ == '__main__':
     current_x, current_y = [], []
     errors, yaw_errors, times = [], [], []
     try:
-        for relative_point in relative_path:
-            print(f"relative point x {relative_point[0]}, relative point y {relative_point[1]}")
-            waypoint = convert_relative_to_gps(initial_lat, initial_lon, relative_point[0], relative_point[1])            
-            
+        # for relative_point in relative_path:
+        #     print(f"relative point x {relative_point[0]}, relative point y {relative_point[1]}")
+        #     waypoint = convert_relative_to_gps(initial_lat, initial_lon, relative_point[0], relative_point[1])            
+            waypoint = next_point
             while True:
                 try:
                     udp.Recv()
