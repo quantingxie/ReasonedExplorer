@@ -85,9 +85,9 @@ def convert_relative_to_gps(init_lat, init_lon, dx, dy):
 # Define function for distance calculation
 def calculate_distance(pos1, pos2):
     dist = math.sqrt((pos1[0]-pos2[0])**2 + (pos1[1]-pos2[1])**2)
-    print("Distance threshold: ")
-    print(dist)
-    print("==========================================")
+    # print("Distance threshold: ")
+    # print(dist)
+    # print("==========================================")
     return dist
 
 EPSILON = 1e-6  # A small value
