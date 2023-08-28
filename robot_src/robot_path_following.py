@@ -213,7 +213,7 @@ if __name__ == '__main__':
                     # Depending on the error, you might want to break out of the control loop
                     break
                 
-                if calculate_distance(current_pos, waypoint) < 0.1:  # If the robot is close enough to the waypoint, break the loop
+                if calculate_distance(current_pos, waypoint) < 0.1/100000:  # If the robot is close enough to the waypoint, break the loop
                     break
     except KeyboardInterrupt:
         print("Interrupted by user, stopping the robot...")
