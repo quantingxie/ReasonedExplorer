@@ -156,6 +156,8 @@ if __name__ == '__main__':
                     if current_lat is not None and current_lon is not None:
                         #current_pos = np.array([current_lat, current_lon])
                          current_pos = convert_relative_to_gps(current_lat, current_lon, 0,0)
+                         current_pos = np.array([current_lat, current_lon])
+
                     else:
                         print("No GPS data yet")
                         time.sleep(0.1)  # Give some time for GPS data to arrive
