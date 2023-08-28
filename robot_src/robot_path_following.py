@@ -103,6 +103,7 @@ def calculate_distance(pos1, pos2):
 EPSILON = 1e-6  # A small value
 
 def calculate_yaw_control(current_pos, current_yaw, waypoint):
+    position_error = calculate_distance(current_pos, waypoint)
     desired_yaw = math.atan2(waypoint[1] - current_pos[1], waypoint[0] - current_pos[0])
     yaw_error = desired_yaw - current_yaw
     yaw_error = (yaw_error + np.pi) % (2 * np.pi) - np.pi
@@ -117,7 +118,7 @@ def calculate_yaw_control(current_pos, current_yaw, waypoint):
     yaw_integral += yaw_error * dt
     yaw_derivative = (yaw_error - previous_yaw_error) / (dt + EPSILON)
     yaw_speed = Kp_yaw * yaw_error + Ki_yaw * yaw_integral + Kd_yaw * yaw_derivative
-    return 0.2, yaw_speed
+    return 0.2, yaw_speed, yaw_error, position_error
 
 
 
@@ -179,7 +180,7 @@ if __name__ == '__main__':
 
                     # v, y, previous_error, previous_yaw_error, waypoint, desired_yaw = calculate_velocity_yaw(current_pos, waypoint, current_yaw, dt, integral, previous_error, yaw_integral, previous_yaw_error)
                     # print(v)
-                    v, y = calculate_yaw_control(current_pos, current_yaw, waypoint)
+                    v, y, yaw_error, position_error = calculate_yaw_control(current_pos, current_yaw, waypoint)
 
                     cmd.velocity = [v,0]
                     cmd.yawSpeed = y
@@ -189,7 +190,7 @@ if __name__ == '__main__':
                         print(f"Current yaw: {current_yaw}")
                         print(f"Sending command velocity: {v}, yaw speed: {y}")
                         # print(f"Goal: {waypoint}, desired_yaw: {desired_yaw}")
-                        print(f"Position Error: {previous_error}, Yaw Error: {previous_yaw_error}\n")
+                        print(f"Position Error: {position_error}, Yaw Error: {yaw_error}\n")
                         #print(f"PID error: {previous_error}, integral: {integral}, derivative: {derivative}\n")
 
                         last_print_time = time.time()  # Update the last print time
