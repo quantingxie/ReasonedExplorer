@@ -62,34 +62,35 @@ def socket_client_thread():
         
             if initial_lat is None and initial_lon is None:
                 initial_lat, initial_lon = lat, lon
-def convert_relative_to_gps(init_lat, init_lon, dx, dy):
-    # Define the coordinate systems
-    wgs84 = CRS('EPSG:4326')  # WGS84 geographic CRS (lat/lon)
-    utm = CRS('EPSG:32632')  # Or whatever UTM zone is relevant
 
-    if init_lat is None or init_lon is None:
-        print("latitude or longitude is None!")
-        return None, None
+# def convert_relative_to_gps(init_lat, init_lon, dx, dy):
+#     # Define the coordinate systems
+#     wgs84 = CRS('EPSG:4326')  # WGS84 geographic CRS (lat/lon)
+#     utm = CRS('EPSG:32632')  # Or whatever UTM zone is relevant
 
-    # Convert initial point to UTM
-    transformer_to_utm = Transformer.from_crs(wgs84, utm)
-    #print(f"Initial latitude: {init_lat}, type: {type(init_lat)}")
-    #print(f"Initial longitude: {init_lon}, type: {type(init_lon)}")
-    x, y = transformer_to_utm.transform(init_lat, init_lon)
+#     if init_lat is None or init_lon is None:
+#         print("latitude or longitude is None!")
+#         return None, None
 
-    # Add the relative distances
-    #print(f"x {x}, y {y}")
-    x += dx
-    y += dy
+#     # Convert initial point to UTM
+#     transformer_to_utm = Transformer.from_crs(wgs84, utm)
+#     #print(f"Initial latitude: {init_lat}, type: {type(init_lat)}")
+#     #print(f"Initial longitude: {init_lon}, type: {type(init_lon)}")
+#     x, y = transformer_to_utm.transform(init_lat, init_lon)
+
+#     # Add the relative distances
+#     #print(f"x {x}, y {y}")
+#     x += dx
+#     y += dy
     
-    #print(f"goal x {x}, goal y {y}, dx {dx}, dy {dy}")
-    transformer_to_wgs84 = Transformer.from_crs(utm, wgs84)
-    # Convert the new point back to lat and lon
-    lat, lon = transformer_to_wgs84.transform(x, y)
+#     #print(f"goal x {x}, goal y {y}, dx {dx}, dy {dy}")
+#     transformer_to_wgs84 = Transformer.from_crs(utm, wgs84)
+#     # Convert the new point back to lat and lon
+#     lat, lon = transformer_to_wgs84.transform(x, y)
     
-    #print(f"Goal latitude and longitude: ({lat}, {lon})")  # New print statement
+#     #print(f"Goal latitude and longitude: ({lat}, {lon})")  # New print statement
     
-    return x, y
+#     return x, y
 
 # Define function for distance calculation
 def calculate_distance(pos1, pos2):
@@ -162,7 +163,7 @@ if __name__ == '__main__':
                     # Update position from state data or GPS data
                     if current_lat is not None and current_lon is not None:
                         #current_pos = np.array([current_lat, current_lon])
-                         current_pos = convert_relative_to_gps(current_lat, current_lon, 0,0)
+                        #  current_pos = convert_relative_to_gps(current_lat, current_lon, 0,0)
                          current_pos = np.array([current_lat, current_lon])
 
                     else:
