@@ -85,19 +85,15 @@ class Exploration:
         while True:
             current_gps, current_yaw = get_GPS()  # Fetching the current position and yaw of the agent
             
-            # Capture images at different angles using the integrated function
             captured_images = self.capture_images_by_rotate(self.n, self.rom)
 
-            # Process the captured images to get their descriptions and bounding boxes
             curr_nodes_data = []
             reached_goal = False
             for image in captured_images:
                 description, found = VLM_query(image)
-                print("VLM set")  
                 curr_nodes_data.append((description, found))
                 if found:
                     reached_goal=True
-            
             if reached_goal:
                 break
 
