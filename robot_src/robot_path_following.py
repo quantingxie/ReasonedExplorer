@@ -77,7 +77,7 @@ def calculate_yaw_control(current_pos, current_yaw, waypoint):
     yaw_integral += yaw_error * dt
     yaw_derivative = (yaw_error - previous_yaw_error) / (dt + EPSILON)
     yaw_speed = Kp_yaw * yaw_error + Ki_yaw * yaw_integral + Kd_yaw * yaw_derivative
-    return 0.2, yaw_speed, yaw_error, position_error
+    return 0.2, yaw_speed, yaw_error, position_error, desired_yaw
 
 
 
@@ -137,7 +137,7 @@ if __name__ == '__main__':
                     cmd.gaitType = 1
                     cmd.bodyHeight = 0.1
 
-                    v, y, yaw_error, position_error = calculate_yaw_control(current_pos, current_yaw, waypoint)
+                    v, y, yaw_error, position_error, desired_yaw = calculate_yaw_control(current_pos, current_yaw, waypoint)
 
                     cmd.velocity = [v,0]
                     cmd.yawSpeed = y
