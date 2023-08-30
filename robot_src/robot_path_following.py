@@ -22,7 +22,6 @@ current_lon = None
 relative_path = np.array([[0, 0], [1.0, 0.0], [0.0, 0.0]])
 next_point = np.array([40.443669, -79.944086])
 
-yaw_offset = math.radians(221) 
 
 # Set PID gains for the controller
 Kp_yaw = 0.8
@@ -59,6 +58,8 @@ def calculate_distance(pos1, pos2):
     return dist
 
 EPSILON = 1e-6  # A small value
+
+yaw_offset = math.radians(221) 
 
 def calculate_yaw_control(current_pos, current_yaw, waypoint):
     position_error = calculate_distance(current_pos, waypoint)
@@ -141,6 +142,9 @@ if __name__ == '__main__':
                     cmd.yawSpeed = y
                     if time.time() - last_print_time >= print_frequency:
                         #print(f"Command Velocity: {cmd.velocity}")
+                        print(f"Raw Yaw (from IMU): {math.degrees(raw_yaw)} degrees")
+                        print(f"Corrected Yaw: {math.degrees(current_yaw)} degrees")
+                        print(f"Desired Yaw (to waypoint): {math.degrees(desired_yaw)} degrees")
                         print(f"Current Position: {current_pos}")
                         print(f"Current yaw: {current_yaw}")
                         print(f"Sending command velocity: {v}, yaw speed: {y}")
