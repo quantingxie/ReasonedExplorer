@@ -51,48 +51,18 @@ def socket_client_thread():
             if initial_lat is None and initial_lon is None:
                 initial_lat, initial_lon = lat, lon
 
-# def convert_relative_to_gps(init_lat, init_lon, dx, dy):
-#     # Define the coordinate systems
-#     wgs84 = CRS('EPSG:4326')  # WGS84 geographic CRS (lat/lon)
-#     utm = CRS('EPSG:32632')  # Or whatever UTM zone is relevant
 
-#     if init_lat is None or init_lon is None:
-#         print("latitude or longitude is None!")
-#         return None, None
-
-#     # Convert initial point to UTM
-#     transformer_to_utm = Transformer.from_crs(wgs84, utm)
-#     #print(f"Initial latitude: {init_lat}, type: {type(init_lat)}")
-#     #print(f"Initial longitude: {init_lon}, type: {type(init_lon)}")
-#     x, y = transformer_to_utm.transform(init_lat, init_lon)
-
-#     # Add the relative distances
-#     #print(f"x {x}, y {y}")
-#     x += dx
-#     y += dy
-    
-#     #print(f"goal x {x}, goal y {y}, dx {dx}, dy {dy}")
-#     transformer_to_wgs84 = Transformer.from_crs(utm, wgs84)
-#     # Convert the new point back to lat and lon
-#     lat, lon = transformer_to_wgs84.transform(x, y)
-    
-#     #print(f"Goal latitude and longitude: ({lat}, {lon})")  # New print statement
-    
-#     return x, y
 
 # Define function for distance calculation
 def calculate_distance(pos1, pos2):
     dist = math.sqrt((pos1[0]-pos2[0])**2 + (pos1[1]-pos2[1])**2)
-    # print("Distance threshold: ")
-    # print(dist)
-    # print("==========================================")
     return dist
 
 EPSILON = 1e-6  # A small value
 
 def calculate_yaw_control(current_pos, current_yaw, waypoint):
     position_error = calculate_distance(current_pos, waypoint)
-    desired_yaw = math.atan2(abs(waypoint[1] - current_pos[1]), waypoint[0] - current_pos[0])
+    desired_yaw = math.atan2(waypoint[1] - current_pos[1], waypoint[0] - current_pos[0])
     yaw_error = desired_yaw - current_yaw
     yaw_error = (yaw_error + np.pi) % (2 * np.pi) - np.pi
     
@@ -138,10 +108,7 @@ if __name__ == '__main__':
     path_x, path_y = [], []
     current_x, current_y = [], []
     errors, yaw_errors, times = [], [], []
-    try:
-        # for relative_point in relative_path:
-        #     print(f"relative point x {relative_point[0]}, relative point y {relative_point[1]}")
-        #     waypoint = convert_relative_to_gps(initial_lat, initial_lon, relative_point[0], relative_point[1])            
+    try:            
             waypoint = next_point
             while True:
                 try:
@@ -166,8 +133,6 @@ if __name__ == '__main__':
                     cmd.gaitType = 1
                     cmd.bodyHeight = 0.1
 
-                    # v, y, previous_error, previous_yaw_error, waypoint, desired_yaw = calculate_velocity_yaw(current_pos, waypoint, current_yaw, dt, integral, previous_error, yaw_integral, previous_yaw_error)
-                    # print(v)
                     v, y, yaw_error, position_error = calculate_yaw_control(current_pos, current_yaw, waypoint)
 
                     cmd.velocity = [v,0]
