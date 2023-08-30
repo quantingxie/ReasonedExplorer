@@ -29,19 +29,7 @@ Kp_yaw = 0.8
 Ki_yaw = 0.2
 Kd_yaw = 0.02
 
-def dms_to_dd(dms):
-    if dms<0:
-        dms=abs(dms)
-        degrees = math.floor(abs(dms))  # Extract whole number as degrees
-        fractional = abs(dms) - abs(degrees)  # Extract the fractional part
-        minutes = fractional * 100 /60  # Extract whole number from the fractional part as minutes
-        return -(degrees+minutes)
-    else:
-        degrees = math.floor(dms)  # Extract whole number as degrees
-        fractional = dms - degrees  # Extract the fractional part
-        minutes = fractional * 100 /60  # Extract whole number from the fractional part as minutes
-        return degrees+minutes
-    
+
 def socket_client_thread():
     global initial_lat, initial_lon, current_lat, current_lon
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -58,7 +46,7 @@ def socket_client_thread():
             # Convert received data to tuple and extract lat and lon
             lat, lon = eval(received_data)
         
-            current_lat, current_lon = dms_to_dd(lat), -dms_to_dd(lon)
+            current_lat, current_lon = lat, -lon
         
             if initial_lat is None and initial_lon is None:
                 initial_lat, initial_lon = lat, lon

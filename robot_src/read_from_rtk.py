@@ -1,51 +1,53 @@
 import os
 import socket
 import serial
+import math
 
-# port = '/dev/serial/by-id/usb-u-blox_AG_-_www.u-blox.com_u-blox_GNSS_receiver-if00'
 port = '/dev/ttyUSB0'
-# baud_rate = 9600
-baud_rate = 38400 # default value from manufacturer
+baud_rate = 38400
 timeout = 1
-host = '127.0.0.1'  # Local host
-socket_port = 12345  # Ensure the port is available
+host = '127.0.0.1'
+socket_port = 12345
 
 ser = None
 serversocket = None
+
+def dms_to_dd(dms):
+    if dms < 0:
+        dms = abs(dms)
+        degrees = math.floor(abs(dms))
+        fractional = abs(dms) - abs(degrees)
+        minutes = fractional * 100 / 60
+        return -(degrees + minutes)
+    else:
+        degrees = math.floor(dms)
+        fractional = dms - degrees
+        minutes = fractional * 100 / 60
+        return degrees + minutes
 
 try:
     if os.path.exists(port):
         ser = serial.Serial(port, baud_rate, timeout=timeout)
 
-        # Create a socket object
         serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         serversocket.bind((host, socket_port))
-        serversocket.listen(5)  # Queue up to 5 requests
-
+        serversocket.listen(5)
         print("Server listening...")
 
-        # Establish a connection
         clientsocket, addr = serversocket.accept()
-
         print(f"Got a connection from {str(addr)}")
-        
+
         with open('send_gps_data_log.txt', 'w') as f:
-    
             while True:
-                line = ser.readline()
-                try:
-                    # line = line.decode('ISO-8859-1').strip()
-                    line = ser.readline().decode('ascii', errors='replace').strip()
-                    if line.startswith('$GNGLL'):
-                        split_line = line.split(',')
-                        lat = str(float(split_line[1])/100)
-                        lon = str(float(split_line[3])/100)
-                        f.write(lat + ',' + lon + '\n')
-                        print(f"({lat}, {lon})".encode('utf-8'))
-                        clientsocket.send(f"({lat}, {lon})".encode('utf-8'))
-                except UnicodeDecodeError:
-                    print('Could not decode line, moving to next line.')
+                line = ser.readline().decode('ascii', errors='replace').strip()
+                if line.startswith('$GNGLL'):
+                    split_line = line.split(',')
+                    lat = dms_to_dd(float(split_line[1])/100)
+                    lon = dms_to_dd(float(split_line[3])/100)
+                    f.write(f"{lat},{lon}\n")
+                    print(f"({lat}, {lon})".encode('utf-8'))
+                    clientsocket.send(f"({lat}, {lon})".encode('utf-8'))
     else:
         print(f"Serial port {port} does not exist.")
 
