@@ -152,8 +152,8 @@ if __name__ == '__main__':
                     current_y.append(current_pos[1])
                     path_x.append(waypoint[0])
                     path_y.append(waypoint[1])
-                    errors.append(previous_error)
-                    yaw_errors.append(previous_yaw_error)
+                    errors.append(position_error)
+                    yaw_errors.append(yaw_error)
                     times.append(time.time())
 
                     udp.SetSend(cmd)
