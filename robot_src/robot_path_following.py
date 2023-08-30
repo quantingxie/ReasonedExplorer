@@ -129,7 +129,8 @@ if __name__ == '__main__':
                         continue
 
                     # current_yaw = state.imu.rpy[2]  # Get the current yaw from the state data
-                    current_yaw = state.imu.rpy[2] - yaw_offset
+                    raw_yaw = state.imu.rpy[2]  # Get the raw yaw from the state data before correcting it
+                    current_yaw = raw_yaw - yaw_offset
                     current_yaw = (current_yaw + np.pi) % (2 * np.pi) - np.pi
 
                     cmd.mode = 2
