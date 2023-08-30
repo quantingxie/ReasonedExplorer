@@ -59,11 +59,13 @@ def calculate_distance(pos1, pos2):
 
 EPSILON = 1e-6  # A small value
 
-yaw_offset = math.radians(29) 
+# yaw_offset = math.radians(29) 
 
 def calculate_yaw_control(current_pos, current_yaw, waypoint):
     position_error = calculate_distance(current_pos, waypoint)
     desired_yaw = math.atan2(waypoint[1] - current_pos[1], waypoint[0] - current_pos[0])
+    desired_yaw = desired_yaw - np.pi/2 # Make north the positive direction
+    desired_yaw = (desired_yaw + np.pi) % (2 * np.pi) - np.pi # Wrap between -pi to pi. 
     yaw_error = desired_yaw - current_yaw
     yaw_error = (yaw_error + np.pi) % (2 * np.pi) - np.pi
     
@@ -130,8 +132,9 @@ if __name__ == '__main__':
 
                     # current_yaw = state.imu.rpy[2]  # Get the current yaw from the state data
                     raw_yaw = state.imu.rpy[2]  # Get the raw yaw from the state data before correcting it
-                    current_yaw = raw_yaw + yaw_offset
+                    current_yaw = raw_yaw #+ yaw_offset
                     current_yaw = (current_yaw + np.pi) % (2 * np.pi) - np.pi
+                    print(f"Raw Yaw (from IMU): {math.degrees(raw_yaw)} degrees")
 
                     cmd.mode = 2
                     cmd.gaitType = 1
