@@ -20,7 +20,7 @@ current_lon = None
 
 # Set desired path as a list of (x, y) waypoints
 relative_path = np.array([[0, 0], [1.0, 0.0], [0.0, 0.0]])
-next_point = np.array([40.443988, -79.943702])
+next_point = np.array([40.443669, -79.944086])
 
 
 
