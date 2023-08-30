@@ -22,7 +22,7 @@ current_lon = None
 relative_path = np.array([[0, 0], [1.0, 0.0], [0.0, 0.0]])
 next_point = np.array([40.443669, -79.944086])
 
-
+yaw_offset = math.radians(221) 
 
 # Set PID gains for the controller
 Kp_yaw = 0.8
@@ -127,8 +127,10 @@ if __name__ == '__main__':
                         time.sleep(0.1)  # Give some time for GPS data to arrive
                         continue
 
-                    current_yaw = state.imu.rpy[2]  # Get the current yaw from the state data
-                    
+                    # current_yaw = state.imu.rpy[2]  # Get the current yaw from the state data
+                    current_yaw = state.imu.rpy[2] - yaw_offset
+                    current_yaw = (current_yaw + np.pi) % (2 * np.pi) - np.pi
+
                     cmd.mode = 2
                     cmd.gaitType = 1
                     cmd.bodyHeight = 0.1
