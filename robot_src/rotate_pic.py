@@ -31,7 +31,8 @@ def capture_images_by_rotate(n: int, range_of_motion=20) -> list:
 
         udp.SetSend(cmd)
         udp.Send()
-        time.sleep(1)
+
+        time.sleep(0.5)
 
         angle_in_degrees = math.degrees(yaw_angle)
         print("current angle",angle_in_degrees)
@@ -39,10 +40,10 @@ def capture_images_by_rotate(n: int, range_of_motion=20) -> list:
         if image is not None:
             captured_images.append(image)
 
-    # Reset the robot's position after capturing all images
-    cmd.euler = [0, 0, 0]
-    udp.SetSend(cmd)
-    udp.Send()
+    # # Reset the robot's position after capturing all images
+    # cmd.euler = [0, 0, 0]
+    # udp.SetSend(cmd)
+    # udp.Send()
 
     return captured_images
 
