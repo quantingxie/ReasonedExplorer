@@ -146,9 +146,9 @@ if __name__ == '__main__':
 
                     # current_yaw = state.imu.rpy[2]  # Get the current yaw from the state data
                     raw_yaw = state.imu.rpy[2]  # Get the raw yaw from the state data before correcting it
-                    current_yaw = raw_yaw #+ yaw_offset
+                    current_yaw = raw_yaw + yaw_offset
                     current_yaw = (current_yaw + np.pi) % (2 * np.pi) - np.pi
-                    print(f"Raw Yaw (from IMU): {math.degrees(raw_yaw)} degrees")
+                    # print(f"Raw Yaw (from IMU): {math.degrees(raw_yaw)} degrees")
 
                     cmd.mode = 2
                     cmd.gaitType = 1
