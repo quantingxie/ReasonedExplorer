@@ -57,7 +57,10 @@ def calculate_distance(pos1, pos2):
     dist = math.sqrt((pos1[0]-pos2[0])**2 + (pos1[1]-pos2[1])**2)
     return dist
 
-def haversine_distance(lat1, lon1, lat2, lon2):
+def haversine_distance(current, waypoint):
+    lat1, lon1 = current
+    lat2, lon2 = waypoint
+    
     R = 6371e3  # Earth radius in meters
     d_lat = math.radians(lat2 - lat1)
     d_lon = math.radians(lon2 - lon1)
@@ -66,6 +69,7 @@ def haversine_distance(lat1, lon1, lat2, lon2):
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     
     return R * c
+
 
 EPSILON = 1e-6  # A small value
 
