@@ -72,8 +72,8 @@ def haversine_distance(current, waypoint):
 
 EPSILON = 1e-6  # A small value
 
-yaw_offset = math.radians(-51) 
-next_point = np.array([40.443669, -79.944086])
+yaw_offset = math.radians(-66) 
+next_point = np.array([40.443656, -79.944091])
 curret_pos = ([40.443681, 79.944285])
 def calculate_yaw_control(current_pos, current_yaw, waypoint):
     position_error = haversine_distance(current_pos, waypoint)
@@ -160,15 +160,14 @@ if __name__ == '__main__':
 
                     v, y, yaw_error, position_error, desired_yaw = calculate_yaw_control(current_pos, current_yaw, waypoint)
 
-                    cmd.velocity = [0,0]
-                    cmd.yawSpeed = 0
+                    cmd.velocity = [v,0]
+                    cmd.yawSpeed = y
                     if time.time() - last_print_time >= print_frequency:
                         #print(f"Command Velocity: {cmd.velocity}")
                         print(f"Raw Yaw (from IMU): {math.degrees(raw_yaw)} degrees")
                         print(f"Corrected Yaw: {math.degrees(current_yaw)} degrees")
                         print(f"Desired Yaw (to waypoint): {math.degrees(desired_yaw)} degrees")
                         print(f"Current Position: {current_pos}")
-                        print(f"Current yaw: {current_yaw}")
                         print(f"Sending command velocity: {v}, yaw speed: {y}")
                         # print(f"Goal: {waypoint}, desired_yaw: {desired_yaw}")
                         print(f"Position Error: {position_error}, Yaw Error: {yaw_error}\n")
