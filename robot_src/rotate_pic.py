@@ -18,10 +18,10 @@ def capture_images_by_rotate(n: int, range_of_motion=20) -> list:
 
     # Calculate min_angle and max_angle based on range_of_motion in radians
     min_angle = -range_of_motion_radians / 2
-    print("min_angle",min_angle)
+    print("min_angle",math.degrees(min_angle))
     # Calculate the angle increment in radians
     angle_increment = range_of_motion_radians / n
-    print("increment", angle_increment)
+    print("increment", math.degrees(angle_increment))
     # Capture images while rotating from the left to right (from min_angle to max_angle)
     for i in range(n):
         yaw_angle = min_angle + i * angle_increment
@@ -46,8 +46,8 @@ def capture_images_by_rotate(n: int, range_of_motion=20) -> list:
 
     return captured_images
 
-n = 5
-rom = 70
+n = 6
+rom = 50
 
 captured_images = capture_images_by_rotate(n, rom)
 
