@@ -1,7 +1,7 @@
 import cv2
 
 def capture_image_at_angle(angle):
-    camera = cv2.VideoCapture(1)
+    camera = cv2.VideoCapture(0)
     if not camera.isOpened():
         print("Error: Could not open camera.")
         return
