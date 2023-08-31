@@ -24,7 +24,7 @@ next_point = np.array([40.443669, -79.944086])
 
 
 # Set PID gains for the controller
-Kp_yaw = 0.8
+Kp_yaw = 0.4
 Ki_yaw = 0.2
 Kd_yaw = 0.02
 
@@ -57,12 +57,22 @@ def calculate_distance(pos1, pos2):
     dist = math.sqrt((pos1[0]-pos2[0])**2 + (pos1[1]-pos2[1])**2)
     return dist
 
+def haversine_distance(lat1, lon1, lat2, lon2):
+    R = 6371e3  # Earth radius in meters
+    d_lat = math.radians(lat2 - lat1)
+    d_lon = math.radians(lon2 - lon1)
+    
+    a = math.sin(d_lat / 2) * math.sin(d_lat / 2) + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(d_lon / 2) * math.sin(d_lon / 2)
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    
+    return R * c
+
 EPSILON = 1e-6  # A small value
 
-# yaw_offset = math.radians(29) 
+yaw_offset = math.radians(-51) 
 
 def calculate_yaw_control(current_pos, current_yaw, waypoint):
-    position_error = calculate_distance(current_pos, waypoint)
+    position_error = haversine_distance(current_pos, waypoint)
     desired_yaw = math.atan2(waypoint[1] - current_pos[1], waypoint[0] - current_pos[0])
     desired_yaw = desired_yaw - np.pi/2 # Make north the positive direction
     desired_yaw = (desired_yaw + np.pi) % (2 * np.pi) - np.pi # Wrap between -pi to pi. 
@@ -173,8 +183,9 @@ if __name__ == '__main__':
                     # Depending on the error, you might want to break out of the control loop
                     break
                 
-                if calculate_distance(current_pos, waypoint) < 0.1/100000:  # If the robot is close enough to the waypoint, break the loop
+                if haversine_distance(current_pos, waypoint) < 1.0:  # If the robot is close enough to the waypoint, break the loop
                     break
+
     except KeyboardInterrupt:
         print("Interrupted by user, stopping the robot...")
     
