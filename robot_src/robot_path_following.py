@@ -160,8 +160,8 @@ if __name__ == '__main__':
 
                     v, y, yaw_error, position_error, desired_yaw = calculate_yaw_control(current_pos, current_yaw, waypoint)
 
-                    cmd.velocity = [v,0]
-                    cmd.yawSpeed = y
+                    cmd.velocity = [0,0]
+                    cmd.yawSpeed = 0
                     if time.time() - last_print_time >= print_frequency:
                         #print(f"Command Velocity: {cmd.velocity}")
                         print(f"Raw Yaw (from IMU): {math.degrees(raw_yaw)} degrees")
