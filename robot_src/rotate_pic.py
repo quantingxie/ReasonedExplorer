@@ -25,7 +25,7 @@ def capture_images_by_rotate(n: int, range_of_motion=20) -> list:
     # Capture images while rotating from the left to right (from min_angle to max_angle)
     for i in range(n):
         yaw_angle = min_angle + i * angle_increment
-
+        print("yaw", yaw_angle)
         cmd.euler = [0, 0, yaw_angle]
         cmd.mode = 1
 
@@ -47,7 +47,7 @@ def capture_images_by_rotate(n: int, range_of_motion=20) -> list:
     return captured_images
 
 n = 6
-rom = 50
+rom = 30
 
 captured_images = capture_images_by_rotate(n, rom)
 
