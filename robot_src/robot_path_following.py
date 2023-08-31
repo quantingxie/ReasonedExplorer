@@ -72,7 +72,7 @@ def haversine_distance(current, waypoint):
 
 EPSILON = 1e-6  # A small value
 
-yaw_offset = math.radians(-66) 
+yaw_offset = math.radians(-96) 
 next_point = np.array([40.443656, -79.944091])
 curret_pos = ([40.443681, 79.944285])
 def calculate_yaw_control(current_pos, current_yaw, waypoint):
