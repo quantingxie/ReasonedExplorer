@@ -2,7 +2,7 @@ import math
 import time
 from capture_image import capture_image_at_angle
 import robot_interface as sdk
-
+from src.VLM import VLM_query
 
 HIGHLEVEL = 0xee
 udp = sdk.UDP(HIGHLEVEL, 8080, "192.168.123.161", 8082)
@@ -11,7 +11,7 @@ state = sdk.HighState()
 udp.InitCmdData(cmd)
 
 
-def capture_images_by_rotate(n: int, range_of_motion=70) -> list:
+def capture_images_by_rotate(n: int, range_of_motion=50) -> list:
     captured_images = []
 
     # Calculate min_angle and max_angle based on range_of_motion
@@ -30,7 +30,7 @@ def capture_images_by_rotate(n: int, range_of_motion=70) -> list:
 
         udp.SetSend(cmd)
         udp.Send()
-        time.sleep(1)
+        time.sleep(100)
 
         angle_in_degrees = math.degrees(yaw_angle)
         image = capture_image_at_angle(angle_in_degrees)
@@ -52,7 +52,7 @@ def capture_images_by_rotate(n: int, range_of_motion=70) -> list:
 
         udp.SetSend(cmd)
         udp.Send()
-        time.sleep(1)
+        time.sleep(100)
 
         angle_in_degrees = math.degrees(yaw_angle)
         image = capture_image_at_angle(angle_in_degrees)
