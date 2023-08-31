@@ -2,7 +2,7 @@ HIGHLEVEL = 0xee
 import robot_interface as sdk
 
 
-yaw_angle = 10
+yaw_angle = 2
 
 
 udp = sdk.UDP(HIGHLEVEL, 8080, "192.168.123.161", 8082)
