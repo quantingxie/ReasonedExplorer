@@ -11,6 +11,7 @@ prompt2 = "<image>0</image><grounding>list all objects in the image <phrase>"
 goal = "woman"
 threshold=0.05
 
+
 def VLM_query(image_path):
     image_file = {'image': open(image_path, 'rb')}
     try:
