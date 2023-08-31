@@ -31,7 +31,7 @@ def capture_images_by_rotate(n: int, range_of_motion=20) -> list:
 
         udp.SetSend(cmd)
         udp.Send()
-        time.sleep(1000)
+        time.sleep(1)
 
         angle_in_degrees = math.degrees(yaw_angle)
         print("current angle",angle_in_degrees)
