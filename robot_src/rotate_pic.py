@@ -10,7 +10,7 @@ cmd = sdk.HighCmd()
 state = sdk.HighState()
 udp.InitCmdData(cmd)
 
-def capture_images_by_rotate(n: int, range_of_motion=50) -> list:
+def capture_images_by_rotate(n: int, range_of_motion=20) -> list:
     captured_images = []
 
     # Convert range_of_motion to radians
@@ -18,10 +18,10 @@ def capture_images_by_rotate(n: int, range_of_motion=50) -> list:
 
     # Calculate min_angle and max_angle based on range_of_motion in radians
     min_angle = -range_of_motion_radians / 2
-    
+    print("min_angle",min_angle)
     # Calculate the angle increment in radians
     angle_increment = range_of_motion_radians / n
-
+    print("increment", angle_increment)
     # Capture images while rotating from the left to right (from min_angle to max_angle)
     for i in range(n):
         yaw_angle = min_angle + i * angle_increment
@@ -34,6 +34,7 @@ def capture_images_by_rotate(n: int, range_of_motion=50) -> list:
         time.sleep(1000)
 
         angle_in_degrees = math.degrees(yaw_angle)
+        print("current angle",angle_in_degrees)
         image = capture_image_at_angle(angle_in_degrees)
         if image is not None:
             captured_images.append(image)
