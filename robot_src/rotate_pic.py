@@ -16,35 +16,40 @@ def capture_images_by_rotate(n: int, range_of_motion=20) -> list:
     # Convert range_of_motion to radians
     range_of_motion_radians = math.radians(range_of_motion)
 
-    # Calculate min_angle and max_angle based on range_of_motion in radians
+    # Calculate min_angle based on range_of_motion in radians
     min_angle = -range_of_motion_radians / 2
-    print("min_angle",math.degrees(min_angle))
+
     # Calculate the angle increment in radians
     angle_increment = range_of_motion_radians / n
-    print("increment", math.degrees(angle_increment))
-    cmd.mode = 0
 
-    # Capture images while rotating from the left to right (from min_angle to max_angle)
-    for i in range(n+1):
-        yaw_angle = min_angle + i * angle_increment
-        print("yaw", yaw_angle)
+    # Initialize motion time and yaw angle
+    motiontime = 0
+    yaw_angle = min_angle
+
+    while motiontime < n:
+        time.sleep(0.002)
+        motiontime += 1
+
+        # Receive current state (Not necessary for your function, but kept for compatibility)
+        udp.Recv()
+        udp.GetRecv(state)
+
+        # Set mode and euler angles for the robot
+        cmd.mode = 1
         cmd.euler = [0, 0, yaw_angle]
 
+        # Send the udp command
         udp.SetSend(cmd)
         udp.Send()
 
-        time.sleep(0.5)
-
+        # Capture image and append it if it's not None
         angle_in_degrees = math.degrees(yaw_angle)
-        print("current angle",angle_in_degrees)
         image = capture_image_at_angle(angle_in_degrees)
         if image is not None:
             captured_images.append(image)
 
-    # # Reset the robot's position after capturing all images
-    # cmd.euler = [0, 0, 0]
-    # udp.SetSend(cmd)
-    # udp.Send()
+        # Update the yaw_angle for the next iteration
+        yaw_angle += angle_increment
 
     return captured_images
 
