@@ -3,7 +3,7 @@ import math  # Importing the math module
 
 HIGHLEVEL = 0xee
 
-yaw_angle_degrees = 2
+yaw_angle_degrees = 20
 yaw_angle_radians = math.radians(yaw_angle_degrees)  # Convert the yaw angle from degrees to radians
 
 udp = sdk.UDP(HIGHLEVEL, 8080, "192.168.123.161", 8082)
