@@ -20,7 +20,6 @@ current_lon = None
 
 # Set desired path as a list of (x, y) waypoints
 relative_path = np.array([[0, 0], [1.0, 0.0], [0.0, 0.0]])
-next_point = np.array([40.443669, -79.944086])
 
 
 # Set PID gains for the controller
@@ -74,12 +73,17 @@ def haversine_distance(current, waypoint):
 EPSILON = 1e-6  # A small value
 
 yaw_offset = math.radians(-51) 
-
+next_point = np.array([40.443669, -79.944086])
+curret_pos = ([40.443681, 79.944285])
 def calculate_yaw_control(current_pos, current_yaw, waypoint):
     position_error = haversine_distance(current_pos, waypoint)
-    desired_yaw = math.atan2(waypoint[1] - current_pos[1], waypoint[0] - current_pos[0])
-    desired_yaw = desired_yaw - np.pi/2 # Make north the positive direction
-    desired_yaw = (desired_yaw + np.pi) % (2 * np.pi) - np.pi # Wrap between -pi to pi. 
+    dlat = waypoint[0] - current_pos[0]
+    dlon = waypoint[1] - current_pos[1]
+
+    desired_yaw = math.atan2(dlat, dlon)
+    desired_yaw = desired_yaw - np.pi/2 
+    desired_yaw = (desired_yaw + np.pi) % (2 * np.pi) - np.pi
+
     yaw_error = desired_yaw - current_yaw
     yaw_error = (yaw_error + np.pi) % (2 * np.pi) - np.pi
     
