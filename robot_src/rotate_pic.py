@@ -2,7 +2,7 @@ import math
 import time
 from capture_image import capture_image_at_angle
 import robot_interface as sdk
-from src.VLM import VLM_query
+from VLM import VLM_query
 
 HIGHLEVEL = 0xee
 udp = sdk.UDP(HIGHLEVEL, 8080, "192.168.123.161", 8082)
