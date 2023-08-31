@@ -53,8 +53,8 @@ def capture_images_by_rotate(n: int, range_of_motion=20) -> list:
 
     return captured_images
 
-n = 6
-rom = 30
+n = 5
+rom = 50
 
 captured_images = capture_images_by_rotate(n, rom)
 
