@@ -3,7 +3,7 @@ import socket
 import serial
 import math
 
-port = '/dev/ttyUSB0'
+port = '/dev/ttyUSB1'
 baud_rate = 38400
 timeout = 1
 host = '127.0.0.1'
