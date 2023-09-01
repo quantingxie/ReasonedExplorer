@@ -5,6 +5,7 @@ import socket
 import time
 import sys
 import math
+import serial
 import robot_interface as sdk
 from pyproj import Proj, Transformer, CRS
 sys.path.append('../lib/python/arm64')
@@ -48,137 +49,24 @@ def get_GPS():
     global current_lat, current_lon
     return current_lat, current_lon
 
+def get_yaw(port='/dev/ttyUSB0', baudrate=9600, timeout=1):
+    with serial.Serial(port, baudrate, timeout=timeout) as ser:
+        while True:
+            line = ser.readline()  # read a line terminated with a newline (\n)
+            try:
+                decoded_line = line.decode('utf-8').strip()
+                if decoded_line.startswith('$PRDID'):
+                    # Split the line by commas
+                    parts = decoded_line.split(',')
+                    # Heading (relative to true north) is the third value in the list
+                    heading = float(parts[2])  # changed from parts[3] to parts[2] as lists are 0-indexed
+                    yield heading
+            except UnicodeDecodeError:
+                # Silently ignore decoding errors
+                pass
+            except Exception as e:
+                print(f"Unexpected error: {e}")
 
-# def capture_images_by_rotate(n: int, range_of_motion=70) -> list:
-#     HIGHLEVEL = 0xee
-#     udp = sdk.UDP(HIGHLEVEL, 8080, "192.168.123.161", 8082)
-#     cmd = sdk.HighCmd()
-#     udp.InitCmdData(cmd)
-
-#     captured_images = []
-
-#     # Calculate min_angle and max_angle based on range_of_motion
-#     min_angle = -range_of_motion / 2
-#     max_angle = range_of_motion / 2
-
-#     # Calculate the angle increment
-#     angle_increment = math.radians(range_of_motion) / n
-
-#     # Capture images while rotating to the left (from 0 to min_angle)
-#     for i in range(0, n//2):  # Half of the images in this direction
-#         yaw_angle = min_angle + i * angle_increment
-
-#         cmd.euler = [0, 0, yaw_angle]
-#         cmd.mode = 1
-
-#         udp.SetSend(cmd)
-#         udp.Send()
-#         time.sleep(1)
-
-#         angle_in_degrees = math.degrees(yaw_angle)
-#         image = capture_image_at_angle(angle_in_degrees)
-#         if image is not None:
-#             captured_images.append(image)
-
-#     # Reset to 0 before moving to the right
-#     cmd.euler = [0, 0, 0]
-#     udp.SetSend(cmd)
-#     udp.Send()
-#     time.sleep(1)
-
-#     # Capture images while rotating to the right (from 0 to max_angle)
-#     for i in range(n//2, n):  # The other half of the images in this direction
-#         yaw_angle = i * angle_increment
-
-#         cmd.euler = [0, 0, yaw_angle]
-#         cmd.mode = 1
-
-#         udp.SetSend(cmd)
-#         udp.Send()
-#         time.sleep(1)
-
-#         angle_in_degrees = math.degrees(yaw_angle)
-#         image = capture_image_at_angle(angle_in_degrees)
-#         if image is not None:
-#             captured_images.append(image)
-
-#     # Reset the robot's position after capturing all images
-#     cmd.euler = [0, 0, 0]
-#     udp.SetSend(cmd)
-#     udp.Send()
-
-#     return captured_images
-
-# def move_to_next_point(next_position):
-#     # Initialize PID variables
-#     integral = 0
-#     previous_error = 0
-#     yaw_integral = 0
-#     previous_yaw_error = 0
-
-#     # Connection setup
-#     HIGHLEVEL = 0xee
-#     udp = sdk.UDP(HIGHLEVEL, 8080, "192.168.123.161", 8082)
-#     cmd = sdk.HighCmd()
-#     state = sdk.HighState()
-#     udp.InitCmdData(cmd)
-
-#     # Using the next_position as the waypoint directly
-#     try:
-#         while True:
-#             udp.Recv()
-#             udp.GetRecv(state)
-
-#             dt = 0.01
-#             current_pos = get_GPS()
-#             current_yaw = state.imu.rpy[2]  # Get the current yaw from the state data
-
-#             cmd.mode = 2
-#             cmd.gaitType = 1
-#             cmd.bodyHeight = 0.1
-
-#             v, y, previous_error, previous_yaw_error, _, _ = calculate_velocity_yaw(current_pos, next_position, current_yaw, dt, integral, previous_error, yaw_integral, previous_yaw_error)
-#             v = np.clip(v, -0.2, 0.2)
-#             cmd.velocity = [v, 0]
-#             cmd.yawSpeed = y
-
-#             udp.SetSend(cmd)
-#             udp.Send()
-
-#             # Break condition: If the robot is close to next_position
-#             if calculate_distance(current_pos, next_position) < 0.1:
-#                 break
-
-#     except Exception as e:
-#         print(f"Error occurred in the control loop: {e}")
-    
-# def calculate_velocity_yaw(current_pos, current_yaw, waypoint):
-#     Kp_yaw = 0.4
-#     Ki_yaw = 0.2
-#     Kd_yaw = 0.02
-#     EPSILON = 1e-6
-#     position_error = haversine_distance(current_pos, waypoint)
-#     dlat = waypoint[0] - current_pos[0]
-#     dlon = waypoint[1] - current_pos[1]
-
-#     desired_yaw = math.atan2(dlat, dlon)
-#     desired_yaw = desired_yaw - np.pi/2 
-#     desired_yaw = (desired_yaw + np.pi) % (2 * np.pi) - np.pi
-
-#     yaw_error = desired_yaw - current_yaw
-#     yaw_error = (yaw_error + np.pi) % (2 * np.pi) - np.pi
-    
-#     Kp_yaw = 0.8
-#     Ki_yaw = 0.2
-#     Kd_yaw = 0.02
-#     yaw_integral = 0  # Initialize this in your global scope if you want integral action
-#     previous_yaw_error = 0  # Initialize this in your global scope
-
-#     dt = 0.01  # Consider adjusting this as per your needs
-#     yaw_integral += yaw_error * dt
-#     yaw_derivative = (yaw_error - previous_yaw_error) / (dt + EPSILON)
-#     yaw_speed = Kp_yaw * yaw_error + Ki_yaw * yaw_integral + Kd_yaw * yaw_derivative
-#     return 0.2, yaw_speed, yaw_error, position_error, desired_yaw
 
 def calculate_velocity_yaw(current_pos, current_yaw, waypoint, desired_node_yaw):
     Kp_yaw = 0.4
@@ -226,3 +114,5 @@ def haversine_distance(current, waypoint):
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     
     return R * c
+
+
