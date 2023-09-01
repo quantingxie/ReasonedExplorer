@@ -49,6 +49,12 @@ def get_GPS():
     global current_lat, current_lon
     return current_lat, current_lon
 
+def adjust_heading(heading):
+    if 0 <= heading <= 180:
+        return -heading
+    elif 180 < heading <= 360:
+        return -(heading - 360)
+
 def get_yaw(port='/dev/ttyUSB0', baudrate=9600, timeout=1):
     with serial.Serial(port, baudrate, timeout=timeout) as ser:
         while True:
@@ -60,7 +66,8 @@ def get_yaw(port='/dev/ttyUSB0', baudrate=9600, timeout=1):
                     parts = decoded_line.split(',')
                     # Heading (relative to true north) is the third value in the list
                     heading = float(parts[2])  # changed from parts[3] to parts[2] as lists are 0-indexed
-                    yield heading
+                    adjusted_heading = adjust_heading(heading)
+                    yield adjusted_heading
             except UnicodeDecodeError:
                 # Silently ignore decoding errors
                 pass

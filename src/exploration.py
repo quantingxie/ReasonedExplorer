@@ -215,11 +215,9 @@ class Exploration:
 
                 dt = 0.01
                 current_pos = get_GPS()
-                raw_yaw = self.state.imu.rpy[2] 
-                yaw_offset = math.radians(-90)
-                current_yaw = raw_yaw + yaw_offset
-                current_yaw = (current_yaw + np.pi) % (2 * np.pi) - np.pi
-
+                raw_yaw = get_yaw()
+                current_yaw = next(raw_yaw)
+                
                 self.cmd.mode = 2
                 self.cmd.gaitType = 1
                 self.cmd.bodyHeight = 0.1

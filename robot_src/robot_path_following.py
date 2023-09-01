@@ -4,7 +4,7 @@ import math
 import numpy as np
 import threading
 import socket
-
+import serial
 sys.path.append('../lib/python/arm64')
 import robot_interface as sdk
 import matplotlib.pyplot as plt
@@ -48,6 +48,31 @@ def socket_client_thread():
         
             if initial_lat is None and initial_lon is None:
                 initial_lat, initial_lon = lat, lon
+
+def adjust_heading(heading):
+    if 0 <= heading <= 180:
+        return -heading
+    elif 180 < heading <= 360:
+        return -(heading - 360)
+
+def get_yaw(port='/dev/ttyUSB0', baudrate=9600, timeout=1):
+    with serial.Serial(port, baudrate, timeout=timeout) as ser:
+        while True:
+            line = ser.readline()  # read a line terminated with a newline (\n)
+            try:
+                decoded_line = line.decode('utf-8').strip()
+                if decoded_line.startswith('$PRDID'):
+                    # Split the line by commas
+                    parts = decoded_line.split(',')
+                    # Heading (relative to true north) is the third value in the list
+                    heading = float(parts[2])  # changed from parts[3] to parts[2] as lists are 0-indexed
+                    adjusted_heading = adjust_heading(heading)
+                    yield adjusted_heading
+            except UnicodeDecodeError:
+                # Silently ignore decoding errors
+                pass
+            except Exception as e:
+                print(f"Unexpected error: {e}")
 
 
 
@@ -147,11 +172,9 @@ if __name__ == '__main__':
                         continue
 
                     # current_yaw = state.imu.rpy[2]  # Get the current yaw from the state data
-                    raw_yaw = state.imu.rpy[2]  # Get the raw yaw from the state data before correcting it
-                    current_yaw = raw_yaw + yaw_offset
-                    current_yaw = (current_yaw + np.pi) % (2 * np.pi) - np.pi
-                    # print(f"Raw Yaw (from IMU): {math.degrees(raw_yaw)} degrees")
-
+                    raw_yaw = get_yaw() # Get the raw yaw from the state data before correcting it
+                    current_yaw = next(raw_yaw) # get the newest value from generator
+                    
                     cmd.mode = 2
                     cmd.gaitType = 1
                     cmd.bodyHeight = 0.1
