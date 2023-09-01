@@ -152,35 +152,77 @@ def get_GPS():
 #     except Exception as e:
 #         print(f"Error occurred in the control loop: {e}")
     
-def calculate_velocity_yaw(current_pos, waypoint, current_yaw, dt, integral, previous_error, yaw_integral, previous_yaw_error):
-    # Initialize PID gains
-    Kp = 0.8
-    Ki = 0.2
-    Kd = 0.02
+# def calculate_velocity_yaw(current_pos, current_yaw, waypoint):
+#     Kp_yaw = 0.4
+#     Ki_yaw = 0.2
+#     Kd_yaw = 0.02
+#     EPSILON = 1e-6
+#     position_error = haversine_distance(current_pos, waypoint)
+#     dlat = waypoint[0] - current_pos[0]
+#     dlon = waypoint[1] - current_pos[1]
 
-    Kp_yaw = 0.8
+#     desired_yaw = math.atan2(dlat, dlon)
+#     desired_yaw = desired_yaw - np.pi/2 
+#     desired_yaw = (desired_yaw + np.pi) % (2 * np.pi) - np.pi
+
+#     yaw_error = desired_yaw - current_yaw
+#     yaw_error = (yaw_error + np.pi) % (2 * np.pi) - np.pi
+    
+#     Kp_yaw = 0.8
+#     Ki_yaw = 0.2
+#     Kd_yaw = 0.02
+#     yaw_integral = 0  # Initialize this in your global scope if you want integral action
+#     previous_yaw_error = 0  # Initialize this in your global scope
+
+#     dt = 0.01  # Consider adjusting this as per your needs
+#     yaw_integral += yaw_error * dt
+#     yaw_derivative = (yaw_error - previous_yaw_error) / (dt + EPSILON)
+#     yaw_speed = Kp_yaw * yaw_error + Ki_yaw * yaw_integral + Kd_yaw * yaw_derivative
+#     return 0.2, yaw_speed, yaw_error, position_error, desired_yaw
+
+def calculate_velocity_yaw(current_pos, current_yaw, waypoint, desired_node_yaw):
+    Kp_yaw = 0.4
     Ki_yaw = 0.2
     Kd_yaw = 0.02
     EPSILON = 1e-6
+    position_error = haversine_distance(current_pos, waypoint)
+    dlat = waypoint[0] - current_pos[0]
+    dlon = waypoint[1] - current_pos[1]
 
-    # For the distance PID control
-    error = calculate_distance(current_pos, waypoint)
-    # print("error", error)
-    integral += error * dt
-    derivative = (error - previous_error) / (dt + EPSILON)
-    velocity = Kp * error + Ki * integral + Kd * derivative
-    # print("velocity", velocity)
-    # For the yaw PID control
-    desired_yaw = math.atan2(waypoint[1] - current_pos[1], waypoint[0] - current_pos[0])
+    if position_error > 1:  # If the robot is further than 1 unit from the waypoint
+        desired_yaw = math.atan2(dlat, dlon)
+        desired_yaw = desired_yaw - np.pi/2 
+    else:
+        desired_yaw = desired_node_yaw  # Set desired yaw to the node's yaw as the robot gets closer
+
+    desired_yaw = (desired_yaw + np.pi) % (2 * np.pi) - np.pi
+
     yaw_error = desired_yaw - current_yaw
-    # Ensure yaw_error is between -pi and pi
     yaw_error = (yaw_error + np.pi) % (2 * np.pi) - np.pi
+    
+    yaw_integral = 0  # Initialize this in your global scope if you want integral action
+    previous_yaw_error = 0  # Initialize this in your global scope
+
+    dt = 0.01  # Consider adjusting this as per your needs
     yaw_integral += yaw_error * dt
     yaw_derivative = (yaw_error - previous_yaw_error) / (dt + EPSILON)
-
     yaw_speed = Kp_yaw * yaw_error + Ki_yaw * yaw_integral + Kd_yaw * yaw_derivative
-    return velocity, yaw_speed, error, yaw_error, waypoint, desired_yaw
+    return 0.2, yaw_speed, yaw_error, position_error, desired_yaw
+
 
 def calculate_distance(pos1, pos2):
     dist = math.sqrt((pos1[0]-pos2[0])**2 + (pos1[1]-pos2[1])**2)
     return dist
+
+def haversine_distance(current, waypoint):
+    lat1, lon1 = current
+    lat2, lon2 = waypoint
+    
+    R = 6371e3  # Earth radius in meters
+    d_lat = math.radians(lat2 - lat1)
+    d_lon = math.radians(lon2 - lon1)
+    
+    a = math.sin(d_lat / 2) * math.sin(d_lat / 2) + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(d_lon / 2) * math.sin(d_lon / 2)
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    
+    return R * c

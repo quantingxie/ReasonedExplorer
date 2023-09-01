@@ -156,73 +156,57 @@ class Exploration:
         self.nodes.remove(self.chosen_node)
 
         # Make the robot move to the chosen node's location
-        self.move_to_next_point(next_position=self.chosen_node.gps)
+        self.move_to_next_point(next_position=self.chosen_node.gps, desired_yaw=self.chosen_node.yaw_angle)
 
         # Update the current node to be the chosen node
         self.current_node = self.chosen_node
         del self.Q_list[str(self.chosen_node.description)]
 
 
-    def capture_images_by_rotate(self, n: int, range_of_motion=70) -> list:
+    def capture_images_by_rotate(self, n: int, range_of_motion=20) -> list:
         captured_images = []
 
-        # Calculate min_angle and max_angle based on range_of_motion
-        min_angle = -range_of_motion / 2
-        max_angle = range_of_motion / 2
+        # Convert range_of_motion to radians
+        range_of_motion_radians = math.radians(range_of_motion)
 
-        # Calculate the angle increment
-        angle_increment = math.radians(range_of_motion) / n
+        # Calculate min_angle based on range_of_motion in radians
+        min_angle = -range_of_motion_radians / 2
 
-        # Capture images while rotating to the left (from 0 to min_angle)
-        for i in range(0, n//2):
-            yaw_angle = min_angle + i * angle_increment
+        # Calculate the angle increment in radians
+        angle_increment = range_of_motion_radians / n
 
-            self.cmd.euler = [0, 0, yaw_angle]
+        # Initialize motion time and yaw angle
+        motiontime = 0
+        yaw_angle = min_angle
+
+        while motiontime < n:
+            time.sleep(0.005)
+            motiontime += 1
+
+            # Receive current state (Not necessary for your function, but kept for compatibility)
+            self.udp.Recv()
+            self.udp.GetRecv(self.state)
+
+            # Set mode and euler angles for the robot
             self.cmd.mode = 1
+            self.cmd.euler = [0, 0, yaw_angle]
 
+            # Send the udp command
             self.udp.SetSend(self.cmd)
             self.udp.Send()
-            time.sleep(1)
 
+            # Capture image and append it if it's not None
             angle_in_degrees = math.degrees(yaw_angle)
             image = capture_image_at_angle(angle_in_degrees)
             if image is not None:
                 captured_images.append(image)
 
-        # Reset to 0 before moving to the right
-        self.cmd.euler = [0, 0, 0]
-        self.udp.SetSend(self.cmd)
-        self.udp.Send()
-        time.sleep(1)
-
-        # Capture images while rotating to the right (from 0 to max_angle)
-        for i in range(n//2, n):
-            yaw_angle = i * angle_increment
-
-            self.cmd.euler = [0, 0, yaw_angle]
-            self.cmd.mode = 1
-
-            self.udp.SetSend(self.cmd)
-            self.udp.Send()
-            time.sleep(1)
-
-            angle_in_degrees = math.degrees(yaw_angle)
-            image = capture_image_at_angle(angle_in_degrees)
-            if image is not None:
-                captured_images.append(image)
-
-        # Reset the robot's position after capturing all images
-        self.cmd.euler = [0, 0, 0]
-        self.udp.SetSend(self.cmd)
-        self.udp.Send()
+            # Update the yaw_angle for the next iteration
+            yaw_angle += angle_increment
 
         return captured_images
 
-    def move_to_next_point(self, next_position):
-        integral = 0
-        previous_error = 0
-        yaw_integral = 0
-        previous_yaw_error = 0
+    def move_to_next_point(self, next_position, desired_yaw):
 
         try:
             while True:
@@ -231,14 +215,16 @@ class Exploration:
 
                 dt = 0.01
                 current_pos = get_GPS()
-                current_yaw = self.state.imu.rpy[2] 
+                raw_yaw = self.state.imu.rpy[2] 
+                yaw_offset = math.radians(-90)
+                current_yaw = raw_yaw + yaw_offset
+                current_yaw = (current_yaw + np.pi) % (2 * np.pi) - np.pi
 
                 self.cmd.mode = 2
                 self.cmd.gaitType = 1
                 self.cmd.bodyHeight = 0.1
 
-                v, y, previous_error, previous_yaw_error, _, _ = calculate_velocity_yaw(current_pos, next_position, current_yaw, dt, integral, previous_error, yaw_integral, previous_yaw_error)
-                v = np.clip(v, -0.2, 0.2)
+                v, y, yaw_error, previous_yaw_error, _, _ = calculate_velocity_yaw(current_pos, current_yaw, next_position, desired_yaw)
                 self.cmd.velocity = [v, 0]
                 self.cmd.yawSpeed = y
 
@@ -246,7 +232,7 @@ class Exploration:
                 self.udp.Send()
 
                 # Break condition: If the robot is close to next_position
-                if calculate_distance(current_pos, next_position) < 0.1:
+                if haversine_distance(current_pos, next_position) < 1:
                     break
 
         except Exception as e:

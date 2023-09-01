@@ -135,8 +135,6 @@ if __name__ == '__main__':
                 try:
                     udp.Recv()
                     udp.GetRecv(state)
-
-                    dt = 0.01            
                     # Update position from state data or GPS data
                     if current_lat is not None and current_lon is not None:
                         #current_pos = np.array([current_lat, current_lon])
