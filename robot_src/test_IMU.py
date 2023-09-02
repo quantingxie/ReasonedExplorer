@@ -1,5 +1,13 @@
 import serial
 
+
+def adjust_heading(heading):
+    if 0 <= heading <= 180:
+        return -heading
+    elif 180 < heading <= 360:
+        return -(heading - 360)
+
+
 def read_from_serial(port='/dev/ttyUSB0', baudrate=9600, timeout=1):
     with serial.Serial(port, baudrate, timeout=timeout) as ser:
         while True:
@@ -11,6 +19,7 @@ def read_from_serial(port='/dev/ttyUSB0', baudrate=9600, timeout=1):
                     parts = decoded_line.split(',')
                     # Heading (relative to true north) is the third value in the list
                     heading = float(parts[3])
+                    heading = adjust_heading(heading)
                     print(heading)
             except UnicodeDecodeError:
                 # Silently ignore decoding errors

@@ -28,6 +28,8 @@ Ki_yaw = 0.2
 Kd_yaw = 0.02
 
 
+
+
 def socket_client_thread():
     global initial_lat, initial_lon, current_lat, current_lon
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -65,7 +67,7 @@ def get_yaw(port='/dev/ttyUSB0', baudrate=9600, timeout=1):
                     # Split the line by commas
                     parts = decoded_line.split(',')
                     # Heading (relative to true north) is the third value in the list
-                    heading = float(parts[2])  # changed from parts[3] to parts[2] as lists are 0-indexed
+                    heading = float(parts[3])  # changed from parts[3] to parts[2] as lists are 0-indexed
                     adjusted_heading = adjust_heading(heading)
                     yield adjusted_heading
             except UnicodeDecodeError:
@@ -96,6 +98,8 @@ def haversine_distance(current, waypoint):
 
 
 EPSILON = 1e-6  # A small value
+raw_yaw_generator = get_yaw() # Initialize the generator
+current_yaw = next(raw_yaw_generator) # Fetch the latest yaw from the generator
 
 yaw_offset = math.radians(-96) 
 next_point = np.array([40.443656, -79.944091])
@@ -112,7 +116,7 @@ def calculate_yaw_control(current_pos, current_yaw, waypoint):
     yaw_error = desired_yaw - current_yaw
     yaw_error = (yaw_error + np.pi) % (2 * np.pi) - np.pi
     
-    Kp_yaw = 0.8
+    Kp_yaw = 0.5
     Ki_yaw = 0.2
     Kd_yaw = 0.02
     yaw_integral = 0  # Initialize this in your global scope if you want integral action
@@ -172,9 +176,8 @@ if __name__ == '__main__':
                         continue
 
                     # current_yaw = state.imu.rpy[2]  # Get the current yaw from the state data
-                    raw_yaw = get_yaw() # Get the raw yaw from the state data before correcting it
-                    current_yaw = next(raw_yaw) # get the newest value from generator
-                    
+                    current_yaw = next(raw_yaw_generator)
+                    print(f"Current Yaw after getting from generator: {current_yaw}")
                     cmd.mode = 2
                     cmd.gaitType = 1
                     cmd.bodyHeight = 0.1
@@ -185,8 +188,6 @@ if __name__ == '__main__':
                     cmd.yawSpeed = y
                     if time.time() - last_print_time >= print_frequency:
                         #print(f"Command Velocity: {cmd.velocity}")
-                        print(f"Raw Yaw (from IMU): {math.degrees(raw_yaw)} degrees")
-                        print(f"Corrected Yaw: {math.degrees(current_yaw)} degrees")
                         print(f"Desired Yaw (to waypoint): {math.degrees(desired_yaw)} degrees")
                         print(f"Current Position: {current_pos}")
                         print(f"Sending command velocity: {v}, yaw speed: {y}")
