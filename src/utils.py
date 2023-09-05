@@ -50,7 +50,7 @@ def compute_euclidean_distances_from_current(current_node_gps, nodes_gps_list):
     
     def euclidean_distance(coord1, coord2):
         """Calculate the Euclidean distance between two coordinates."""
-        x1, y1 = coord1
+        x1, y1, _= coord1
         x2, y2 = coord2
         return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
     

@@ -2,6 +2,5 @@ openai
 gmplot
 numpy
 opencv-python
-math
 networkx
 aiohttp

@@ -18,10 +18,6 @@ initial_lon = None
 current_lat = None
 current_lon = None
 
-# Set desired path as a list of (x, y) waypoints
-relative_path = np.array([[0, 0], [1.0, 0.0], [0.0, 0.0]])
-
-
 # Set PID gains for the controller
 Kp_yaw = 0.4
 Ki_yaw = 0.2

@@ -8,7 +8,7 @@ app_url = "https://6bb0-128-237-82-20.ngrok-free.app"
 
 prompt1 = "<image>0</image>Describe the objects in the image and summarize"
 prompt2 = "<image>0</image><grounding>list all objects in the image <phrase>"
-goal = "woman"
+goal = "bench"
 threshold=0.05
 
 def VLM_query(image_path):
