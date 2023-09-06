@@ -159,10 +159,10 @@ class Exploration:
                 # delta_lat = meters_to_lat(dy)
                 # delta_lon = meters_to_lon(dx, current_gps[0])
 
-                new_lat = current_gps[0] + dx
-                new_lon = current_gps[1] + dy
-
-                node = self.add_node_to_graph(description, (new_lat, new_lon), yaw_angle)
+                new_lat = current_gps[0] + dy
+                new_lon = current_gps[1] + dx
+              
+                node = self.add_node_to_graph(description, (new_lon, new_lat), yaw_angle)
                 print("node expanded")
                 self.connect_nodes(self.current_node, node)
                 nodes.append(node)
