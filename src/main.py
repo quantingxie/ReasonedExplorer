@@ -12,7 +12,7 @@ if __name__ == '__main__':
     GAMMA = 0.5 # N(S_t+1)^gamma
     X = 5  # X nodes to abstract
     K = 10  # How many iterations to run MCTS at each step
-    N = 5 # Action space and tree width
+    N = 2 # Action space and tree width
     L = 3  # Tree length
     fov = 86 # Field of View
     rom = 70 # Range of motion

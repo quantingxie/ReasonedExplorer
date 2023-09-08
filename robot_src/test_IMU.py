@@ -8,7 +8,7 @@ def adjust_heading(heading):
         return -(heading - 360)
 
 
-def read_from_serial(port='/dev/ttyUSB0', baudrate=115200, timeout=1):
+def read_from_serial(port='/dev/ttyTHS0', baudrate=115200, timeout=0.1):
     with serial.Serial(port, baudrate, timeout=timeout) as ser:
         while True:
             line = ser.readline()  # read a line terminated with a newline (\n)
@@ -20,8 +20,12 @@ def read_from_serial(port='/dev/ttyUSB0', baudrate=115200, timeout=1):
                     parts = decoded_line.split(',')
                     # Heading (relative to true north) is the third value in the list
                     heading = float(parts[1])
-                    # print(decoded_line)
-                    print("current time: "+time.strftime("%H:%M:%S", time.localtime()))
+                    # print("unadjusted heading", heading, float(parts[3]))
+                    # heading = adjust_heading(heading)
+                    # heading = h
+                    # 3..eading
+                    print(decoded_line)
+                    # print("current time: "+time.strftime("%H:%M:%S", time.localtime()))
                     print(heading)
             except UnicodeDecodeError:
                 # Silently ignore decoding errors
@@ -29,9 +33,21 @@ def read_from_serial(port='/dev/ttyUSB0', baudrate=115200, timeout=1):
             except Exception as e:
                 print(f"Unexpected error: {e}")
 
+import robot_interface as sdk
 if __name__ == "__main__":
+    # HIGHLEVEL = 0xee
+    # LOWLEVEL  = 0xff
+
+    # udp = sdk.UDP(HIGHLEVEL, 8080, "192.168.123.161", 8082)
+    # print("UDP Initialized")
+    # cmd = sdk.HighCmd()
+    # state = sdk.HighState()
+    # udp.InitCmdData(cmd)
+
+
     try:
         read_from_serial()
+    
     except KeyboardInterrupt:
         print("\nStopped reading from serial port.")
 
