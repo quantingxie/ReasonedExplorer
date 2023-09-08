@@ -26,8 +26,8 @@ def capture_images_by_rotate(n: int, range_of_motion=20) -> list:
     motiontime = 0
     yaw_angle = min_angle
 
-    while motiontime < n:
-        time.sleep(0.005)
+    while motiontime < n+1:
+        time.sleep(0.01)
         motiontime += 1
 
         # Receive current state (Not necessary for your function, but kept for compatibility)
@@ -53,7 +53,7 @@ def capture_images_by_rotate(n: int, range_of_motion=20) -> list:
 
     return captured_images
 
-n = 5
+n = 2
 rom = 50
 
 captured_images = capture_images_by_rotate(n, rom)

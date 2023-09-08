@@ -11,17 +11,23 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from pyproj import Proj, Transformer, CRS
 
+import logging
 
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s - %(levelname)s - %(message)s',
+                    filename='robot_yaw.log',   # This will log to a file named "robot_yaw.log"
+                    filemode='w')   
 # Initialize global variables for latitude and longitude
-initial_lat = None
-initial_lon = None
 current_lat = None
 current_lon = None
 
+<<<<<<< HEAD
+=======
 # Set PID gains for the controller
 Kp_yaw = 0.4
 Ki_yaw = 0.2
 Kd_yaw = 0.02
+>>>>>>> 5edd4180603876ace6faa72526039d80f0ed59ae
 
 
 
@@ -53,18 +59,19 @@ def adjust_heading(heading):
     elif 180 < heading <= 360:
         return -(heading - 360)
 
-def get_yaw(port='/dev/ttyUSB0', baudrate=9600, timeout=1):
+def get_yaw(port='/dev/ttyUSB0', baudrate=115200, timeout=0.1):
     with serial.Serial(port, baudrate, timeout=timeout) as ser:
         while True:
             line = ser.readline()  # read a line terminated with a newline (\n)
             try:
                 decoded_line = line.decode('utf-8').strip()
-                if decoded_line.startswith('$PRDID'):
+                if decoded_line.startswith('$HCHDG'):
                     # Split the line by commas
                     parts = decoded_line.split(',')
                     # Heading (relative to true north) is the third value in the list
-                    heading = float(parts[3])  # changed from parts[3] to parts[2] as lists are 0-indexed
+                    heading = float(parts[1])  # changed from parts[3] to parts[2] as lists are 0-indexed
                     adjusted_heading = adjust_heading(heading)
+                    # print("adjusted heading", adjusted_heading)
                     yield adjusted_heading
             except UnicodeDecodeError:
                 # Silently ignore decoding errors
@@ -94,24 +101,30 @@ def haversine_distance(current, waypoint):
 
 
 EPSILON = 1e-6  # A small value
+print("222")
 raw_yaw_generator = get_yaw() # Initialize the generator
 current_yaw = next(raw_yaw_generator) # Fetch the latest yaw from the generator
+logging.debug(f"Current Yaw from generator: {current_yaw}")
 
-yaw_offset = math.radians(-96) 
+# yaw_offset = math.radians(-96) 
 next_point = np.array([40.443656, -79.944091])
 curret_pos = ([40.443681, 79.944285])
 def calculate_yaw_control(current_pos, current_yaw, waypoint):
     position_error = haversine_distance(current_pos, waypoint)
     dlat = waypoint[0] - current_pos[0]
     dlon = waypoint[1] - current_pos[1]
-
+    # print("Current yaw in control", current_yaw)
     desired_yaw = math.atan2(dlat, dlon)
     desired_yaw = desired_yaw - np.pi/2 
     desired_yaw = (desired_yaw + np.pi) % (2 * np.pi) - np.pi
+    # print("Desired yaw in control", desired_yaw)
 
-    yaw_error = desired_yaw - current_yaw
+    yaw_error = desired_yaw - math.radians(current_yaw)
     yaw_error = (yaw_error + np.pi) % (2 * np.pi) - np.pi
-    
+    # yaw_error = math.radians(yaw_error)
+    Kp_yaw = 0.05
+    Ki_yaw = 0.2
+    Kd_yaw = 0.02
     Kp_yaw = 0.5
     Ki_yaw = 0.2
     Kd_yaw = 0.02
@@ -125,14 +138,11 @@ def calculate_yaw_control(current_pos, current_yaw, waypoint):
     return 0.2, yaw_speed, yaw_error, position_error, desired_yaw
 
 
-
-
-
 if __name__ == '__main__':
 
     # Start socket client in a separate thread
     threading.Thread(target=socket_client_thread).start()
-
+    print("111")
     HIGHLEVEL = 0xee
     LOWLEVEL  = 0xff
 
@@ -173,18 +183,18 @@ if __name__ == '__main__':
 
                     # current_yaw = state.imu.rpy[2]  # Get the current yaw from the state data
                     current_yaw = next(raw_yaw_generator)
-                    print(f"Current Yaw after getting from generator: {current_yaw}")
                     cmd.mode = 2
-                    cmd.gaitType = 1
+                    cmd.gaitType = 1 
                     cmd.bodyHeight = 0.1
 
                     v, y, yaw_error, position_error, desired_yaw = calculate_yaw_control(current_pos, current_yaw, waypoint)
-
-                    cmd.velocity = [v,0]
-                    cmd.yawSpeed = y
+                    # time.sleep(0.01)
+                    cmd.velocity = [0,0]
+                    cmd.yawSpeed = 0
                     if time.time() - last_print_time >= print_frequency:
                         #print(f"Command Velocity: {cmd.velocity}")
                         print(f"Desired Yaw (to waypoint): {math.degrees(desired_yaw)} degrees")
+                        print(f"Current Yaw after getting from generator: {current_yaw}")
                         print(f"Current Position: {current_pos}")
                         print(f"Sending command velocity: {v}, yaw speed: {y}")
                         # print(f"Goal: {waypoint}, desired_yaw: {desired_yaw}")

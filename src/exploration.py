@@ -180,7 +180,7 @@ class Exploration:
         motiontime = 0
         yaw_angle = min_angle
 
-        while motiontime < n:
+        while motiontime < n+1:
             time.sleep(0.005)
             motiontime += 1
 
