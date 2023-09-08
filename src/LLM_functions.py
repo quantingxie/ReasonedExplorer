@@ -1,5 +1,5 @@
 import openai
-# model4 = "gpt-3.5-turbo"
+model = "gpt-3.5-turbo"
 
 def LLM_evaluator(node, goal, model):
     prompt = f"""
@@ -11,18 +11,20 @@ def LLM_evaluator(node, goal, model):
         4: Likely the user will find the goal.
         5: Very likely the user will find the goal.
 
+        If the scene is largely object or walls, means you are about to hit something, give a score of 1 this case.
+
         Your response should only be the score (a number between 1 and 5) without any additional commentary. For instance, if it's very likely, simply reply with "5".
 
         User's goal: {goal}
         Described scene:
         """ + str(node)
-    
+    # print("PROMPT::::", prompt)
     message=[{"role": "user", "content": prompt}]
     response = openai.ChatCompletion.create(
         model="gpt-4",
         messages = message,
-        temperature=0.9,
-        max_tokens=1000,
+        temperature=0.5,
+        max_tokens=3000,
         frequency_penalty=0.0
     )
     # print(f"Node: {node}")
@@ -46,15 +48,15 @@ def LLM_world_model(node, model):
     """
     message=[{"role": "user", "content": prompt}]
     response = openai.ChatCompletion.create(
-        model="gpt-4",
+        model=model,
         messages = message,
         temperature=0.5,
         max_tokens=3000,
         frequency_penalty=0.0
     )
-    print(f"Current scene observation: {node}")
+    # print(f"Current scene observation: {node}")
     extrapolated_scene = response.choices[0].message['content'].strip()
-    print("Extrapolated scene:", extrapolated_scene)
+    # print("Extrapolated scene:", extrapolated_scene)
 
     return extrapolated_scene
 
@@ -65,16 +67,16 @@ def LLM_abstractor(nodes, model):
     """
     message=[{"role": "user", "content": prompt}]
     response = openai.ChatCompletion.create(
-        model="gpt-4",
+        model=model,
         messages = message,
         temperature=0.5,
         max_tokens=3000,
         frequency_penalty=0.0
     )
 
-    print(f"Given scene descriptions: {nodes}")
+    # print(f"Given scene descriptions: {nodes}")
     abstracted_description = response.choices[0].message['content'].strip()
-    print("Abstracted description:", abstracted_description)
+    # print("Abstracted description:", abstracted_description)
 
     return abstracted_description
 
@@ -84,16 +86,35 @@ def LLM_rephraser(node, global_context, model):
     """    
     message=[{"role": "user", "content": prompt}]
     response = openai.ChatCompletion.create(
-        model="gpt-4",
+        model=model,
         messages = message,
         temperature=0.8,
         max_tokens=3000,
         frequency_penalty=0.0
     )
-
-    print(f"Node to rephrase: {node}")
-    print(f"Using global context: {global_context}")
+    # print("============\n")
+    # print(f"Node to rephrase: {node}")
+    # print("============\n")
+    # print(f"Using global context: {global_context}")
 
     rephrased_description = response.choices[0].message['content'].strip()
-    print("Rephrased description:", rephrased_description)
+    # print("============\n")
+    # print("Rephrased description:", rephrased_description)
     return rephrased_description
+
+def LLM_checker(node, goal, model):
+    prompt = f"""
+    You are an AI tasked to check if the given scene descriptions have the goal object to find. The secene descriptions: {node} The Goal: {goal}. If you find the goal in the scene, please return yse, and if you didn't find goal in the scene, return no. The answer has to only be yse or no and nothing else. '
+    """    
+    message=[{"role": "user", "content": prompt}]
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages = message,
+        temperature=0.9,
+        max_tokens=20,
+        frequency_penalty=0.0
+    )
+
+    check = response.choices[0].message['content'].strip()
+
+    return check
