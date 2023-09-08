@@ -100,18 +100,18 @@ class Exploration:
             # Calculate yaw angles and GPS coordinates for each captured image
             nodes = []
             for i, (description, _) in enumerate(curr_nodes_data):
-                direction = math.radians(i * (self.rom / self.n))
-                dx = 5 * math.cos(direction)
-                dy = 5 * math.sin(direction)
-                
+                direction = i * (self.rom / (self.n - 1))
+                yaw_angle = current_yaw + direction - self.rom/2  # Adjusting for center of the FOV
+                print("Yaw_angle", yaw_angle)
+                dx = 8 * math.cos(math.radians(yaw_angle))
+                dy = 8 * math.sin(math.radians(yaw_angle))
+                # print("COS",math.cos(yaw_angle))
+                print(dx, dy)
                 delta_lat = meters_to_lat(dy)
                 delta_lon = meters_to_lon(dx, current_gps[0])
 
                 new_lat = current_gps[0] + delta_lat
                 new_lon = current_gps[1] + delta_lon
-
-                # Incorporating the actual yaw into the calculated yaw angle
-                yaw_angle = current_yaw + direction - self.rom  # Adjusting for center of the FOV
 
                 node = self.add_node_to_graph(description, (new_lat, new_lon), yaw_angle)
                 print("node expanded")
@@ -137,8 +137,9 @@ class Exploration:
             self.mcts.run_mcts(self.k, descriptions)
 
             for node in nodes:
-                self.Q_list[str(node)] = self.mcts.Q.get(str(node.description), 0)
-                
+                # self.Q_list[str(node)] = self.mcts.Q.get(str(node.description), 0)
+                self.Q_list[str(node)] = self.mcts.Q.get(str(node), 0)
+
             self.action()
 
     """Methods for robot movement"""
@@ -150,7 +151,7 @@ class Exploration:
         d_values = compute_euclidean_distances_from_current(current_node_gps, nodes_gps_list)
         
         # Select node with the highest Q-value adjusted by distance
-        self.chosen_node = max(self.nodes, key=lambda node: self.Q_list[str(node.description)] / d_values[self.nodes.index(node)])
+        self.chosen_node = max(self.nodes, key=lambda node: self.Q_list[str(node)] / d_values[self.nodes.index(node)])
 
         # Remove the chosen node from the list of unexplored nodes to prevent revisiting it in future iterations
         self.nodes.remove(self.chosen_node)
@@ -160,7 +161,7 @@ class Exploration:
 
         # Update the current node to be the chosen node
         self.current_node = self.chosen_node
-        del self.Q_list[str(self.chosen_node.description)]
+        del self.Q_list[str(self.chosen_node)]
 
 
     def capture_images_by_rotate(self, n: int, range_of_motion=20) -> list:

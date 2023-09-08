@@ -21,6 +21,13 @@ logging.basicConfig(level=logging.DEBUG,
 current_lat = None
 current_lon = None
 
+<<<<<<< HEAD
+=======
+# Set PID gains for the controller
+Kp_yaw = 0.4
+Ki_yaw = 0.2
+Kd_yaw = 0.02
+>>>>>>> 5edd4180603876ace6faa72526039d80f0ed59ae
 
 
 
