@@ -4,21 +4,29 @@ import airsim
 import networkx as nx
 import cv2
 from typing import List, Tuple
-from LLM_functions import LLM_abstractor, LLM_rephraser
+from LLM_functions import LLM_abstractor, LLM_rephraser, LLM_checker
 from VLM import VLM_query
 from utils import *
 from simulator_utils import *
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+import logging
+from LLM_functions import LLM_evaluator
 
 class Node:
-    def __init__(self, description, gps, yaw_angle):
+    def __init__(self, Q, id, description, gps, yaw_angle):
+        self.id = id  # Unique identifier for the node
+        self.Q = Q
+        self.score = 0.0
         self.description = description  # Scene description from VLM or LLM_rephraser
         self.gps = gps  # GPS data
         self.yaw_angle = yaw_angle  # Yaw angle
+        self.visited = False  # Whether the node has been visited or not
+
 
 class Exploration:
-    def __init__(self, mcts, x, k, n, fov, rom, model):
+    next_node_id = 0
+    def __init__(self, mcts, x, k, n, fov, rom, goal, model):
         self.x = x
         self.k = k
         self.n = n
@@ -26,23 +34,34 @@ class Exploration:
         self.rom = rom
         self.graph = nx.Graph()
         self.iteration_count = 0
-
+        self.goal = goal
         self.model = model
         self.state = {}
         self.nodes = []
         self.H = [[], [], []]  # Hierarchical abstract
         self.mcts = mcts
-        self.Q_list = {}  # Dictionary to store Q-values for nodes
-
+        self.frontier_buffer = []
+        self.Q_buffer = {}  # Dictionary to store Q-values for nodes
+        logging.basicConfig(filename='exploration.log', level=logging.INFO, format='%(message)s')
+        sys.stdout = Logger("my_output.log")
         # Initialization for robot control
         self.current_node = None  # Track the current position of the agent
-        print("Test")
         # initialize simulator
         self.client = airsim.MultirotorClient()
         self.client.confirmConnection()
         self.client.enableApiControl(True)
-        self.car_controls = airsim.CarControls()
 
+    def set_start_position(self, position, yaw=None):
+
+        if yaw is None:
+            # If no orientation is provided, keep it level (no roll, no pitch, and zero yaw).
+            orientation = airsim.to_quaternion(0, 0, 0)  # roll, pitch, yaw in radians
+        else:
+            orientation = airsim.to_quaternion(0, 0, yaw)
+            
+        pose = airsim.Pose(airsim.Vector3r(*position), orientation)
+        self.client.simSetVehiclePose(pose, True)
+        
     def cleanup(self):
         # Cleanup and close the connection to AirSim.
         self.client.armDisarm(False)  # Try to disarm the drone
@@ -50,6 +69,7 @@ class Exploration:
         self.client.reset()
     def draw_path(self):
         # Create a directory to save the images if it doesn't exist
+        print("Drawing nodes...!!!!!!!!!!!!!!!!!!!!!!!!!")
         import os
         directory = "saved_plots"
         if not os.path.exists(directory):
@@ -61,22 +81,26 @@ class Exploration:
         # Draw nodes and edges
         for node in self.graph.nodes:
             # Draw node as a point
-            plt.scatter(node.gps[0], node.gps[1], color='blue')
-            
+            color = 'pink' if node.visited else 'green'
+    
+            # Draw node as a point
+            plt.scatter(node.gps[1], node.gps[0], color=color)  # Note the swapped coordinates here
+    
             # Draw yaw as an arrow (using the node's position and yaw_angle)
             arrow_length = 0.005  # you might want to adjust this for the scale of your graph
-            dx = arrow_length * math.cos(math.radians(node.yaw_angle))
-            dy = arrow_length * math.sin(math.radians(node.yaw_angle))
-            plt.arrow(node.gps[0], node.gps[1], dx, dy, color='red')
-            
+            dx = arrow_length * math.sin(math.radians(node.yaw_angle))  # sin for East (from yaw angle)
+            dy = arrow_length * math.cos(math.radians(node.yaw_angle))  # cos for North (from yaw angle)
+            plt.arrow(node.gps[1], node.gps[0], dx, dy, color='red')  # Note the swapped coordinates here
+            if node.score > 0:
+                plt.annotate(f"{node.score:.2f}", (node.gps[1], node.gps[0]), textcoords="offset points", xytext=(0,5), ha='center')
         # Draw edges between nodes
         for edge in self.graph.edges:
             node1, node2 = edge
-            plt.plot([node1.gps[0], node2.gps[0]], [node1.gps[1], node2.gps[1]], color='gray')
+            plt.plot([node1.gps[1], node2.gps[1]], [node1.gps[0], node2.gps[0]], color='gray')  # Note the swapped coordinates here
 
         # Set axis labels
-        plt.xlabel("Latitude")
-        plt.ylabel("Longitude")
+        plt.xlabel("East")
+        plt.ylabel("North")
         plt.title(f"Agent's Path with Yaw Directions - Iteration {self.iteration_count}")
         
         # Save the plot
@@ -86,9 +110,11 @@ class Exploration:
         self.iteration_count += 1
 
     """Methods for graph"""
-    def add_node_to_graph(self, description, gps, yaw_angle):
-        node = Node(description, gps, yaw_angle)
+    def add_node_to_graph(self, Q,  description, gps, yaw_angle):
+        node = Node(Q, Exploration.next_node_id, description, gps, yaw_angle)
+        Exploration.next_node_id += 1  # Increment the ID for the next node
         self.graph.add_node(node)
+        node.visited = False
         return node
         
     def connect_nodes(self, node1, node2):
@@ -124,72 +150,118 @@ class Exploration:
 
     def explore(self) -> None:
         # Initialize current_node at the beginning of exploration
+        step_counter = 0
+        start_position = (-5, 0, -5)  # Example NED position (N, E, D)
+        init_yaw = 0  # Example orientation (roll, pitch, yaw)
+        self.set_start_position(start_position, init_yaw)
+        self.stabilize_at_start()
+        # self.takeoff()
+
         initial_gps = get_position(self.client)
         initial_yaw = 0
-        self.current_node = self.add_node_to_graph("", initial_gps, initial_yaw)
-        self.takeoff()
+        self.current_node = self.add_node_to_graph(0, "", initial_gps, initial_yaw)
+        self.current_node.visited = True
+
         while True:
-            current_gps = get_position(self.client)  # Fetching the current position and yaw of the agent
-            current_yaw = get_yaw(self.client)
+            # current_gps = get_position(self.client)  # Fetching the current position and yaw of the agent
+            # current_yaw = get_yaw(self.client)
+
+            current_gps = self.current_node.gps
+            current_yaw = self.current_node.yaw_angle
+            self.current_node.visited = True
+            # self.current_node = self.add_node_to_graph(0, "", current_gps, current_yaw)
+
             print("Current_Pos", current_gps)
             print("Current_yaw", current_yaw)
-            captured_images = get_image(self.client)
+            captured_images = get_image(self.client, step_counter)
             curr_nodes_data = []
-            reached_goal = False
             for image in captured_images:
-                description, found = VLM_query(image)
-                curr_nodes_data.append((description, found))
-                if found:
-                    reached_goal=True
-            if reached_goal:
-                break
+                description = VLM_query(image)
+                curr_nodes_data.append((description))
 
+            # for idx, image in enumerate(captured_images):
+            #     image_name = f"step_{step_counter}_image_{idx}.png"  # Naming the image based on the step and image index
+            #     cv2.imwrite(image_name, image)  # Save the image. Ensure the 'image' is in the format OpenCV understands (e.g., a numpy array for grayscale or BGR images).
+            #     description = VLM_query(image)
+            #     curr_nodes_data.append((description))
+
+            step_counter += 1
             # Calculate yaw angles and GPS coordinates for each captured image
             nodes = []
-            for i, (description, _) in enumerate(curr_nodes_data):
-                direction = i * (self.rom / (self.n -1))
+            for i, description in enumerate(curr_nodes_data):
+                direction = i * (self.rom / (self.n - 1))
 
                 # Incorporating the actual yaw into the calculated yaw angle
-                yaw_angle = current_yaw + direction - self.rom/2  # Adjusting for center of the FOV
-                print("Yaw_angle", yaw_angle)
-                dx = 20 * math.cos(math.radians(yaw_angle))
-                dy = 20 * math.sin(math.radians(yaw_angle))
-                print("COS",math.cos(yaw_angle))
-                print(dx, dy)
-                # delta_lat = meters_to_lat(dy)
-                # delta_lon = meters_to_lon(dx, current_gps[0])
+                yaw_angle = current_yaw - direction + self.rom/2  # Adjusting for center of the FOV
 
-                new_lat = current_gps[0] + dy
-                new_lon = current_gps[1] + dx
+                # print("Yaw_angle", yaw_angle)
+                dx = 15 * math.cos(math.radians(yaw_angle))
+                dy = 15 * math.sin(math.radians(yaw_angle))
+
+                newX = current_gps[0] + dx
+                newY = current_gps[1] + dy
               
-                node = self.add_node_to_graph(description, (new_lon, new_lat), yaw_angle)
-                print("node expanded")
+                node = self.add_node_to_graph(0, description, (newX, newY), yaw_angle)
+                print("node expanded in ", node.gps, "for angle", node.yaw_angle, "Description", node.description, "\n")
                 self.connect_nodes(self.current_node, node)
                 nodes.append(node)
 
-            S_0 = LLM_abstractor([node.description for node in nodes], model=self.model)
-            print("abstracted base nodes")
-            self.H[0].append(S_0)
-            print("abstracted top nodes")
-            self.abstract(self.H[0], 1)
-            G = [h[-1] for h in self.H if h]
+            # S_0 = LLM_abstractor([node.description for node in nodes], model=self.model)
+            # print("abstracted base nodes")
+            # self.H[0].append(S_0)
+            # print("abstracted top nodes")
+            # self.abstract(self.H[0], 1)
+            # G = [h[-1] for h in self.H if h]
+            # # Use LLM_rephraser to get new descriptions for nodes
+            # rephrased_nodes = []
+            # for node in nodes:
 
-            # Use LLM_rephraser to get new descriptions for nodes
-            rephrased_nodes = [LLM_rephraser(node.description, G, model=self.model) for node in nodes]
+            #     rephrased_node = LLM_rephraser(node.description, G, model=self.model)
+
+            #     rephrased_nodes.append(rephrased_node)
+
+            # logging.info("expaned nodes rephrased")
             print("expaned nodes rephrased")
 
-            for i, node in enumerate(nodes):
-                node.description = rephrased_nodes[i]
+            # for i, node in enumerate(nodes):
+            #     node.description = rephrased_nodes[i]
 
-            self.nodes = nodes
-
+            # logging.info("Running MCTS")
             print("Running MCTS")
             descriptions = [node.description for node in nodes]
-            self.mcts.run_mcts(self.k, descriptions)
+            # self.mcts.run_mcts(self.k, descriptions)
 
+            # for node in nodes:
+            #     print(self.goal)
+            #     print("Node Description", node.description)
+            #     node.Q = LLM_evaluator(node.description, goal=self.goal, model="gpt-4")
+            #     print("NodeQ:", node.Q)
+            #     check = LLM_checker(node.description, self.goal, model="gpt-4")
+
+            #     print("Goal Found? ", check)
+            #     if check == "yes":
+            #         print("!!! Found GOAL !!!")
+            #         self.client.hoverAsync().join()
+            #         break
+            # MCTS
+            found = False
+            self.mcts.run_mcts(descriptions)
+            print("User-Instructions: ", self.goal)
             for node in nodes:
-                self.Q_list[str(node)] = self.mcts.Q.get(str(node.description), 0)
+                node.Q = self.mcts.Q.get(str(node.description), 0)
                 
+                check = LLM_checker(node.description, self.goal, model="gpt-4")
+                print("Goal Found? ", check)
+                if check.strip() == "yes":
+                    print("!!! Found GOAL !!!")
+                    self.client.hoverAsync().join()
+                    found = True
+                    break
+            if found:
+                break
+
+            self.frontier_buffer.extend(nodes)
+
             self.action()
 
     """Methods for robot movement"""
@@ -197,88 +269,91 @@ class Exploration:
         """Chooses and executes an action based on the Q-values."""
         # Compute distances to frontier nodes using Euclidean distance
         current_node_gps = get_position(self.client)
-        print("Node GPS",current_node_gps)
-        nodes_gps_list = [node.gps for node in self.nodes]
-        print("List GPS",nodes_gps_list[0])
+        print("Curret GPS",current_node_gps)
+        nodes_gps_list = [node.gps for node in self.graph.nodes if not node.visited] # changes
+        # nodes_gps_list = [node.gps for node in self.frontier_buffer]
+
+        # nodes_gps_list = [data['position'] for data in self.Q_buffer.values()]
         d_values = compute_euclidean_distances_from_current(current_node_gps, nodes_gps_list)
-        print(self.Q_list.keys())
-
+        print("d values", d_values)
         # Select node with the highest Q-value adjusted by distance
-        self.chosen_node = max(self.nodes, key=lambda node: self.Q_list[str(node)] / d_values[self.nodes.index(node)])
+        # self.chosen_node = max(self.nodes, key=lambda node: self.Q_buffer[str(node.id)] / d_values[self.nodes.index(node)])
 
-        # Remove the chosen node from the list of unexplored nodes to prevent revisiting it in future iterations
-        self.nodes.remove(self.chosen_node)
+        unvisited_nodes = [node for node in self.graph.nodes if not node.visited] # changes
+        # if unvisited_nodes:
+        #     unvisited_ids = [node.id for node in unvisited_nodes]
+        #     print("Unvisited Nodes ids:", unvisited_ids)
+
+        scores = [(node, node.Q -  0*d_values[nodes_gps_list.index(node.gps)]) for node in unvisited_nodes] # changes unvisited_nodes
+        print("SCORES", scores)
+        self.chosen_node = max(scores, key=lambda x: x[1])[0]
+        for node, score in scores:
+            node.score = score
+
+        # print(f"Before update, chosen_node visited status: {self.chosen_node.visited}")
+        self.chosen_node.visited = True
+        # print(f"Node Identity: {id(self.chosen_node)}")
+        # print(f"After update, chosen_node visited status: {self.chosen_node.visited}")
+
 
         # Make the robot move to the chosen node's location
-        self.move_to_next_point(next_position=self.chosen_node.gps, desired_yaw=self.chosen_node.yaw_angle, current_yaw = self.current_node.yaw_angle)
 
-        # Update the current node to be the chosen node
-        self.current_node = self.chosen_node
-        del self.Q_list[str(self.chosen_node)]
+        self.move_to_next_point(next_position=self.chosen_node.gps, desired_yaw=self.chosen_node.yaw_angle, current_yaw = self.current_node.yaw_angle)
+        # self.client.rotateByYawRateAsync(self.chosen_node.yaw_angle, 1)
         self.draw_path()
 
-    # def move_to_next_point(self, next_position, desired_yaw, current_yaw):
-    #     # Convert the lat-long into NED format (if they aren't already)
-    #     x, y = next_position # You'd need to define this conversion function
-    #     z = - 0.2
-    #     # Move to the target position
-    #     self.client.moveToPositionAsync(x, y, z, 2).join()  # Velocity = 3
-        
-    #     # Now, change the yaw to face the desired direction
-    #     yaw_rate = 15  # Set a yaw rate (degrees per second)
+        # Update the current node to be the chosen node
+        # self.chosen_node.visited = True
+        self.current_node = self.chosen_node
+        self.current_node.visited = True
+        # del self.Q_buffer[str(self.chosen_node.id)]
+        # self.frontier_buffer.remove(self.current_node)
 
-    #     duration = abs(desired_yaw-current_yaw) / yaw_rate
-        
-    #     yaw_error = desired_yaw - current_yaw
-    #     self.client.rotateByYawRateAsync(yaw_rate if yaw_error > 0 else -yaw_rate, abs(duration)).join()
-        
-    #     # Make sure the drone hovers after moving
-    #     self.client.hoverAsync().join()
+
     def move_to_next_point(self, next_position, desired_yaw, current_yaw):
         # Convert the lat-long into NED format (if they aren't already)
         x, y = next_position
         z = -0.2
+        self.client.moveToPositionAsync(x, y, z, 1, yaw_mode=airsim.YawMode(is_rate=False, yaw_or_rate=desired_yaw)).join()
+        # self.moveToPosition(x, y, z, 1)
 
-        # Move to the target position and set yaw
-        self.client.moveToPositionAsync(x, y, z, 3, yaw_mode=airsim.YawMode(is_rate=False, yaw_or_rate=desired_yaw)).join()
-        print("Current Yaw", current_yaw)
-        print("Desired Yaw", desired_yaw)
-        # Make sure the drone hovers after moving
+        time.sleep(5)
+        # self.client.hoverAsync().join()
+
+
+    def stabilize_at_start(self):
+        # This will ensure the drone stabilizes at the position it starts at
+        self.client.moveToPositionAsync(-5, 0, -2, 3).join()
+        time.sleep(2)
         self.client.hoverAsync().join()
 
+    # def moveToPosition(self, x, y, z, v):
+    #     currentPos = self.client.getMultirotorState().kinematics_estimated.position
+    #     t = ((currentPos.x_val - x)**2 + (currentPos.y_val - y)**2 + (currentPos.z_val - z)**2)**0.5 / v
+    #     delta_x = x - currentPos.x_val
+    #     delta_y = y - currentPos.y_val
+    #     delta_z = z - currentPos.z_val
+    #     vx = delta_x / t
+    #     vy = delta_y / t
+    #     vz = delta_z / t
+    #     self.client.moveByVelocityAsync(vx, vy, vz, t)
+    #     time.sleep(t)
+    #     self.client.moveByVelocityAsync(0, 0, 0, 5)
+    #     self.client.hoverAsync().join()
+    # def takeoff(self):
+    #     self.client.armDisarm(True)
+    #     self.client.takeoffAsync().join()
+import sys
+class Logger(object):
+    def __init__(self, filename="Default.log"):
+        self.terminal = sys.stdout
+        self.log = open(filename, "a")
 
-    def takeoff(self):
-        self.client.armDisarm(True)
-        self.client.takeoffAsync().join()
+    def write(self, message):
+        self.terminal.write(message)
+        self.log.write(message)  
 
-# def calculate_velocity_yaw(current_pos, current_yaw, waypoint, desired_node_yaw):
-#     Kp_yaw = 0.4
-#     Ki_yaw = 0.2
-#     Kd_yaw = 0.02
-#     EPSILON = 1e-6
-#     position_error = haversine_distance(current_pos, waypoint)
-#     dlat = waypoint[0] - current_pos[0]
-#     dlon = waypoint[1] - current_pos[1]
-
-#     if position_error > 1:  # If the robot is further than 1 unit from the waypoint
-#         desired_yaw = math.atan2(dlat, dlon)
-#         desired_yaw = desired_yaw - np.pi/2 
-#     else:
-#         desired_yaw = desired_node_yaw  # Set desired yaw to the node's yaw as the robot gets closer
-
-#     desired_yaw = (desired_yaw + np.pi) % (2 * np.pi) - np.pi
-
-#     yaw_error = desired_yaw - current_yaw
-#     yaw_error = (yaw_error + np.pi) % (2 * np.pi) - np.pi
-    
-#     yaw_integral = 0  # Initialize this in your global scope if you want integral action
-#     previous_yaw_error = 0  # Initialize this in your global scope
-
-#     dt = 0.01  # Consider adjusting this as per your needs
-#     yaw_integral += yaw_error * dt
-#     yaw_derivative = (yaw_error - previous_yaw_error) / (dt + EPSILON)
-#     yaw_speed = Kp_yaw * yaw_error + Ki_yaw * yaw_integral + Kd_yaw * yaw_derivative
-#     return yaw_speed, yaw_error, position_error, desired_yaw
-
-
-
+    def flush(self):
+        # this flush method is needed for python 3 compatibility.
+        # this handles the flush command by doing nothing.
+        pass    

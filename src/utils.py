@@ -45,13 +45,33 @@ def lon_to_meters(lon_diff, lat):
     R = 6378.1
     return R * lon_diff * (math.pi / 180) * math.cos(lat * math.pi/180) * 1000
 
+# def compute_euclidean_distances_from_current(current_node_gps, nodes_gps_list):
+#     """Compute the Euclidean distances from the current node to all other nodes."""
+    
+#     def euclidean_distance(coord1, coord2):
+#         """Calculate the Euclidean distance between two coordinates."""
+#         x1, y1, _= coord1
+#         x2, y2 = coord2
+#         return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+    
+#     return [euclidean_distance(current_node_gps, node_gps) for node_gps in nodes_gps_list]
+
 def compute_euclidean_distances_from_current(current_node_gps, nodes_gps_list):
-    """Compute the Euclidean distances from the current node to all other nodes."""
+    """Compute the Euclidean distances from the current node to all other nodes in the list."""
     
     def euclidean_distance(coord1, coord2):
         """Calculate the Euclidean distance between two coordinates."""
-        x1, y1, _= coord1
-        x2, y2 = coord2
+        # print("Coord1:", coord1)
+        # print("Coord2:", coord2)
+
+        x1, y1, _ = coord1
+        x2, y2 = coord2  # Assuming the second coordinate might have an extra value (like altitude) that we want to ignore.
         return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
     
     return [euclidean_distance(current_node_gps, node_gps) for node_gps in nodes_gps_list]
+
+def compute_euclidean_distance(coord1, coord2):
+    """Calculate the Euclidean distance between two coordinates."""
+    x1, y1, _ = coord1
+    x2, y2 = coord2  # Also capture the possible third component, though it's ignored in the computation.
+    return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)

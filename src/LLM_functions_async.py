@@ -2,22 +2,26 @@ import openai
 import asyncio
 import aiohttp
 import os
+import requests
+from tenacity import retry, stop_after_attempt, wait_random_exponential
 
 async def fetch(session, url, headers, json_data):
     async with session.post(url, headers=headers, json=json_data) as response:
         return await response.json()
     
+@retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(6))
 async def LLM_evaluator_async(node, goal, model):
     prompt = f"""
-        You are an AI judge assigned to evaluate the likelihood of a user finding a specific goal within a described scene. All relevant details about the goal and the scene will be provided in text format. Based on the information, you are to assign a Likert score ranging from 1 to 5. Here's what each score represents:
+        You are an judge to evaluate the likelihood of a user finding a specific goal within a described scene. Based on goal and scene info, you are to assign a Likert score from 1 to 5:
 
-        1: Highly unlikely the user will find the goal.
+        1: Highly unlikely finding the goal.
         2: Unusual scenario, but there's a chance.
         3: Equal probability of finding or not finding the goal.
-        4: Likely the user will find the goal.
-        5: Very likely the user will find the goal.
+        4: Likely finding the goal.
+        5: Very likely finding the goal.
 
-        Your response should only be the score (a number between 1 and 5) without any additional commentary. For instance, if it's very likely, simply reply with "5".
+        If the scene is largely object or walls, means you are about to hit something, give a score of 1 this case.
+        Your response should only be the score (a number between 1 and 5) without any additional commentary
 
         User's goal: {goal}
         Described scene:
@@ -25,10 +29,10 @@ async def LLM_evaluator_async(node, goal, model):
     
     message=[{"role": "user", "content": prompt}]
     request_payload = {
-        "model": model,
+        "model": "gpt-4",
         "messages": message,
-        "temperature": 0.5,
-        "max_tokens": 3000,
+        "temperature": 0.8,
+        "max_tokens": 1000,
         "frequency_penalty": 0.0
     }
     url="https://api.openai.com/v1/chat/completions"
@@ -47,13 +51,14 @@ async def LLM_evaluator_async(node, goal, model):
     print("Score:", score)
     return score
 
+@retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(6))
 async def LLM_world_model_async(node, model):
     prompt = f"""
-    You are an AI tasked with extrapolating from a given scene description. Based on the details provided in this scene, envision what this setting could evolve into if one were to continue forward. Your response should be a detailed scene description, focusing on potential elements that may logically appear ahead based on the current context.
+    You are an AI tasked with extrapolating from a given scene description. Based on the details provided in this scene, envision what this setting could evolve into if one were to continue forward like 10m. Your response should be a detailed scene description, focusing on potential elements that may logically appear ahead based on the current context.
 
     You should provide a concise description of the given environment that don't exceed 100 words. Emphasize physical structures and natural elements, ensuring specific details about their conditions and characteristics are included. Refrain from mentioning people or activities
 
-    An example of the answer: Moving forward from the curb pavement, the walkway broadens into a cobblestone plaza. Ahead, dense trees form a shaded canopy, under which modern LED streetlights stand at regular intervals. The path leads to a large stone fountain surrounded by a manicured lawn and symmetrical plant beds filled with seasonal flowers. The cobblestone trail continues, branching into multiple paths lined with metal bicycle racks.
+        An example of the answer: Moving forward from the curb pavement, the walkway broadens into a cobblestone plaza. Ahead, dense trees form a shaded canopy, under which modern LED streetlights stand at regular intervals. The path leads to a large stone fountain surrounded by a manicured lawn and symmetrical plant beds filled with seasonal flowers. The cobblestone trail continues, branching into multiple paths lined with metal bicycle racks.
     
     Current scene observation: {node}
     """
@@ -73,9 +78,10 @@ async def LLM_world_model_async(node, model):
     }
     async with aiohttp.ClientSession() as session:
         response = await fetch(session, url, headers, request_payload)
-    # print(f"Current scene observation: {node}")
+    # print(f"Current scene observation: {node}")print(response)
+    # print("=====Error===",response)
     extrapolated_scene = response['choices'][0]['message']['content'].strip()
-    # print("Extrapolated scene:", extrapolated_scene)
+    print("===Extrapolated scene:", extrapolated_scene)
 
     return extrapolated_scene
 
@@ -136,3 +142,79 @@ async def LLM_rephraser_async(node, global_context, model):
     rephrased_description = response['choices'][0]['message']['content'].strip()
     # print("Rephrased description:", rephrased_description)
     return rephrased_description
+
+
+
+def LLM_world_model_http(node, model):
+    prompt = f"""
+    You are an AI tasked with extrapolating from a given scene description. Based on the details provided in this scene, envision what this setting could evolve into if one were to continue forward. Your response should be a detailed scene description, focusing on potential elements that may logically appear ahead based on the current context.
+
+    You should provide a concise description of the given environment that don't exceed 100 words. Emphasize physical structures and natural elements, ensuring specific details about their conditions and characteristics are included. Refrain from mentioning people or activities
+
+        An example of the answer: Moving forward from the curb pavement, the walkway broadens into a cobblestone plaza. Ahead, dense trees form a shaded canopy, under which modern LED streetlights stand at regular intervals. The path leads to a large stone fountain surrounded by a manicured lawn and symmetrical plant beds filled with seasonal flowers. The cobblestone trail continues, branching into multiple paths lined with metal bicycle racks.
+    
+    Current scene observation: {node}
+    """
+    message = [{"role": "user", "content": prompt}]
+    request_payload = {
+        "model": model,
+        "messages": message,
+        "temperature": 0.5,
+        "max_tokens": 3000,
+        "frequency_penalty": 0.0
+    }
+    url = "https://api.openai.com/v1/chat/completions"
+    api_key = os.getenv("OPENAI_API_KEY")
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    response = requests.post(url, headers=headers, json=request_payload)
+    
+    response_data = response.json()
+    if 'choices' not in response_data:
+        print(response_data)  # Print the entire response for debugging
+        return ""  # or handle in some other way
+    else:
+        extrapolated_scene = response_data['choices'][0]['message']['content'].strip()
+    return extrapolated_scene
+
+def LLM_evaluator_http(node, goal, model):
+    prompt = f"""
+        You are an judge to evaluate the likelihood of a user finding a specific goal within a described scene. Based on goal and scene info, you are to assign a Likert score from 1 to 5:
+
+        1: Highly unlikely the user will find the goal.
+        2: Unusual scenario, but there's a chance.
+        3: Equal probability of finding or not finding the goal.
+        4: Likely the user will find the goal.
+        5: Very likely the user will find the goal.
+
+        If you find the scene is largely object or walls, means you are about to hit something, give a score of 1 this case.
+        Your response should only be the score (a number between 1 and 5) without any additional commentary
+
+        User's goal: {goal}
+        Described scene:
+        """ + str(node)
+
+    message = [{"role": "user", "content": prompt}]
+    request_payload = {
+        "model": model,
+        "messages": message,
+        "temperature": 0.8,
+        "max_tokens": 1000,
+        "frequency_penalty": 0.0
+    }
+    url = "https://api.openai.com/v1/chat/completions"
+    api_key = os.getenv("OPENAI_API_KEY")
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    response = requests.post(url, headers=headers, json=request_payload)
+    try:
+        score = int(response.json()['choices'][0]['message']['content'].strip())
+    except ValueError:
+        score = 3  # Default to a neutral score or handle differently as needed
+
+    print("Score:", score)
+    return score
