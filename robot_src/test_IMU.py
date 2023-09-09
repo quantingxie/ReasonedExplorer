@@ -8,10 +8,11 @@ def adjust_heading(heading):
         return -(heading - 360)
 
 
-def read_from_serial(port='/dev/ttyTHS0', baudrate=115200, timeout=0.1):
+def read_from_serial(port='/dev/ttyUSB0', baudrate=115200, timeout=0.1):
     with serial.Serial(port, baudrate, timeout=timeout) as ser:
         while True:
             line = ser.readline()  # read a line terminated with a newline (\n)
+            # print(line)
             try:
                 decoded_line = line.decode('utf-8').strip()
                 # print(decoded_line)
