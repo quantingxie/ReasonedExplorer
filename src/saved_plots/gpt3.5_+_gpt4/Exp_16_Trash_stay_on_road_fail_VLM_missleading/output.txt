@@ -1,0 +1,763 @@
+Connected!
+Client Ver:1 (Min Req: 1), Server Ver:1 (Min Req: 1)
+
+Explorer
+!!yaw 0
+GLOBAL STEP:  0
+Current_Pos (15.0, -45.0, -0.7328219413757324)
+Current_yaw 0
+Extracted Text
+Found Bench: False
+Found all objects: 
+Extracted Text
+Found Bench: False
+Found all objects: 
+Extracted Text
+Found Bench: False
+Found all objects: 
+node expanded in  (18.5, -38.93782217350893) for angle 60.0 Description <image>Embedding</image> Describe every objects in the image and their spatial relationship, and describe the backgrouds: The image features a large, open area with a grassy area in the middle. The grass is surrounded by a walkway, which leads to a building. There are several cars parked in the area, with some closer to the building and others further away. The cars are parked in various positions, with one car located near the center of the image, another near the left side, and the third one on the right side. The overall scene is a mix of urban and rural elements, with the grassy area and the cars providing a sense of a typical city setting. 
+
+node expanded in  (22.0, -45.0) for angle 0.0 Description <image>Embedding</image> Describe every objects in the image and their spatial relationship, and describe the backgrouds: The image features a park with a paved walkway surrounded by trees and grass. The walkway is surrounded by benches, and there are several people scattered throughout the park. The park is located in a city, and the buildings are visible in the background. The sky is cloudy, and a few clouds are visible near the top of the image. 
+
+node expanded in  (18.5, -51.06217782649107) for angle -60.0 Description <image>Embedding</image> Describe every objects in the image and their spatial relationship, and describe the backgrouds: The image features a park with a grassy area, a bench, and a few trees. The park is located in a residential area, and there are several cars parked in the area. The backgroun is a large grassy area with a few benches scattered around. The benches are placed in various locations, some closer to the park and others further away. The trees in the park are also present, adding a touch of greenery to the scene. 
+
+Running MCTS
+Starting MCTS run...
+Step 1: Expanding on each S_t1 node...
+===Extrapolated scene: Observed elements:
+- Grassy area
+- Bench
+- Trees
+- Residential area
+- Cars parked
+- Background: Large grassy area with benches scattered around
+
+State Description: Moving forward by 10m, the agent approaches a different bench, closer to the park. The trees still provide a touch of greenery, and the cars parked in the residential area are still visible in the background. The grassy area continues, with more benches scattered around at varying distances.
+===Extrapolated scene: Observed elements:
+- Grassy area in the middle
+- Walkway surrounding the grassy area
+- Building at the end of the walkway
+- Several cars parked in the area
+
+Extrapolation: Moving forward by 10m, the agent approaches the building, standing near the entrance. The walkway continues, curving slightly to the left, revealing more parked cars in the distance. The grassy area remains in view, providing a refreshing contrast to the urban surroundings.
+===Extrapolated scene: Observed elements:
+- Paved walkway
+- Trees
+- Grass
+- Benches
+- People
+- Buildings in the background
+- Cloudy sky with clouds
+
+State Description: Moving 10m forward, the agent finds themselves closer to the trees and grass. The walkway continues ahead, lined with more benches and people enjoying the park. The buildings in the background still stand tall, with the cloudy sky creating a serene atmosphere.
+===Extrapolated scene: Observed elements:
+- Grassy area
+- Bench
+- Trees
+- Residential area
+- Parked cars
+- Background: Large grassy area with scattered benches
+
+State Description: Moving 10m forward, the agent approaches a different bench, closer to the park. The trees provide a shaded area, and the parked cars are still visible in the residential area. The background remains the same, with grassy areas and scattered benches creating a peaceful ambiance.
+===Extrapolated scene: Observed elements:
+- Grassy area in the middle
+- Walkway surrounding the grassy area
+- Building at the end of the walkway
+- Several cars parked in the area
+
+State Description: Moving 10m forward, the agent approaches the building at the end of the walkway. The grassy area becomes smaller in view, and the parked cars become more prominent, with one car now directly in front of the agent. The urban elements of the scene become more pronounced as the agent gets closer to the building.
+===Extrapolated scene: Observed elements:
+- Grassy area
+- Walkway surrounding the grassy area
+- Building at the end of the walkway
+- Cars parked in various positions
+
+Extrapolation:
+Moving 10m forward, the agent approaches the building at the end of the walkway. The cars become more visible, with one parked directly in front of the building, another on the left side, and the third one on the right side. The grassy area in the middle of the scene remains prominent, providing a refreshing contrast to the urban elements.
+===Extrapolated scene: Observed elements:
+- Paved walkway
+- Trees and grass
+- Benches
+- People scattered throughout the park
+- Buildings in the background
+- Cloudy sky with a few clouds visible
+
+State Description: Moving forward by 10m, the agent is now closer to the benches lined along the walkway. The trees cast shadows on the path, creating a pleasant spot for people to rest. The buildings in the background still tower over the park, providing a stark contrast to the natural surroundings. The cloudy sky remains unchanged, with a few clouds still visible near the top of the image.
+===Extrapolated scene: Observed elements:
+- Paved walkway
+- Trees
+- Grass
+- Benches
+- People
+- Buildings in the background
+- Cloudy sky with a few clouds
+
+State Description: As the agent moves forward by 10m, they find themselves in the midst of the park, standing on the paved walkway. The trees surround them, offering a sense of tranquility. The grass stretches out on both sides, inviting them to take a leisurely stroll. The benches are now closer, providing a resting spot for weary park-goers. The people remain scattered throughout the park, engaged in various activities. Looking towards the background, the buildings stand tall, showcasing the urban landscape. The cloudy sky continues to cast a soft light on the scene, with a few clouds adorning the top of the image, creating a picturesque setting for the agent to explore.
+===Extrapolated scene: Observed elements:
+- Grassy area
+- Bench
+- Trees
+- Residential area
+- Cars
+- Background with large grassy area and scattered benches
+
+Extrapolation:
+Moving 10m forward, the agent approaches one of the benches in the park. The bench is surrounded by tall trees, providing shade and creating a serene atmosphere. From this vantage point, the residential area can be seen with its neatly lined houses and well-maintained lawns. The cars parked in the area add a touch of activity to the otherwise peaceful scene. In the background, the large grassy area stretches out, with more benches scattered around, inviting visitors to relax and enjoy the view.
+Score: 3
+Score: 3
+Score: 4
+Score: 4
+Score: 3
+Score: 4
+Score: -1
+Score: -1
+Score: -1
+Step 2: Starting simulations for expanded nodes...
+===Extrapolated scene: Extrapolation: Progressing 10m, the agent is now closer to the benches lined along the walkway. The trees cast shadows on the path, creating a pleasant spot for people to rest. The buildings in the background still tower over the park, providing a stark contrast to the natural surroundings. The cloudy sky remains unchanged, with a few clouds still visible near the top of the image.
+===Extrapolated scene: State Description: Progressing 10m, the agent approaches the building at the end of the walkway, now standing directly in front of it. The cars become more visible, with one parked directly in front of the building, another on the left side, and the third one on the right side. The grassy area in the middle of the scene remains prominent, providing a refreshing contrast to the urban elements.
+===Extrapolated scene: Now, Current scene observation: Observed elements:
+- Grassy area
+- Bench
+- Trees
+- Residential area
+- Parked cars
+- Background: Large grassy area with scattered benches
+
+State Description: Moving 10m forward, the agent approaches a different bench, closer to the park. The trees provide a shaded area, and the parked cars are still visible in the residential area. The background remains the same, with grassy areas and scattered benches creating a peaceful ambiance.
+Score: 4
+===Extrapolated scene: Extrapolation: 
+Moving 10m forward, the agent approaches one of the benches in the park. The bench is surrounded by tall trees, providing shade and creating a serene atmosphere. From this vantage point, the residential area can be seen with its neatly lined houses and well-maintained lawns. The cars parked in the area add a touch of activity to the otherwise peaceful scene. In the background, the large grassy area stretches out, with more benches scattered around, inviting visitors to relax and enjoy the view.
+Score: -1
+===Extrapolated scene: Current scene observation: 
+
+- Grassy area in the middle
+- Walkway surrounding the grassy area
+- Building at the end of the walkway
+- Several cars parked in the area
+
+Extrapolation:
+
+Moving 10m forward, the agent approaches the building at the end of the walkway. The grassy area becomes smaller in view, and the parked cars become more prominent, with one car now directly in front of the agent. The urban elements of the scene become more pronounced as the agent gets closer to the building.
+===Extrapolated scene: Now, Current scene observation: Observed elements:
+- Grassy area
+- Bench
+- Trees
+- Residential area
+- Cars parked
+- Background: Large grassy area with benches scattered around
+
+State Description: Moving forward by 10m, the agent approaches a different bench, closer to the park. The trees still provide a touch of greenery, and the cars parked in the residential area are still visible in the background. The grassy area continues, with more benches scattered around at varying distances. The agent is now able to see a small pond or lake in the distance, adding a serene and tranquil element to the scene.
+Score: 4
+Score: 1
+===Extrapolated scene: Now, Current scene observation: Observed elements:
+- Grassy area in the middle
+- Walkway surrounding the grassy area
+- Building at the end of the walkway
+- Several cars parked in the area
+
+Extrapolation: Moving forward by 10m, the agent approaches the building, standing near the entrance. The walkway continues, curving slightly to the left, revealing more parked cars in the distance. The grassy area remains in view, providing a refreshing contrast to the urban surroundings. The building's architecture becomes more prominent, with intricate details and large windows visible up close. The cars parked in the area become more varied, ranging from sedans to SUVs. The walkway, now closer to the building, showcases its well-maintained pavement and occasional potted plants. The entrance of the building features a glass door, displaying a glimpse of the interior.
+Score: -1
+Score: -1
+===Extrapolated scene: Now, Current scene observation: Observed elements:
+- Paved walkway
+- Trees
+- Grass
+- Benches
+- People
+- Buildings in the background
+- Cloudy sky with a few clouds
+
+State Description: As the agent moves forward by 10m, they find themselves in the midst of the park, standing on the paved walkway. The trees surround them, offering a sense of tranquility. The grass stretches out on both sides, inviting them to take a leisurely stroll. The benches are now closer, providing a resting spot for weary park-goers. The people remain scattered throughout the park, engaged in various activities. Looking towards the background, the buildings stand tall, showcasing the urban landscape. The cloudy sky continues to cast a soft light on the scene, with a few clouds adorning the top of the image, creating a picturesque setting for the agent to explore.
+===Extrapolated scene: Moving 10m forward, the agent finds themselves closer to the trees and grass. The walkway continues ahead, lined with more benches and people enjoying the park. The buildings in the background still stand tall, with the cloudy sky creating a serene atmosphere. The agent can see more details of the trees, such as the leaves rustling in the wind and birds perched on the branches. The grass appears greener and more vibrant as they approach it, with patches of wildflowers scattered throughout. The benches are now occupied by people enjoying the scenery, some reading books or having picnics. The agent can hear snippets of conversations and laughter as they pass by. The buildings in the background maintain their architectural grandeur, their facades adorned with intricate details. The cloudy sky overhead casts soft, diffused light, creating a peaceful ambiance in the park.
+Score: 3
+Score: 4
+Score: 3
+Step 3: Averaging scores for simulations and expansions...
+Updated Q value for node <image>Embedding</image> Describe every objects in the image and their spatial relationship, and describe the backgrouds: The image features a large, open area with a grassy area in the middle. The grass is surrounded by a walkway, which leads to a building. There are several cars parked in the area, with some closer to the building and others further away. The cars are parked in various positions, with one car located near the center of the image, another near the left side, and the third one on the right side. The overall scene is a mix of urban and rural elements, with the grassy area and the cars providing a sense of a typical city setting.: 2.6666666666666665
+Updated Q value for node <image>Embedding</image> Describe every objects in the image and their spatial relationship, and describe the backgrouds: The image features a park with a paved walkway surrounded by trees and grass. The walkway is surrounded by benches, and there are several people scattered throughout the park. The park is located in a city, and the buildings are visible in the background. The sky is cloudy, and a few clouds are visible near the top of the image.: 3.6666666666666665
+Updated Q value for node <image>Embedding</image> Describe every objects in the image and their spatial relationship, and describe the backgrouds: The image features a park with a grassy area, a bench, and a few trees. The park is located in a residential area, and there are several cars parked in the area. The backgroun is a large grassy area with a few benches scattered around. The benches are placed in various locations, some closer to the park and others further away. The trees in the park are also present, adding a touch of greenery to the scene.: -0.6666666666666666
+MCTS thinking time:  9.327030420303345 seconds
+User-Instructions:  Find me a trash can, and stay on the paved road, don't go into grass
+Goal Found?  no
+Goal Found?  As an AI, I'm unable to process image data in this textual format. Please provide textual scene
+Goal Found?  no
+Curret GPS (15.0, -45.0, -0.7458829283714294)
+d values [7.000000000000002, 7.0, 7.000000000000002]
+SCORES [(<exploration_simulator.Node object at 0x000002837FF46050>, 2.6666666666666665), (<exploration_simulator.Node object at 0x000002837FF47070>, 3.6666666666666665), (<exploration_simulator.Node object at 0x000002837FF46230>, -0.6666666666666666)]
+Drawing nodes...!!!!!!!!!!!!!!!!!!!!!!!!!
+Action time:  13.251588821411133 seconds
+GLOBAL STEP:  1
+Current_Pos (22.0, -45.0)
+Current_yaw 0.0
+Extracted Text
+Found Bench: False
+Found all objects: 
+Extracted Text
+Found Bench: False
+Found all objects: 
+Extracted Text
+Found Bench: False
+Found all objects: 
+node expanded in  (25.5, -38.93782217350893) for angle 60.0 Description <image>Embedding</image> Describe every objects in the image and their spatial relationship, and describe the backgrouds: The image features a large, open area with a grassy area in the middle. The grass is surrounded by a brick walkway, which leads to a building. There are several trees in the area, with some closer to the building and others further away. The trees are situated in various positions, creating a natural and serene atmosphere. The sky is cloudy, and the setting appears to be a park or a public space. 
+
+node expanded in  (29.0, -45.0) for angle 0.0 Description <image>Embedding</image> Describe every objects in the image and their spatial relationship, and describe the backgrouds: The image features a park with a paved walkway and a fountain. The walkway is surrounded by grass and trees, and there are benches placed along the path. The park is located in a city, and the backround is filled with trees and a cloudy sky. There are several people scattered throughout the park, some sitting on benches and others walking around. The people appear to be enjoying the park and the surroundings. 
+
+node expanded in  (25.5, -51.06217782649107) for angle -60.0 Description <image>Embedding</image> Describe every objects in the image and their spatial relationship, and describe the backgrouds: The image features a park with a grassy area, a sidewalk, and a few trees. The park is located in a residential area, and there are several cars parked in the area. The sidewalk extends from the left side of the image to the right side, and the trees are located in the middle of the park. The background consists of a grassy field, a few benches, and some trees. 
+
+Running MCTS
+Starting MCTS run...
+Step 1: Expanding on each S_t1 node...
+===Extrapolated scene: Observed elements:
+- Grassy area
+- Sidewalk
+- Trees
+- Residential area
+- Cars parked
+- Benches
+
+Extrapolation:
+Moving 10m forward, the agent approaches the sidewalk on the left side. The trees are now closer, providing shade and a sense of tranquility. The residential area becomes more prominent, with houses and gardens lining the street. The parked cars are still visible, creating a sense of activity.
+===Extrapolated scene: Observed elements:
+- Grassy area
+- Brick walkway
+- Building
+- Trees
+- Cloudy sky
+
+State Description: Advancing 10m, the agent walks along the brick walkway towards the building. The trees become more densely clustered around the building, creating a canopy of leaves that partially obscures the view of the sky. The atmosphere feels more secluded and tranquil.
+===Extrapolated scene: Observed elements:
+- Grassy area
+- Sidewalk
+- Trees
+- Residential area
+- Parked cars
+- Benches
+
+Extrapolation:
+Moving forward by 10m, the agent is now standing on the sidewalk, closer to the trees. The trees provide shade, and the agent can see more benches scattered around the park. Some of the parked cars are now visible, adding to the residential atmosphere. The grassy field stretches out in the background, creating a peaceful and inviting environment.
+===Extrapolated scene: Observed elements:
+- Grassy area
+- Brick walkway surrounding the grass
+- Building at the end of the walkway
+- Several trees in different positions
+- Cloudy sky
+
+Extrapolation:
+Moving 10m forward, the agent finds themselves closer to the building at the end of the walkway. The trees become more densely packed, creating a shaded path leading up to the entrance of the building. The cloudy sky casts a muted, soft light over the entire scene, adding to the tranquil atmosphere of the park.
+===Extrapolated scene: Observed elements:
+- Grassy area
+- Sidewalk
+- Trees
+- Residential area
+- Parked cars
+- Benches
+
+Extrapolation:
+Moving 10m forward, the agent walks along the sidewalk, passing by the parked cars. The trees become more prominent, providing shade and creating a peaceful atmosphere. The benches are now closer, inviting people to sit and enjoy the park.
+Score: 3
+Score: 4
+Score: -1
+===Extrapolated scene: Observed elements:
+- Paved walkway
+- Fountain
+- Grass and trees surrounding the walkway
+- Benches along the path
+- Trees and cloudy sky in the background
+- People sitting on benches and walking around
+
+State Description: Moving 10m forward, the agent reaches the fountain, which is now in the center of their view. The sound of the water splashing can be heard, and the spray from the fountain creates a refreshing mist in the air. The surrounding grass and trees create a serene atmosphere, and the benches are now closer, allowing for a more detailed view of the people enjoying the park. The cloudy sky provides a soft and diffused light, casting a gentle glow over the scene.
+===Extrapolated scene: Observed elements:
+- Paved walkway
+- Fountain
+- Grass and trees surrounding the walkway
+- Benches along the path
+- People scattered throughout the park
+- City background with trees and a cloudy sky
+
+State Description: Moving 10m forward, the agent is now closer to the fountain, feeling the cool mist on their skin. The sound of the flowing water is more prominent, and they can see the intricate details of the fountain design. The surrounding grass and trees create a peaceful and serene atmosphere. The benches are now within arm's reach, offering a place to pause and enjoy the view. The city background remains visible, with the trees providing a natural barrier from the urban environment. The cloudy sky adds a touch of tranquility to the scene.
+===Extrapolated scene: Observed elements:
+- Grassy area in the middle
+- Brick walkway surrounding the grass
+- Building at the end of the walkway
+- Several trees scattered throughout the area
+- Cloudy sky
+
+Extrapolation:
+Moving forward by 10m, the agent approaches the building. The walkway continues, leading directly to the entrance of the building. The trees still create a serene atmosphere, with some now closer to the agent and others further away. The cloudy sky remains overhead, casting a soft, diffused light on the scene.
+Score: 4
+Score: 3
+Score: 4
+===Extrapolated scene: Observed elements:
+- Paved walkway
+- Fountain
+- Grass and trees surrounding the walkway
+- Benches along the path
+- Trees and cloudy sky in the background
+- People sitting on benches and walking around
+
+Extrapolation:
+Moving forward by 10m, the agent continues to walk along the paved walkway. The fountain now comes into full view, its water cascading down in a mesmerizing display. The agent can see the intricate design of the fountain, with its ornate carvings and sparkling water. The sound of the water adds a soothing ambiance to the scene. As the agent walks, the grass and trees still surround the walkway, providing a refreshing green backdrop. The benches along the path are now closer, and the agent notices the intricate patterns on the seats and the sturdy construction. Some benches are occupied by people, who are engaged in conversations or simply enjoying the peaceful atmosphere of the park. The trees in the background sway gently in the breeze, their leaves rustling. The cloudy sky adds a sense of tranquility to the scene, casting a soft, diffused light over the park. The agent can now see more people scattered throughout the park, some exploring the flowers and shrubs, while others are engaged in outdoor activities like yoga or playing with their pets. Overall, the park remains a serene and inviting space, with its natural elements and the joyful presence of people.
+Score: 2
+Score: 3
+Score: 3
+Step 2: Starting simulations for expanded nodes...
+===Extrapolated scene: State Description: Progressing 10m, the agent walks along the sidewalk, passing by the parked cars. The trees become more prominent, their branches extending overhead and providing ample shade. The residential area starts to fade into the background as the focus shifts to the natural elements. The benches, now closer, invite people to sit and enjoy the tranquility of the park.
+===Extrapolated scene: Now, Current scene observation: Observed elements:
+- Grassy area
+- Sidewalk
+- Trees
+- Residential area
+- Cars parked
+- Benches
+
+Extrapolation:
+Moving 10m forward, the agent approaches the sidewalk on the left side. The trees are now closer, providing shade and a sense of tranquility. The residential area becomes more prominent, with houses and gardens lining the street. The parked cars are still visible, creating a sense of activity.
+===Extrapolated scene: Extrapolation: As the agent moves forward by 10m, they find themselves closer to the building at the end of the walkway. The grassy area remains expansive, surrounded by the brick walkway. The trees become more densely packed, creating a shaded path leading up to the entrance of the building. The cloudy sky casts a muted, soft light over the entire scene, adding to the tranquil atmosphere of the park.
+Score: 4
+===Extrapolated scene: State Description: Moving 10m forward, the agent reaches the edge of the fountain, which is now in the center of their view. The sound of the water splashing can be heard, and the spray from the fountain creates a refreshing mist in the air. The surrounding grass and trees create a serene atmosphere, and the benches are now closer, allowing for a more detailed view of the people enjoying the park. The cloudy sky provides a soft and diffused light, casting a gentle glow over the scene.
+Score: -1
+Score: 4
+Score: 4
+===Extrapolated scene: Current scene observation: Observed elements:
+- Grassy area
+- Sidewalk
+- Trees
+- Residential area
+- Parked cars
+- Benches
+
+Extrapolation:
+Moving forward by 10m, the agent is now standing on the sidewalk, closer to the trees. The trees provide shade, and the agent can see more benches scattered around the park. Some of the parked cars are now visible, adding to the residential atmosphere. The grassy field stretches out in the background, creating a peaceful and inviting environment. The sound of children playing can be heard from a nearby playground, adding to the lively atmosphere. The residential area reveals well-maintained houses with neatly trimmed lawns, giving a sense of community. Overall, the scene exudes a calm and welcoming ambiance, with the combination of nature and human habitation blending seamlessly.
+===Extrapolated scene: Current Scene Observation:
+- Grassy area in the middle
+- Brick walkway surrounding the grass
+- Building at the end of the walkway
+- Several trees scattered throughout the area
+- Cloudy sky
+
+Extrapolation:
+Moving forward by 10m, the agent approaches the building. The walkway continues, leading directly to the entrance of the building. The trees still create a serene atmosphere, with some now closer to the agent and others further away. The cloudy sky remains overhead, casting a soft, diffused light on the scene. The grassy area in the middle expands, revealing a small garden with colorful flowers and a stone pathway winding through it. The fragrance of the flowers wafts in the air, adding to the peaceful ambiance.
+===Extrapolated scene: Now, Current scene observation: Observed elements:
+- Paved walkway
+- Fountain
+- Grass and trees surrounding the walkway
+- Benches along the path
+- People scattered throughout the park
+- City background with trees and a cloudy sky
+
+State Description: Moving 10m forward, the agent is now closer to the fountain, feeling the cool mist on their skin. The sound of the flowing water is more prominent, and they can see the intricate details of the fountain design. The surrounding grass and trees create a peaceful and serene atmosphere. The benches are now within arm's reach, offering a place to pause and enjoy the view. The city background remains visible, with the trees providing a natural barrier from the urban environment. The cloudy sky adds a touch of tranquility to the scene.
+Score: 4
+Score: 3
+Score: 3
+===Extrapolated scene: Extrapolation:
+Scene: The current scene is set in a grassy area with a brick walkway. There is a building in the distance, surrounded by trees. The sky is cloudy.
+
+Observed elements:
+- Grassy area
+- Brick walkway
+- Building
+- Trees
+- Cloudy sky
+
+State Description: Moving 10m forward, the agent walks along the brick walkway towards the building. The trees become more densely clustered around the building, creating a canopy of leaves that partially obscures the view of the sky. The atmosphere feels more secluded and tranquil. As the agent approaches the building, they notice a small wooden bench nestled under the shade of the trees, inviting them to take a moment and enjoy the peaceful surroundings. The grassy area continues to stretch out on either side of the walkway, with patches of colorful wildflowers adding a touch of vibrancy to the scene. The cloudy sky casts a soft, diffused light over the entire area, creating a serene ambiance.
+Score: 4
+===Extrapolated scene: Moving forward by 10m, the agent continues to walk along the paved walkway. The fountain now comes into full view, its water cascading down in a mesmerizing display. The agent can see the intricate design of the fountain, with its ornate carvings and sparkling water. The sound of the water adds a soothing ambiance to the scene. As the agent walks, the grass and trees still surround the walkway, providing a refreshing green backdrop. The benches along the path are now closer, and the agent notices the intricate patterns on the seats and the sturdy construction. Some benches are occupied by people, who are engaged in conversations or simply enjoying the peaceful atmosphere of the park. The trees in the background sway gently in the breeze, their leaves rustling. The cloudy sky adds a sense of tranquility to the scene, casting a soft, diffused light over the park. The agent can now see more people scattered throughout the park, some exploring the flowers and shrubs, while others are engaged in outdoor activities like yoga or playing with their pets. Overall, the park remains a serene and inviting space, with its natural elements and the joyful presence of people.
+Score: 3
+Step 3: Averaging scores for simulations and expansions...
+Updated Q value for node <image>Embedding</image> Describe every objects in the image and their spatial relationship, and describe the backgrouds: The image features a large, open area with a grassy area in the middle. The grass is surrounded by a brick walkway, which leads to a building. There are several trees in the area, with some closer to the building and others further away. The trees are situated in various positions, creating a natural and serene atmosphere. The sky is cloudy, and the setting appears to be a park or a public space.: 3.8333333333333335
+Updated Q value for node <image>Embedding</image> Describe every objects in the image and their spatial relationship, and describe the backgrouds: The image features a park with a paved walkway and a fountain. The walkway is surrounded by grass and trees, and there are benches placed along the path. The park is located in a city, and the backround is filled with trees and a cloudy sky. There are several people scattered throughout the park, some sitting on benches and others walking around. The people appear to be enjoying the park and the surroundings.: 3.0
+Updated Q value for node <image>Embedding</image> Describe every objects in the image and their spatial relationship, and describe the backgrouds: The image features a park with a grassy area, a sidewalk, and a few trees. The park is located in a residential area, and there are several cars parked in the area. The sidewalk extends from the left side of the image to the right side, and the trees are located in the middle of the park. The background consists of a grassy field, a few benches, and some trees.: 2.0
+MCTS thinking time:  13.491708517074585 seconds
+User-Instructions:  Find me a trash can, and stay on the paved road, don't go into grass
+Goal Found?  No
+Goal Found?  No
+Goal Found?  no
+Curret GPS (22.04530906677246, -45.0, -0.7168276309967041)
+d values [7.02276415515565, 7.02276415515565, 6.977455800227228, 6.954690933227539, 6.977455800227228]
+SCORES [(<exploration_simulator.Node object at 0x000002837FF46050>, 2.6666666666666665), (<exploration_simulator.Node object at 0x000002837FF46230>, -0.6666666666666666), (<exploration_simulator.Node object at 0x00000283016BB220>, 3.8333333333333335), (<exploration_simulator.Node object at 0x000002837FF27F70>, 3.0), (<exploration_simulator.Node object at 0x000002837FF47760>, 2.0)]
+Drawing nodes...!!!!!!!!!!!!!!!!!!!!!!!!!
+Action time:  13.161572694778442 seconds
+GLOBAL STEP:  2
+Current_Pos (25.5, -38.93782217350893)
+Current_yaw 60.0
+Extracted Text
+Found Bench: False
+Found all objects: 
+Extracted Text
+Found Bench: False
+Found all objects: 
+Extracted Text
+Found Bench: False
+Found all objects: 
+node expanded in  (22.0, -32.875644347017854) for angle 120.0 Description <image>Embedding</image> Describe every objects in the image and their spatial relationship, and describe the backgrouds: The image features a large grassy area with a few buildings in the background. The buildings are located in a residential area, and there are several cars parked in front of them. The cars are parked in a row, with some closer to the buildings and others further away. The grass is green and lush, and the buildings are situated in the distance, creating a picturesque scene. 
+
+node expanded in  (29.0, -32.875644347017854) for angle 60.0 Description <image>Embedding</image> Describe every objects in the image and their spatial relationship, and describe the backgrouds: The image features a large grassy area with a brick walkway and a few trees. The walkway is surrounded by a lush green lawn, and there are several benches scattered around the area. The trees are located in the background, and the sky is filled with clouds, creating a serene and peaceful atmosphere. 
+
+node expanded in  (32.5, -38.93782217350893) for angle 0.0 Description <image>Embedding</image> Describe every objects in the image and their spatial relationship, and describe the backgrouds: The image features a park with a brick walkway and a grassy area. The walkway is surrounded by trees, and there are several benches placed along the walkway. The park is located in a residential area, and the benches are placed near the edge of the park. The trees in the park are tall and leafy, adding a natural touch to the scene. The sky is cloudy, and a few clouds can be seen in the distance. 
+
+Running MCTS
+Starting MCTS run...
+Step 1: Expanding on each S_t1 node...
+===Extrapolated scene: Observed elements:
+- Grassy area
+- Brick walkway
+- Trees
+- Benches
+- Lush green lawn
+- Cloud-filled sky
+
+Extrapolation: Moving forward by 10m, the agent finds themselves standing on the brick walkway, surrounded by the lush green lawn. They are now closer to one of the trees, which provides shade and adds to the tranquility of the scene. The benches are still scattered around the area, inviting people to sit and enjoy the peaceful ambiance. The cloud-filled sky stretches above, creating a serene and calming atmosphere.
+===Extrapolated scene: Observed elements:
+- Large grassy area
+- Buildings in the background
+- Residential area
+- Cars parked in front of the buildings
+
+Extrapolation:
+Moving 10m forward, the agent finds themselves on the edge of the grassy area, closer to the buildings. The residential area becomes more prominent, with the buildings looming larger and more details becoming visible. The row of parked cars stretches out in front of the agent, some just a few meters away and others further in the distance. The lush green grass continues to extend beyond the agent's position, creating a vibrant backdrop for the scene.
+===Extrapolated scene: Observed elements:
+- Large grassy area
+- Brick walkway
+- Trees
+- Benches
+- Lush green lawn
+- Cloud-filled sky
+
+Extrapolation:
+Moving forward by 10m, the agent finds themselves standing on the brick walkway, surrounded by the lush green lawn. The grassy area stretches out ahead, with more trees and benches scattered around. The clouds in the sky create a serene and peaceful atmosphere, providing a sense of tranquility.
+===Extrapolated scene: Observed elements:
+- Large grassy area
+- Buildings in the background
+- Residential area
+- Cars parked in front of buildings
+- Green and lush grass
+
+Extrapolation:
+Moving 10m forward, the agent finds themselves closer to the parked cars. The cars are now more visible, with their details becoming clearer. Some of the cars are closer, revealing their shiny paint and polished rims, while others are further away, appearing slightly blurry. The agent is still in the grassy area, with the buildings in the background maintaining their picturesque view.
+===Extrapolated scene: Observed elements:
+- Brick walkway
+- Grassy area
+- Trees surrounding the walkway
+- Benches placed along the walkway
+- Residential area background
+- Tall and leafy trees
+- Cloudy sky with a few clouds in the distance
+
+State Description: Moving forward by 10m, the agent finds themselves near one of the benches placed along the walkway. The tall and leafy trees continue to provide a natural canopy above, casting patches of shade on the grassy area. The cloudy sky remains, with a few clouds drifting slowly in the distance.
+===Extrapolated scene: Observed elements:
+- Large grassy area
+- Brick walkway
+- Trees
+- Benches
+- Lush green lawn
+- Cloud-filled sky
+
+State Description: Moving 10m forward, the agent finds themselves standing on the brick walkway, with the lush green lawn still surrounding them. The benches are now closer, offering a comfortable resting spot. The trees are slightly closer, providing shade and adding to the peaceful atmosphere. The cloud-filled sky remains unchanged, enhancing the serene ambiance of the setting.
+===Extrapolated scene: Current Scene Observation:
+The image features a park with a brick walkway and a grassy area. The walkway is surrounded by trees, and there are several benches placed along the walkway. The park is located in a residential area, and the benches are placed near the edge of the park. The trees in the park are tall and leafy, adding a natural touch to the scene. The sky is cloudy, and a few clouds can be seen in the distance.
+
+Extrapolation:
+Moving 10m forward, the agent walks along the brick walkway, passing by a bench on the left. The grassy area on the right expands, revealing a small pond with ducks swimming in it. The trees continue to line the walkway, casting shadows on the path. The cloudy sky remains unchanged, creating a serene atmosphere.
+Score: 3
+Score: 1
+===Extrapolated scene: Observed elements:
+- Brick walkway
+- Grassy area
+- Trees surrounding the walkway
+- Benches along the walkway
+- Residential area
+- Tall and leafy trees
+- Cloudy sky with distant clouds
+
+Extrapolation:
+Moving 10m forward, the agent finds themselves standing near one of the benches, offering a clear view of the walkway ahead. The tall and leafy trees continue to line the walkway, providing shade and a serene atmosphere. The park's green grassy area stretches out on both sides of the walkway, inviting people to relax and enjoy the surroundings. The residential area remains visible beyond the edge of the park, with houses peeking through the trees. The cloudy sky above casts a soft, diffused light on the scene, creating a tranquil ambiance.
+Score: 3
+Score: 4
+Score: 4
+Score: 3
+===Extrapolated scene: Observed elements:
+- Large grassy area
+- Buildings in the background
+- Residential area
+- Cars parked in front of the buildings
+- Cars parked in a row, closer or further away from the buildings
+- Green and lush grass
+- Buildings situated in the distance
+
+Extrapolation:
+Moving 10m forward, the agent finds themselves standing closer to the row of parked cars. The cars appear larger and more detailed, with their individual colors and designs becoming more noticeable. The agent can see the reflection of the buildings in the car windows, creating a striking visual effect. The grassy area remains expansive and vibrant, spreading out in front of the agent. The buildings in the background still retain their picturesque quality, but their architectural details become more discernible. The agent can now see the individual windows, doors, and features of the buildings. The residential area surrounding the buildings becomes more evident, with glimpses of fences, gardens, and walkways becoming visible. The overall scene maintains its serene atmosphere, with the vibrant green grass contrasting against the buildings and cars, creating a picturesque juxtaposition of nature and urban elements.
+Score: 2
+Score: -1
+Score: 2
+Step 2: Starting simulations for expanded nodes...
+===Extrapolated scene: Moving 10m forward, the agent finds themselves standing on the brick walkway, with the lush green lawn still surrounding them. The benches are now closer, offering a comfortable resting spot. The trees are slightly closer, providing shade and adding to the peaceful atmosphere. The cloud-filled sky remains unchanged, enhancing the serene ambiance of the setting.
+Score: 4
+===Extrapolated scene: Extrapolation: Moving forward by 10m, the agent finds themselves standing on the brick walkway, surrounded by the lush green lawn. They are now closer to one of the trees, which provides shade and adds to the tranquility of the scene. The benches are still scattered around the area, inviting people to sit and enjoy the peaceful ambiance. The cloud-filled sky stretches above, creating a serene and calming atmosphere.
+===Extrapolated scene: Observed elements:
+- Brick walkway
+- Grassy area
+- Trees
+- Benches
+- Residential area
+- Tall and leafy trees
+- Cloudy sky
+- Small pond with ducks
+
+State Description: Progressing 10m, the agent walks along the brick walkway, passing by a bench on the left. The grassy area on the right expands, revealing a small pond with ducks swimming in it. The trees continue to line the walkway, casting shadows on the path. The cloudy sky remains unchanged, creating a serene atmosphere.
+Score: 4
+===Extrapolated scene: Extrapolation: 
+Moving 10m forward, the agent finds themselves standing near one of the benches, offering a clear view of the walkway ahead. The tall and leafy trees continue to line the walkway, providing shade and a serene atmosphere. The park's green grassy area stretches out on both sides of the walkway, inviting people to relax and enjoy the surroundings. The residential area remains visible beyond the edge of the park, with houses peeking through the trees. The cloudy sky above casts a soft, diffused light on the scene, creating a tranquil ambiance.
+Score: 3
+===Extrapolated scene: Now, Current scene observation: Observed elements:
+- Large grassy area
+- Buildings in the background
+- Residential area
+- Cars parked in front of the buildings
+
+Extrapolation:
+Moving 10m forward, the agent finds themselves on the edge of the grassy area, closer to the buildings. The residential area becomes more prominent, with the buildings looming larger and more details becoming visible. The row of parked cars stretches out in front of the agent, some just a few meters away and others further in the distance. The lush green grass continues to extend beyond the agent's position, creating a vibrant backdrop for the scene.
+===Extrapolated scene: Extrapolation:
+Moving forward by 10m, the agent finds themselves standing on the brick walkway, surrounded by the lush green lawn. The grassy area stretches out ahead, with more trees and benches scattered around. The clouds in the sky create a serene and peaceful atmosphere, providing a sense of tranquility. The agent notices a small pond on the right side of the walkway, reflecting the clear blue sky. Ducks can be seen swimming gracefully in the water, adding to the picturesque scene. To the left, a colorful flowerbed blooms with vibrant tulips and daisies, enhancing the beauty of the landscape. The scent of fresh grass and blooming flowers fills the air, creating a pleasant and inviting ambiance.
+===Extrapolated scene: Moving 10m forward, the agent finds themselves standing closer to the row of parked cars. The cars appear larger and more detailed, with their individual colors and designs becoming more noticeable. The agent can see the reflection of the buildings in the car windows, creating a striking visual effect. The grassy area remains expansive and vibrant, spreading out in front of the agent. The buildings in the background still retain their picturesque quality, but their architectural details become more discernible. The agent can now see the individual windows, doors, and features of the buildings. The residential area surrounding the buildings becomes more evident, with glimpses of fences, gardens, and walkways becoming visible. The overall scene maintains its serene atmosphere, with the vibrant green grass contrasting against the buildings and cars, creating a picturesque juxtaposition of nature and urban elements.
+Score: 3
+Score: -1
+Score: 1
+Score: 3
+===Extrapolated scene: Extrapolation:
+
+State Description: Moving forward by 10m, the agent finds themselves near one of the benches placed along the walkway. The tall and leafy trees continue to provide a natural canopy above, casting patches of shade on the grassy area. The cloudy sky remains, with a few clouds drifting slowly in the distance. The residential area in the background remains unchanged, with its houses and buildings still visible beyond the trees. As the agent walks, they notice a subtle change in the atmosphere - a gentle breeze rustles the leaves, creating a soothing sound. The air feels slightly cooler, carrying the scent of damp earth. The walkway itself remains made of brick, with its warm hues contrasting beautifully against the green of the grass. The trees surrounding the walkway seem to grow thicker and closer together, their branches creating intricate patterns of light and shadow on the ground. The benches along the walkway offer a place for rest and contemplation, their wooden seats weathered by time. Overall, the scene retains its peaceful and serene ambiance, inviting the agent to continue their journey through this picturesque setting.
+Score: -1
+===Extrapolated scene: Extrapolation: Moving 10m forward, the agent finds themselves closer to the parked cars. The cars are now more visible, with their details becoming clearer. Some of the cars are closer, revealing their shiny paint and polished rims, while others are further away, appearing slightly blurry. The agent is still in the grassy area, with the buildings in the background maintaining their picturesque view. The agent can now see the individual blades of grass beneath their feet, noting the vibrant green color and the softness beneath their shoes. The sun casts long shadows across the grass, creating a beautiful contrast of light and dark. The residential area remains tranquil, with no signs of movement or activity other than the occasional breeze rustling through the trees. The buildings in the background stand tall and majestic, adding a sense of grandeur to the scene. The agent notices the architectural details of the buildings, such as intricate balconies and decorative facades. The windows glimmer in the sunlight, reflecting the clear blue sky above. The agent can still hear the distant hum of city life, but it is muted by the peacefulness of the grassy area. The air is fresh and crisp, carrying the scent of nearby flowers. Overall, the scene remains serene and inviting, inviting the agent to explore further.
+Score: -1
+Step 3: Averaging scores for simulations and expansions...
+Updated Q value for node <image>Embedding</image> Describe every objects in the image and their spatial relationship, and describe the backgrouds: The image features a large grassy area with a few buildings in the background. The buildings are located in a residential area, and there are several cars parked in front of them. The cars are parked in a row, with some closer to the buildings and others further away. The grass is green and lush, and the buildings are situated in the distance, creating a picturesque scene.: 0.6666666666666666
+Updated Q value for node <image>Embedding</image> Describe every objects in the image and their spatial relationship, and describe the backgrouds: The image features a large grassy area with a brick walkway and a few trees. The walkway is surrounded by a lush green lawn, and there are several benches scattered around the area. The trees are located in the background, and the sky is filled with clouds, creating a serene and peaceful atmosphere.: 2.6666666666666665
+Updated Q value for node <image>Embedding</image> Describe every objects in the image and their spatial relationship, and describe the backgrouds: The image features a park with a brick walkway and a grassy area. The walkway is surrounded by trees, and there are several benches placed along the walkway. The park is located in a residential area, and the benches are placed near the edge of the park. The trees in the park are tall and leafy, adding a natural touch to the scene. The sky is cloudy, and a few clouds can be seen in the distance.: 2.6666666666666665
+MCTS thinking time:  12.912225723266602 seconds
+User-Instructions:  Find me a trash can, and stay on the paved road, don't go into grass
+Goal Found?  no
+Goal Found?  no
+Goal Found?  no
+Curret GPS (25.319305419921875, -39.29558563232422, -0.6853021383285522)
+d values [6.828683702049711, 13.599838906178418, 6.788803714201963, 11.767979537503367, 7.22727020233116, 7.400213422503275, 7.189601473296475]
+SCORES [(<exploration_simulator.Node object at 0x000002837FF46050>, 2.6666666666666665), (<exploration_simulator.Node object at 0x000002837FF46230>, -0.6666666666666666), (<exploration_simulator.Node object at 0x000002837FF27F70>, 3.0), (<exploration_simulator.Node object at 0x000002837FF47760>, 2.0), (<exploration_simulator.Node object at 0x0000028305C71510>, 0.6666666666666666), (<exploration_simulator.Node object at 0x0000028305C710F0>, 2.6666666666666665), (<exploration_simulator.Node object at 0x0000028305C712A0>, 2.6666666666666665)]
+Drawing nodes...!!!!!!!!!!!!!!!!!!!!!!!!!
+Action time:  13.259765625 seconds
+GLOBAL STEP:  3
+Current_Pos (29.0, -45.0)
+Current_yaw 0.0
+Extracted Text
+Found Bench: False
+Found all objects: 
+Extracted Text
+Found Bench: False
+Found all objects: 
+Extracted Text
+Found Bench: False
+Found all objects: 
+node expanded in  (32.5, -38.93782217350893) for angle 60.0 Description <image>Embedding</image> Describe every objects in the image and their spatial relationship, and describe the backgrouds: The image features a park with a brick walkway and a flower bed. The walkway is surrounded by trees, and there are several benches scattered around the area. The park is located in a residential area, and a few cars are parked in the vicinity. The backgrount consists of a brick wall, a few trees, a bench, and some flowers. 
+
+node expanded in  (36.0, -45.0) for angle 0.0 Description <image>Embedding</image> Describe every objects in the image and their spatial relationship, and describe the backgrouds: The image features a large park with a paved walkway, a fountain, and a bench. The park is surrounded by trees, and there are benches scattered throughout the area. The backgroun 
+
+node expanded in  (32.5, -51.06217782649107) for angle -60.0 Description <image>Embedding</image> Describe every objects in the image and their spatial relationship, and describe the backgrouds: The image features a park with a grassy area, a sidewalk, and a tree-lined path. The sidewalk is surrounded by grass, and there are several benches placed along the path. There are also several potted plants scattered around the park, adding a touch of greenery to the scene. The park is located in a grassy field, and the sky is filled with clouds. 
+
+Running MCTS
+Starting MCTS run...
+Step 1: Expanding on each S_t1 node...
+===Extrapolated scene: Observed elements:
+- Paved walkway
+- Fountain
+- Bench
+- Trees
+- Scattered benches
+
+Extrapolation:
+Moving forward by 10m, the agent finds themselves standing near the fountain. The sound of the flowing water fills the air, and the agent can feel a light mist on their face. The benches are now closer, offering a peaceful spot to rest and enjoy the park.
+===Extrapolated scene: Observed elements:
+- Grassy area
+- Sidewalk
+- Tree-lined path
+- Benches
+- Potted plants
+- Grass field
+- Cloudy sky
+
+State Description: Moving 10m forward, the agent is now on the sidewalk, walking alongside the tree-lined path. The view of the grassy area widens, revealing more potted plants and benches scattered around. The cloudy sky above adds a sense of tranquility to the scene.
+===Extrapolated scene: Observed elements: 
+- Grassy area
+- Sidewalk
+- Tree-lined path
+- Benches
+- Potted plants
+- Grassy field
+- Cloudy sky
+
+State Description: Moving 10m forward, the agent approaches one of the benches along the sidewalk. The tree-lined path continues ahead, with more benches placed intermittently. The potted plants are now closer, adding vibrant green accents to the scene. The grassy field stretches out in the background, and the cloudy sky creates a serene atmosphere.
+===Extrapolated scene: Observed elements:
+- Paved walkway
+- Fountain
+- Bench
+- Trees
+- Benches scattered throughout the area
+
+Extrapolation:
+Moving 10m forward, the agent remains on the paved walkway, approaching the fountain. The sound of flowing water becomes more prominent, and the agent can feel the mist coming from the fountain. The bench is now closer, offering a peaceful resting spot. The surrounding trees provide shade and create a serene atmosphere.
+===Extrapolated scene: Observed elements:
+- Brick walkway
+- Flower bed
+- Trees surrounding the walkway
+- Benches scattered around
+- Cars parked in the vicinity
+- Brick wall in the background
+- Trees, bench, and flowers in the background
+
+State Description: Moving 10m forward, the agent walks along the brick walkway, passing by the flower bed on the left. The trees continue to line the walkway, providing shade. A bench comes into view on the right, inviting a moment of rest. The cars parked nearby remain in sight. In the background, the brick wall stands tall, accompanied by a few more trees and flowers, enhancing the park's natural beauty.
+===Extrapolated scene: Current Scene Recap:
+- Grassy area
+- Sidewalk
+- Tree-lined path
+- Benches
+- Potted plants
+- Grassy field
+- Cloudy sky
+
+Extrapolation:
+Moving 10m forward, the agent reaches the tree-lined path, standing next to a bench. The path continues ahead, leading to a small pond surrounded by more trees. In the distance, a picnic area with tables and a gazebo can be seen. The potted plants continue to decorate the surroundings, adding bursts of color to the serene park. The grassy field stretches out beyond the park, merging with a meadow of wildflowers. The cloudy sky casts a gentle light over the entire scene, creating a peaceful and tranquil atmosphere.
+===Extrapolated scene: Observed elements:
+- Brick walkway
+- Flower bed
+- Trees surrounding the walkway
+- Benches scattered around the area
+- Park in a residential area
+- Cars parked nearby
+- Brick wall
+- Trees, bench, and flowers in the background
+
+State Description: Moving 10m forward, the agent finds themselves standing in the middle of the brick walkway, surrounded by the lush greenery of the trees. The flower bed is now closer, revealing a variety of colorful blooms. The benches are still within reach, inviting for a rest. The residential area becomes more prominent, with houses coming into view. The parked cars are now at a closer distance. The brick wall is still visible, providing a boundary to the park. The presence of more trees, another bench, and additional flowers in the background adds to the tranquility of the scene.
+===Extrapolated scene: Current scene observation:
+The image features a large park with a paved walkway, a fountain, and a bench. The park is surrounded by trees, and there are benches scattered throughout the area. The background consists of more trees and the glimpse of a building.
+
+Extrapolation:
+Moving 10m forward, the agent continues along the paved walkway. The fountain comes into closer view, with water gently cascading down its tiers. The sound of the flowing water becomes more prominent, creating a soothing atmosphere. Walking further, the agent approaches another bench, offering a place to rest and enjoy the peaceful surroundings. The trees surrounding the park provide shade and a sense of tranquility. In the distance, the building becomes more distinct, revealing its architectural details.
+Score: 4
+Score: 2
+Score: 4
+Score: 3
+Score: 3
+Score: 3
+===Extrapolated scene: Observed elements:
+- Brick walkway
+- Flower bed
+- Trees surrounding the walkway
+- Benches scattered around the area
+- Cars parked in the vicinity
+- Brick wall in the background
+- Trees, a bench, and flowers in the background
+
+Extrapolation:
+Moving forward by 10m, the agent finds themselves in the middle of the park, standing on the brick walkway. The flower bed is now to the left, displaying a vibrant array of colorful blooms. The surrounding trees continue to provide shade and a sense of tranquility. The benches remain in their positions, inviting people to rest and enjoy the peaceful atmosphere. As the agent looks ahead, they notice a few more cars parked nearby, indicating an increase in visitors. The background reveals the continuation of the brick wall, with a few more trees and flowers adding to the natural beauty of the scene.
+Score: 4
+Score: 3
+Score: 3
+Step 2: Starting simulations for expanded nodes...
+===Extrapolated scene: Now, Current scene observation: Observed elements:
+- Paved walkway
+- Fountain
+- Bench
+- Trees
+- Scattered benches
+
+Extrapolation:
+Moving forward by 10m, the agent finds themselves standing near the fountain. The sound of the flowing water fills the air, and the agent can feel a light mist on their face. The benches are now closer, offering a peaceful spot to rest and enjoy the park.
+===Extrapolated scene: Extrapolation:
+
+Current scene observation:
+- Grassy area
+- Sidewalk
+- Tree-lined path
+- Benches
+- Potted plants
+- Grassy field
+- Cloudy sky
+
+State Description: Moving 10m forward, the agent approaches one of the benches along the sidewalk. The tree-lined path continues ahead, with more benches placed intermittently. The potted plants are now closer, adding vibrant green accents to the scene. The grassy field stretches out in the background, and the cloudy sky creates a serene atmosphere.
+===Extrapolated scene: Extrapolation:
+
+State Description: Moving 10m forward, the agent walks along the brick walkway, passing by the flower bed on the left. The trees continue to line the walkway, providing shade. A bench comes into view on the right, inviting a moment of rest. The cars parked nearby remain in sight. In the background, the brick wall stands tall, accompanied by a few more trees and flowers, enhancing the park's natural beauty.
+===Extrapolated scene: Current scene observation: Observed elements:
+- Paved walkway
+- Fountain
+- Bench
+- Trees
+- Benches scattered throughout the area
+
+Extrapolation:
+Moving 10m forward, the agent remains on the paved walkway, approaching the fountain. The sound of flowing water becomes more prominent, and the agent can feel the mist coming from the fountain. The bench is now closer, offering a peaceful resting spot. The surrounding trees provide shade and create a serene atmosphere.
+Score: 4
+===Extrapolated scene: Now, Current scene observation:
+- Grassy area
+- Sidewalk
+- Tree-lined path
+- Benches
+- Potted plants
+- Grassy field
+- Cloudy sky
+
+Extrapolation:
+Moving 10m forward, the agent reaches the tree-lined path, standing next to a bench. The path continues ahead, leading to a small pond surrounded by more trees. In the distance, a picnic area with tables and a gazebo can be seen. The potted plants continue to decorate the surroundings, adding bursts of color to the serene park. The grassy field stretches out beyond the park, merging with a meadow of wildflowers. The cloudy sky casts a gentle light over the entire scene, creating a peaceful and tranquil atmosphere.
+Score: -1
+Score: 4
+===Extrapolated scene: Moving forward by 10m, the agent finds themselves in the middle of the park, standing on the brick walkway. The flower bed is now to the left, displaying a vibrant array of colorful blooms. The surrounding trees continue to provide shade and a sense of tranquility. The benches remain in their positions, inviting people to rest and enjoy the peaceful atmosphere. As the agent looks ahead, they notice a few more cars parked nearby, indicating an increase in visitors. The background reveals the continuation of the brick wall, with a few more trees and flowers adding to the natural beauty of the scene.
+===Extrapolated scene: Current scene observation:
+The image features a large park with a paved walkway, a fountain, and a bench. The park is surrounded by trees, and there are benches scattered throughout the area. The background consists of more trees and the glimpse of a building.
+
+Extrapolation:
+Moving 10m forward, the agent continues along the paved walkway. The fountain comes into closer view, with water gently cascading down its tiers. The sound of the flowing water becomes more prominent, creating a soothing atmosphere. Walking further, the agent approaches another bench, offering a place to rest and enjoy the peaceful surroundings. The trees surrounding the park provide shade and a sense of tranquility. In the distance, the building becomes more distinct, revealing its architectural details.
+Score: 3
+Score: 3
+Score: 4
+Score: 3
+===Extrapolated scene: Now, Current scene observation: Observed elements:
+- Brick walkway
+- Flower bed
+- Trees surrounding the walkway
+- Benches scattered around the area
+- Park in a residential area
+- Cars parked nearby
+- Brick wall
+- Trees, bench, and flowers in the background
+
+State Description: Moving 10m forward, the agent finds themselves standing in the middle of the brick walkway, surrounded by the lush greenery of the trees. The flower bed is now closer, revealing a variety of colorful blooms. The benches are still within reach, inviting for a rest. The residential area becomes more prominent, with houses coming into view. The parked cars are now at a closer distance. The brick wall is still visible, providing a boundary to the park. The presence of more trees, another bench, and additional flowers in the background adds to the tranquility of the scene.
+Score: 3
+===Extrapolated scene: Extrapolation:
+
+Current scene observation:
+- Grassy area
+- Sidewalk
+- Tree-lined path
+- Benches
+- Potted plants
+- Grass field
+- Cloudy sky
+
+State Description: Moving 10m forward, the agent is now on the sidewalk, walking alongside the tree-lined path. The view of the grassy area widens, revealing more potted plants and benches scattered around. The cloudy sky above adds a sense of tranquility to the scene. As the agent continues forward, they notice a small pond to their right, surrounded by vibrant flowers and lily pads. The gentle sound of water trickling from a small fountain can be heard, creating a soothing atmosphere. The grass field extends further, leading to a wooden gazebo in the distance. Its roof is covered in ivy, blending harmoniously with the surrounding greenery. Brightly colored butterflies flutter around, gracefully dancing from flower to flower. The agent can also see a group of children playing catch on the grass, their laughter filling the air. The scene is filled with life and natural beauty, creating a serene and inviting environment for anyone passing by.
+Score: 4
+Step 3: Averaging scores for simulations and expansions...
+Updated Q value for node <image>Embedding</image> Describe every objects in the image and their spatial relationship, and describe the backgrouds: The image features a park with a brick walkway and a flower bed. The walkway is surrounded by trees, and there are several benches scattered around the area. The park is located in a residential area, and a few cars are parked in the vicinity. The backgrount consists of a brick wall, a few trees, a bench, and some flowers.: 3.5
+Updated Q value for node <image>Embedding</image> Describe every objects in the image and their spatial relationship, and describe the backgrouds: The image features a large park with a paved walkway, a fountain, and a bench. The park is surrounded by trees, and there are benches scattered throughout the area. The backgroun: 3.1666666666666665
+Updated Q value for node <image>Embedding</image> Describe every objects in the image and their spatial relationship, and describe the backgrouds: The image features a park with a grassy area, a sidewalk, and a tree-lined path. The sidewalk is surrounded by grass, and there are several benches placed along the path. There are also several potted plants scattered around the park, adding a touch of greenery to the scene. The park is located in a grassy field, and the sky is filled with clouds.: 2.6666666666666665
+MCTS thinking time:  11.324964761734009 seconds
+User-Instructions:  Find me a trash can, and stay on the paved road, don't go into grass
+Goal Found?  no
+Goal Found?  No
+Goal Found?  no
+Curret GPS (29.0246524810791, -45.03593826293945, -0.6866636276245117)
+d values [12.16368898351384, 12.12781402911503, 6.981313514639769, 14.043450096095711, 12.160318904799464, 7.018907337858301, 7.018907337858301, 6.975440098549986, 6.956551132176379]
+SCORES [(<exploration_simulator.Node object at 0x000002837FF46050>, 2.6666666666666665), (<exploration_simulator.Node object at 0x000002837FF46230>, -0.6666666666666666), (<exploration_simulator.Node object at 0x000002837FF47760>, 2.0), (<exploration_simulator.Node object at 0x0000028305C71510>, 0.6666666666666666), (<exploration_simulator.Node object at 0x0000028305C710F0>, 2.6666666666666665), (<exploration_simulator.Node object at 0x0000028305C712A0>, 2.6666666666666665), (<exploration_simulator.Node object at 0x0000028301901A80>, 3.5), (<exploration_simulator.Node object at 0x0000028301901A20>, 3.1666666666666665), (<exploration_simulator.Node object at 0x0000028301901A50>, 2.6666666666666665)]
+Drawing nodes...!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Received a KeyboardInterrupt! Stopping the exploration process.
+
+
+
+Comments: why this fails is because the VLM's description. if it sees a partial paved way, it will say it in the caption. See in step:  2's right camera, this one doesn't have road, so the score is very low on this. 

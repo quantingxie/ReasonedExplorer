@@ -43,7 +43,7 @@ class Exploration:
         self.frontier_buffer = []
         self.Q_buffer = {}  # Dictionary to store Q-values for nodes
         logging.basicConfig(filename='exploration.log', level=logging.INFO, format='%(message)s')
-        sys.stdout = Logger("my_output.log")
+        sys.stdout = Logger("my_output2.log")
         # Initialization for robot control
         self.current_node = None  # Track the current position of the agent
         # initialize simulator
@@ -51,13 +51,18 @@ class Exploration:
         self.client.confirmConnection()
         self.client.enableApiControl(True)
 
+    def adaptive_step_size(self, current_score, min_step, max_step):
+        normalized_score = current_score / 5
+        return min_step + (1 - normalized_score) * (max_step - min_step)
+
     def set_start_position(self, position, yaw=None):
 
         if yaw is None:
             # If no orientation is provided, keep it level (no roll, no pitch, and zero yaw).
             orientation = airsim.to_quaternion(0, 0, 0)  # roll, pitch, yaw in radians
         else:
-            orientation = airsim.to_quaternion(0, 0, yaw)
+            print("!!yaw", yaw)
+            orientation = airsim.to_quaternion(0, 0, math.radians(yaw))
             
         pose = airsim.Pose(airsim.Vector3r(*position), orientation)
         self.client.simSetVehiclePose(pose, True)
@@ -151,14 +156,15 @@ class Exploration:
     def explore(self) -> None:
         # Initialize current_node at the beginning of exploration
         step_counter = 0
-        start_position = (-5, 0, -5)  # Example NED position (N, E, D)
+        step_size = 15
+        start_position = (15, -44, -5)  # Example NED position (N, E, D)
         init_yaw = 0  # Example orientation (roll, pitch, yaw)
         self.set_start_position(start_position, init_yaw)
         self.stabilize_at_start()
         # self.takeoff()
 
         initial_gps = get_position(self.client)
-        initial_yaw = 0
+        initial_yaw = init_yaw
         self.current_node = self.add_node_to_graph(0, "", initial_gps, initial_yaw)
         self.current_node.visited = True
 
@@ -169,8 +175,12 @@ class Exploration:
             current_gps = self.current_node.gps
             current_yaw = self.current_node.yaw_angle
             self.current_node.visited = True
+            current_score = self.current_node.Q
+            print(current_score)
+            step_size = self.adaptive_step_size(current_score, 5, 20)
+            print(step_size)
             # self.current_node = self.add_node_to_graph(0, "", current_gps, current_yaw)
-
+            print("GLOBAL STEP: ", step_counter)
             print("Current_Pos", current_gps)
             print("Current_yaw", current_yaw)
             captured_images = get_image(self.client, step_counter)
@@ -179,11 +189,6 @@ class Exploration:
                 description = VLM_query(image)
                 curr_nodes_data.append((description))
 
-            # for idx, image in enumerate(captured_images):
-            #     image_name = f"step_{step_counter}_image_{idx}.png"  # Naming the image based on the step and image index
-            #     cv2.imwrite(image_name, image)  # Save the image. Ensure the 'image' is in the format OpenCV understands (e.g., a numpy array for grayscale or BGR images).
-            #     description = VLM_query(image)
-            #     curr_nodes_data.append((description))
 
             step_counter += 1
             # Calculate yaw angles and GPS coordinates for each captured image
@@ -195,8 +200,8 @@ class Exploration:
                 yaw_angle = current_yaw - direction + self.rom/2  # Adjusting for center of the FOV
 
                 # print("Yaw_angle", yaw_angle)
-                dx = 15 * math.cos(math.radians(yaw_angle))
-                dy = 15 * math.sin(math.radians(yaw_angle))
+                dx = step_size * math.cos(math.radians(yaw_angle))
+                dy = step_size * math.sin(math.radians(yaw_angle))
 
                 newX = current_gps[0] + dx
                 newY = current_gps[1] + dy
@@ -221,7 +226,7 @@ class Exploration:
             #     rephrased_nodes.append(rephrased_node)
 
             # logging.info("expaned nodes rephrased")
-            print("expaned nodes rephrased")
+            # print("expaned nodes rephrased")
 
             # for i, node in enumerate(nodes):
             #     node.description = rephrased_nodes[i]
@@ -229,8 +234,11 @@ class Exploration:
             # logging.info("Running MCTS")
             print("Running MCTS")
             descriptions = [node.description for node in nodes]
-            # self.mcts.run_mcts(self.k, descriptions)
+            # self.mcts.run_mcts(self.k, descriptions) # MCTS real
+            found = False
 
+            #Baseline 1
+            # naiveLLM_start_time = time.time()
             # for node in nodes:
             #     print(self.goal)
             #     print("Node Description", node.description)
@@ -239,20 +247,29 @@ class Exploration:
             #     check = LLM_checker(node.description, self.goal, model="gpt-4")
 
             #     print("Goal Found? ", check)
-            #     if check == "yes":
+            #     if check.strip() == "Yes":
             #         print("!!! Found GOAL !!!")
             #         self.client.hoverAsync().join()
+            #         found = True
             #         break
+            # if found:
+            #     break
+            # naiveLLM_end_time = time.time()
+            # print("NaiveLLM thinking time: ", naiveLLM_end_time - naiveLLM_start_time, "seconds")
+
             # MCTS
-            found = False
+            mcts_start_time = time.time()
             self.mcts.run_mcts(descriptions)
+            mcts_end_time = time.time()
+            print("MCTS thinking time: ", mcts_end_time - mcts_start_time, "seconds")
+
             print("User-Instructions: ", self.goal)
             for node in nodes:
                 node.Q = self.mcts.Q.get(str(node.description), 0)
                 
                 check = LLM_checker(node.description, self.goal, model="gpt-4")
                 print("Goal Found? ", check)
-                if check.strip() == "yes":
+                if check.strip() == "Yes":
                     print("!!! Found GOAL !!!")
                     self.client.hoverAsync().join()
                     found = True
@@ -262,7 +279,11 @@ class Exploration:
 
             self.frontier_buffer.extend(nodes)
 
+            action_start_time = time.time()
             self.action()
+            action_end_time = time.time()
+            print("Action time: ", action_end_time - action_start_time, "seconds")
+
 
     """Methods for robot movement"""
     def action(self) -> None:
@@ -294,13 +315,13 @@ class Exploration:
         self.chosen_node.visited = True
         # print(f"Node Identity: {id(self.chosen_node)}")
         # print(f"After update, chosen_node visited status: {self.chosen_node.visited}")
+        self.draw_path()
 
 
         # Make the robot move to the chosen node's location
 
         self.move_to_next_point(next_position=self.chosen_node.gps, desired_yaw=self.chosen_node.yaw_angle, current_yaw = self.current_node.yaw_angle)
         # self.client.rotateByYawRateAsync(self.chosen_node.yaw_angle, 1)
-        self.draw_path()
 
         # Update the current node to be the chosen node
         # self.chosen_node.visited = True
@@ -313,7 +334,7 @@ class Exploration:
     def move_to_next_point(self, next_position, desired_yaw, current_yaw):
         # Convert the lat-long into NED format (if they aren't already)
         x, y = next_position
-        z = -0.2
+        z = -1
         self.client.moveToPositionAsync(x, y, z, 1, yaw_mode=airsim.YawMode(is_rate=False, yaw_or_rate=desired_yaw)).join()
         # self.moveToPosition(x, y, z, 1)
 
@@ -323,7 +344,7 @@ class Exploration:
 
     def stabilize_at_start(self):
         # This will ensure the drone stabilizes at the position it starts at
-        self.client.moveToPositionAsync(-5, 0, -2, 3).join()
+        self.client.moveToPositionAsync(15, -44, -1, 3, yaw_mode=airsim.YawMode(is_rate=False, yaw_or_rate=0)).join()
         time.sleep(2)
         self.client.hoverAsync().join()
 

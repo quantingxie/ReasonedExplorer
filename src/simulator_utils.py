@@ -17,7 +17,7 @@ def get_position(client):
 
 
 def get_image(client, step_counter):
-    camera_names = ["left_camera", "front_center", "right_camera"]
+    camera_names = ["right_camera", "front_center", "left_camera"]
     responses = client.simGetImages([airsim.ImageRequest(camera_name, airsim.ImageType.Scene, False, False) for camera_name in camera_names])
 
     saved_images = []

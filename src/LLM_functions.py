@@ -104,7 +104,7 @@ def LLM_rephraser(node, global_context, model):
 
 def LLM_checker(node, goal, model):
     prompt = f"""
-    You are an AI tasked to check if the given scene descriptions have the goal object to find. The secene descriptions: {node} The Goal: {goal}. If you find the goal in the scene, please return yse, and if you didn't find goal in the scene, return no. The answer has to only be yse or no and nothing else. '
+    You are tasked to check if the given scene descriptions have the goal object to find. The secene descriptions: {node} The Goal: {goal}. If you find the goal in the scene, please return yse, and if you didn't find goal in the scene, return no. The answer has to only be yes or no and nothing else. '
     """    
     message=[{"role": "user", "content": prompt}]
     response = openai.ChatCompletion.create(

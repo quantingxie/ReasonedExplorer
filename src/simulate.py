@@ -22,7 +22,7 @@ if __name__ == '__main__':
 
     try:
 
-        goal = "Find me a Fountain"
+        goal = "Find me two tables outside of a restaurant"
         # Initialize MCTS
         # mcts_instance = MCTS(ETA, GAMMA, N, L, goal, MODEL)
         mcts_instance = MCTS(N, L, goal, MODEL)
