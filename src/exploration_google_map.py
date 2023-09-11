@@ -306,11 +306,11 @@ class Exploration:
                 if image is not None:
                     captured_images.append(image)
 
-            if(motiontime > 3303 and motiontime < 4300):
+            if(motiontime > 3303 and motiontime < 4303):
                 self.cmd.mode = 2
                 self.cmd.yawSpeed = 0.305433
 
-            if(motiontime > 4300 and motiontime < 5300):
+            if(motiontime > 4303 and motiontime < 5300):
                 self.cmd.mode = 1
                 self.cmd.euler = [0, 0, math.radians(25)]
 
