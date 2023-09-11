@@ -296,34 +296,39 @@ class Exploration:
                 self.cmd.mode = 2
                 self.cmd.yawSpeed = 0.610865
 
-
-            if(motiontime > 3201 and motiontime < 3203):
-                # Capture image
-                image = capture_image_at_angle(0, self.step_counter)
-                if image is not None:
-                    captured_images.append(image)
-
-            if(motiontime > 3203 and motiontime < 4200):
-                self.cmd.mode = 2
-                self.cmd.yawSpeed = 0.610865
-
-            if(motiontime > 4200 and motiontime < 5200):
-                self.cmd.mode = 1
-                self.cmd.euler = [0, 0, math.radians(25)]
-
-                # Capture image
-            if(motiontime > 5200 and motiontime < 5202):
-                image = capture_image_at_angle(0, self.step_counter)
-                if image is not None:
-                    captured_images.append(image)
-
-            if(motiontime > 5202 and motiontime < 5400):
+            if(motiontime > 3201 and motiontime < 3301):
                 self.cmd.mode = 1
                 self.cmd.euler = [0, 0, 0]
 
-            if(motiontime > 5400 and motiontime < 6400):
+            if(motiontime > 3301 and motiontime < 3303):
+                # Capture image
+                image = capture_image_at_angle(0, self.step_counter)
+                if image is not None:
+                    captured_images.append(image)
+
+            if(motiontime > 3303 and motiontime < 4300):
+                self.cmd.mode = 2
+                self.cmd.yawSpeed = 0.610865
+
+            if(motiontime > 4300 and motiontime < 5300):
+                self.cmd.mode = 1
+                self.cmd.euler = [0, 0, math.radians(25)]
+
+            if(motiontime > 5300 and motiontime < 5302):
+                # Capture image
+                image = capture_image_at_angle(0, self.step_counter)
+                if image is not None:
+                    captured_images.append(image)
+
+            if(motiontime > 5302 and motiontime < 5500):
+                self.cmd.mode = 1
+                self.cmd.euler = [0, 0, 0]
+
+            if(motiontime > 5500 and motiontime < 6500):
                 self.cmd.mode = 2
                 self.cmd.yawSpeed = -0.610865
+
+            if(motiontime > 6500 and motiontime < 6502):
                 break  
             self.udp.SetSend(self.cmd)
             self.udp.Send()
