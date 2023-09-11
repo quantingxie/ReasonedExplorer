@@ -289,7 +289,6 @@ class Exploration:
                     captured_images.append(image)
                 
             if(motiontime > 2002 and motiontime < 2201):
-                print("Test 2")
                 self.cmd.mode = 1
                 self.cmd.euler = [0, 0, 0]
 
