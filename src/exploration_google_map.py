@@ -326,7 +326,7 @@ class Exploration:
 
             if(motiontime > 5500 and motiontime < 6500):
                 self.cmd.mode = 2
-                self.cmd.yawSpeed = -0.255433
+                self.cmd.yawSpeed = -0.225433
 
             if(motiontime > 6500 and motiontime < 6502):
                 break  
