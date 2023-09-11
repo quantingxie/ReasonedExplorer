@@ -282,6 +282,7 @@ class Exploration:
                 self.cmd.mode = 1
                 self.cmd.euler = [0, 0, math.radians(-25)]
                 print("TESTTTS")
+                print("motiontime", motiontime)
                 # Capture image 
                 image = capture_image_at_angle(-60, self.step_counter)
                 if image is not None:
