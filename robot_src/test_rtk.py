@@ -1,9 +1,9 @@
 import serial
 
-port = '/dev/serial/by-id/usb-u-blox_AG_-_www.u-blox.com_u-blox_GNSS_receiver-if00'
-# port = '/dev/ttyS0'
+# port = '/dev/serial/by-id/usb-u-blox_AG_-_www.u-blox.com_u-blox_GNSS_receiver-if00'
+port = '/dev/ttyUSB1'
 
-baud_rate = 9600
+baud_rate = 38400
 timeout = 1
 
 ser = None
@@ -28,7 +28,7 @@ import serial
 port = '/dev/serial/by-id/usb-u-blox_AG_-_www.u-blox.com_u-blox_GNSS_receiver-if00'
 # port = '/dev/ttyS0'
 
-baud_rate = 9600
+baud_rate = 38400
 timeout = 1
 
 ser = None

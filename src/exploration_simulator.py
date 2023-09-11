@@ -11,6 +11,7 @@ from simulator_utils import *
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import logging
+import airsim
 from LLM_functions import LLM_evaluator
 
 class Node:

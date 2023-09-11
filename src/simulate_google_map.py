@@ -17,7 +17,7 @@ if __name__ == '__main__':
     N = 3 # Action space and tree width
     L = 1  # Tree length
     fov = 60 # Field of View
-    rom = 60 # Range of motion
+    rom = 54 # Range of motion
     explorer_instance = None  # Declare this outside the try block so it can be accessed in the finally block
 
     try:

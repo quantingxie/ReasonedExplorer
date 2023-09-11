@@ -1,5 +1,6 @@
 import sys
 import time
+import datetime
 import math
 import numpy as np
 import threading
@@ -20,7 +21,6 @@ logging.basicConfig(level=logging.DEBUG,
 # Initialize global variables for latitude and longitude
 current_lat = None
 current_lon = None
-
 
 def dms_to_dd(dms):
     if dms < 0:
@@ -126,32 +126,55 @@ class RobotController:
         self.ser_yaw = serial.Serial('/dev/ttyUSB0', 115200, timeout=0.1)
 
     def get_GPS(self):
-        while True:
-            line = self.ser_GPS.readline().decode('utf-8', errors='replace').strip()
-            if line.startswith('$GNGLL'):
-                split_line = line.split(',')
-                lat = dms_to_dd(float(split_line[1])/100)
-                lon = dms_to_dd(float(split_line[3])/100)
-                return lat, -lon
+        global gps_buffer
+        try:
+            with serial.Serial(port, baudrate, timeout=timeout) as ser:
+                data = ser.read(ser.in_waiting).decode('utf-8', errors='replace')  # Read all available data
+                gps_buffer += data
+                # If the buffer has more than one '$GNGLL' entry, 
+                # drop everything before the last one.
+                while gps_buffer.count('$GNGLL') > 1:
+                    first_index = gps_buffer.find('$GNGLL')
+                    gps_buffer = gps_buffer[first_index+1:]
+                
+                start_index = gps_buffer.find('$GNGLL')
+                end_index = gps_buffer.find('\n', start_index)
+                if start_index != -1 and end_index != -1:  # We have a full line
+                    line = gps_buffer[start_index:end_index+1].strip()  # Extract the complete line
+                    gps_buffer = gps_buffer[end_index+1:]  # Remove processed data from the buffer
+                    split_line = line.split(',')
+                    lat = dms_to_dd(float(split_line[1])/100)
+                    lon = dms_to_dd(float(split_line[3])/100)
+                    return lat, -lon
+        except Exception as e:
+            print(f"An error occurred in get_GPS: {e}")
 
     def get_yaw(self):
-        while True:
-            line = self.ser_yaw.readline()
-            try:
-                decoded_line = line.decode('utf-8').strip()
-                if decoded_line.startswith('$HCHDG'):
-                    parts = decoded_line.split(',')
-                    heading = float(parts[1])
-                    adjusted_heading = adjust_heading(heading)
-                    return adjusted_heading
-            except UnicodeDecodeError:
-                pass
+        global yaw_buffer
+        data = self.ser_yaw.read(self.ser_yaw.in_waiting).decode('utf-8', errors='replace')  # Read all available data
+        yaw_buffer += data
+        # If the buffer has more than one '$HCHDG' entry, 
+        # drop everything before the last one.
+        while yaw_buffer.count('$HCHDG') > 1:
+            first_index = yaw_buffer.find('$HCHDG')
+            yaw_buffer = yaw_buffer[first_index+1:]
+        
+        start_index = yaw_buffer.find('$HCHDG')
+        end_index = yaw_buffer.find('\n', start_index)
+        if start_index != -1 and end_index != -1:  # We have a full line
+            line = yaw_buffer[start_index:end_index+1].strip()  # Extract the complete line
+            yaw_buffer = yaw_buffer[end_index+1:]  # Remove processed data from the buffer
+            parts = line.split(',')
+            heading = float(parts[1])
+            adjusted_heading = adjust_heading(heading)
+            return adjusted_heading
 
     def close_connections(self):
         self.ser_GPS.close()
         self.ser_yaw.close()
 
-
+yaw_buffer = ""
+gps_buffer=""
 EPSILON = 1e-6  # A small value
 print("222")
 # raw_yaw_generator = get_yaw() # Initialize the generator
@@ -223,12 +246,17 @@ if __name__ == '__main__':
         while True:
             udp.Recv()
             udp.GetRecv(state)
-
+            print("here",datetime.datetime.now())
             current_lat, current_lon = controller.get_GPS()
+            if not current_lat or not current_lon:
+                print("no gps")
             print(current_lat, current_lon)
             current_pos = np.array([current_lat, current_lon])
 
             current_yaw = controller.get_yaw()
+            if not current_yaw:
+                print("no yaw")
+                continue
             print("TEsting yaw", current_yaw)
             cmd.mode = 2
             cmd.gaitType = 1

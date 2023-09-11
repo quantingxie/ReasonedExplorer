@@ -1,13 +1,11 @@
 import math
 import time
-import airsim
 import networkx as nx
 import cv2
 from typing import List, Tuple
 from LLM_functions import LLM_abstractor, LLM_rephraser, LLM_checker
 from VLM import VLM_query
 from utils import *
-from simulator_utils import *
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import logging
@@ -15,11 +13,10 @@ import keyboard
 from LLM_functions import LLM_evaluator
 import robot_interface as sdk
 
-MY_API_KEY = 'YOUR_GOOGLE_MAPS_API_KEY'
+MY_API_KEY = "AIzaSyC9vS1own2-T3scUJPZdefXLYBnUQr1pSE"
 
-
-def capture_image_at_angle(angle):
-    camera = cv2.VideoCapture(1)
+def capture_image_at_angle(angle, step_number):
+    camera = cv2.VideoCapture(0)
     if not camera.isOpened():
         print("Error: Could not open camera.")
         return
@@ -28,13 +25,14 @@ def capture_image_at_angle(angle):
     frame = cv2.flip(frame, 0)
     frame = cv2.flip(frame, 1)
 
-    cv2.imwrite(f"{angle}_degrees.jpg", frame)
+    filename = f"step_{step_number}_angle_{angle:.1f}_degrees.jpg"
+    cv2.imwrite(filename, frame)
 
     if not ret:
-        print(f"Error: Couldn't capture image at angle {angle}.")
+        print(f"Error: Couldn't capture image at angle {angle:.1f} during step {step_number}.")
         return None
 
-    return f"{angle}_degrees.jpg"
+    return filename
 
 class Node:
     def __init__(self, Q, id, description, gps, yaw_angle):
@@ -64,6 +62,7 @@ class Exploration:
         self.H = [[], [], []]  # Hierarchical abstract
         self.mcts = mcts
         self.frontier_buffer = []
+        self.step_counter = 0
         self.Q_buffer = {}  # Dictionary to store Q-values for nodes
         logging.basicConfig(filename='exploration.log', level=logging.INFO, format='%(message)s')
         sys.stdout = Logger("my_output2.log")
@@ -78,15 +77,17 @@ class Exploration:
         self.state = sdk.HighState()
         self.udp.InitCmdData(self.cmd)
 
+        self.initial_gps = 40.444704, -79.947455
+        self.initial_yaw = 0
 
     def adaptive_step_size(self, current_score, min_step, max_step):
         normalized_score = current_score / 5
         return min_step + (1 - normalized_score) * (max_step - min_step)
 
 
-    def draw_path(self, filename_prefix="path_map.html"):
+    def draw_path(self, initial_gps, filename_prefix="path_map.html"):
         # Assuming each node has gps_data as (lat, lon)
-        lat0, lon0 = self.nodes[0].gps
+        lat0, lon0 = initial_gps
 
         gmap_graph = gmplot.GoogleMapPlotter(lat0, lon0, 19)
         gmap_graph.apikey = MY_API_KEY
@@ -95,22 +96,10 @@ class Exploration:
         # Add nodes to the map
         for node in self.graph.nodes:
             color = 'green' if node.visited else 'red'
-            gmap_graph.circle(node.gps[0], node.gps[1], 2, color=color)
+            gmap_graph.circle(node.gps[0], node.gps[1], 0.5, color=color)
             
-            # Draw yaw as an arrow (using the node's position and yaw_angle)
-            arrow_length = 0.0001  # Adjust this for the scale of your map
-            dx = arrow_length * math.sin(math.radians(node.yaw_angle))  # sin for East (from yaw angle)
-            dy = arrow_length * math.cos(math.radians(node.yaw_angle))  # cos for North (from yaw angle)
-            
-            # Calculate end point for the arrow
-            lat_end = node.gps[0] + dy
-            lon_end = node.gps[1] + dx
-            
-            # Draw arrow as a line segment
-            gmap_graph.plot([node.gps[0], lat_end], [node.gps[1], lon_end], 'red', edge_width=2.5)
-
             # Annotate score if present
-            if hasattr(node, 'score') and node.score > 0:
+            if hasattr(node, 'score') and node.score > -1:
                 gmap_graph.marker(node.gps[0], node.gps[1], title=f"{node.score:.2f}")
 
         # Add connections (edges) between nodes
@@ -146,10 +135,8 @@ class Exploration:
 
     def explore(self) -> None:
         # Initialize current_node at the beginning of exploration
-        step_counter = 0
-        initial_gps = 40.444612, -79.947429
-        initial_yaw = -90
-        self.current_node = self.add_node_to_graph(0, "", initial_gps, initial_yaw)
+
+        self.current_node = self.add_node_to_graph(0, "", self.initial_gps, self.initial_yaw)
         self.current_node.visited = True
 
         while True:
@@ -158,9 +145,9 @@ class Exploration:
             current_yaw = self.current_node.yaw_angle
             self.current_node.visited = True
             current_score = self.current_node.Q
-            step_size = self.adaptive_step_size(current_score, 3e-5, 7e-5)
+            step_size = self.adaptive_step_size(current_score, 3e-5, 5e-5)
             print(step_size)
-            print("GLOBAL STEP: ", step_counter)
+            print("GLOBAL STEP: ", self.step_counter)
             print("Current_Pos", current_gps)
             print("Current_yaw", current_yaw)
             captured_images = self.capture_images_by_rotate(self.n, self.rom)
@@ -170,7 +157,7 @@ class Exploration:
                 curr_nodes_data.append((description))
 
 
-            step_counter += 1
+            self.step_counter += 1
             # Calculate yaw angles and GPS coordinates for each captured image
             nodes = []
             for i, description in enumerate(curr_nodes_data):
@@ -229,9 +216,8 @@ class Exploration:
                 
                 check = LLM_checker(node.description, self.goal, model="gpt-4")
                 print("Goal Found? ", check)
-                if check.strip() == "Yes":
+                if check.strip() == "Yes" or check.strip =="yes":
                     print("!!! Found GOAL !!!")
-                    self.client.hoverAsync().join()
                     found = True
                     break
             if found:
@@ -263,15 +249,15 @@ class Exploration:
             node.score = score
         self.chosen_node.visited = True
 
-        self.draw_path()
+        self.draw_path(self.initial_gps)
 
-        print("Press 's' to start the action and 'e' to end the action.")
+        print("Press 'enter' to start the action and 'enter again' to end the action.")
 
         # Wait for the 's' key to be pressed to start the action
-        keyboard.wait('s')
+        input()
         print("Starting the action...") 
 
-        keyboard.wait('e')
+        input()
         print("Action completed.")
 
         self.current_node = self.chosen_node
@@ -288,13 +274,13 @@ class Exploration:
         min_angle = -range_of_motion_radians / 2
 
         # Calculate the angle increment in radians
-        angle_increment = range_of_motion_radians / n
+        angle_increment = range_of_motion_radians / (n-1)
 
         # Initialize motion time and yaw angle
         motiontime = 0
         yaw_angle = min_angle
 
-        while motiontime < n+1:
+        while motiontime < n:
             time.sleep(0.005)
             motiontime += 1
 
@@ -312,7 +298,7 @@ class Exploration:
 
             # Capture image and append it if it's not None
             angle_in_degrees = math.degrees(yaw_angle)
-            image = capture_image_at_angle(angle_in_degrees)
+            image = capture_image_at_angle(angle_in_degrees, self.step_counter)
             if image is not None:
                 captured_images.append(image)
 
