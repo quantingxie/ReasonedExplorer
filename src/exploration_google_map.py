@@ -267,46 +267,71 @@ class Exploration:
     def capture_images_by_rotate(self, n: int, range_of_motion=20) -> list:
         captured_images = []
 
-        # Convert range_of_motion to radians
-        range_of_motion_radians = math.radians(range_of_motion)
-
-        # Calculate min_angle based on range_of_motion in radians
-        min_angle = -range_of_motion_radians / 2
-
-        # Calculate the angle increment in radians
-        angle_increment = range_of_motion_radians / (n-1)
-
-        # Initialize motion time and yaw angle
         motiontime = 0
-        yaw_angle = min_angle
-
-        while motiontime < n:
-            time.sleep(0.005)
-            motiontime += 1
-
-            # Receive current state (Not necessary for your function, but kept for compatibility)
+        while True:
+            time.sleep(0.002)
+            motiontime = motiontime + 1
             self.udp.Recv()
             self.udp.GetRecv(self.state)
+                             
+            if(motiontime > 0 and motiontime < 1000):
+                self.cmd.mode = 2
+                self.cmd.yawSpeed = -0.610865
 
-            # Set mode and euler angles for the robot
-            self.cmd.mode = 1
-            self.cmd.euler = [0, 0, yaw_angle]
+            if(motiontime > 1000 and motiontime < 2000):
+                self.cmd.mode = 1
+                self.cmd.euler = [0, 0, math.radians(-25)]
 
-            # Send the udp command
+                # Capture image 
+                image = capture_image_at_angle(-60, self.step_counter)
+                if image is not None:
+                    captured_images.append(image)
+                
+            if(motiontime > 2000 and motiontime < 2200):
+                self.cmd.mode = 1
+                self.cmd.euler = [0, 0, 0]
+
+            if(motiontime > 2200 and motiontime < 3200):
+                self.cmd.mode = 2
+                self.cmd.yawSpeed = 0.610865
+
+                # Capture image
+                image = capture_image_at_angle(0, self.step_counter)
+                if image is not None:
+                    captured_images.append(image)
+
+            if(motiontime > 3200 and motiontime < 4200):
+                self.cmd.mode = 2
+                self.cmd.yawSpeed = 0.610865
+
+            if(motiontime > 4200 and motiontime < 5200):
+                self.cmd.mode = 1
+                self.cmd.euler = [0, 0, math.radians(25)]
+
+                # Capture image
+                image = capture_image_at_angle(0, self.step_counter)
+                if image is not None:
+                    captured_images.append(image)
+
+            if(motiontime > 5200 and motiontime < 5400):
+                self.cmd.mode = 1
+                self.cmd.euler = [0, 0, 0]
+
+            if(motiontime > 5400 and motiontime < 6400):
+                self.cmd.mode = 2
+                self.cmd.yawSpeed = -0.610865
+
             self.udp.SetSend(self.cmd)
             self.udp.Send()
-
-            # Capture image and append it if it's not None
-            angle_in_degrees = math.degrees(yaw_angle)
-            image = capture_image_at_angle(angle_in_degrees, self.step_counter)
-            if image is not None:
-                captured_images.append(image)
-
-            # Update the yaw_angle for the next iteration
-            yaw_angle += angle_increment
+            
+            break
 
         return captured_images
     
+
+
+
+
 import sys
 class Logger(object):
     def __init__(self, filename="Default.log"):
