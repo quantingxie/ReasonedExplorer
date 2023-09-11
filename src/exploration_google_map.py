@@ -276,7 +276,7 @@ class Exploration:
                              
             if(motiontime > 0 and motiontime < 1000):
                 self.cmd.mode = 2
-                self.cmd.yawSpeed = -0.610865
+                self.cmd.yawSpeed = -0.600865
 
             if(motiontime > 1000 and motiontime < 2000):
                 self.cmd.mode = 1
