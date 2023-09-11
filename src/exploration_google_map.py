@@ -320,11 +320,11 @@ class Exploration:
             if(motiontime > 5400 and motiontime < 6400):
                 self.cmd.mode = 2
                 self.cmd.yawSpeed = -0.610865
-
+                break  
             self.udp.SetSend(self.cmd)
             self.udp.Send()
             
-            break
+            
 
         return captured_images
     
