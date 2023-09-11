@@ -281,13 +281,14 @@ class Exploration:
             if(motiontime > 1000 and motiontime < 2000):
                 self.cmd.mode = 1
                 self.cmd.euler = [0, 0, math.radians(-25)]
-
+                print("TESTTTS")
                 # Capture image 
                 image = capture_image_at_angle(-60, self.step_counter)
                 if image is not None:
                     captured_images.append(image)
                 
             if(motiontime > 2000 and motiontime < 2200):
+                print("Test 2")
                 self.cmd.mode = 1
                 self.cmd.euler = [0, 0, 0]
 
