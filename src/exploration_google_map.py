@@ -47,9 +47,10 @@ class Node:
 
 class Exploration:
     next_node_id = 0
-    def __init__(self, mcts, x, k, n, fov, rom, goal, model):
+    def __init__(self, exp_name, type, mcts, rrt, x, k, d0, n, fov, rom, goal, model):
         self.x = x
         self.k = k
+        self.d0 = d0
         self.n = n
         self.fov = fov
         self.rom = rom
@@ -58,9 +59,12 @@ class Exploration:
         self.goal = goal
         self.model = model
         self.state = {}
+        self.type = type
         self.nodes = []
         self.H = [[], [], []]  # Hierarchical abstract
         self.mcts = mcts
+        self.rrt = rrt
+        self.exp_name = exp_name
         self.frontier_buffer = []
         self.step_counter = 0
         self.Q_buffer = {}  # Dictionary to store Q-values for nodes
@@ -142,6 +146,7 @@ class Exploration:
 
         self.current_node = self.add_node_to_graph(0, "", self.initial_gps, self.initial_yaw)
         self.current_node.visited = True
+        EXPERIMENT_TYPE = self.type  #Experiment type: RRT, MCTS, Baseline
 
         while True:
 
@@ -188,45 +193,58 @@ class Exploration:
             # self.mcts.run_mcts(self.k, descriptions) # MCTS real
             found = False
 
-            # Baseline 1
-            # naiveLLM_start_time = time.time()
-            # for node in nodes:
-            #     print(self.goal)
-            #     print("Node Description", node.description)
-            #     node.Q = LLM_evaluator(node.description, goal=self.goal, model="gpt-4")
-            #     print("NodeQ:", node.Q)
-            #     check = LLM_checker(node.description, self.goal, model="gpt-4")
+            if EXPERIMENT_TYPE == "baseline":
+                print("Running Baseline")
+                for node in nodes:
+                    node.Q = LLM_evaluator(node.description, goal=self.goal, model="gpt-4")
+                    check = LLM_checker(node.description, self.goal, model="gpt-4")
+                    print("Goal Found? ", check)
+                    if check.strip() == "Yes":
+                        print("!!! Found GOAL !!!")
+                        self.client.hoverAsync().join()
+                        found = True
+                        break
 
-            #     print("Goal Found? ", check)
-            #     if check.strip() == "Yes":
-            #         print("!!! Found GOAL !!!")
-            #         self.client.hoverAsync().join()
-            #         found = True
-            #         break
-            # if found:
-            #     break
-            # naiveLLM_end_time = time.time()
-            # print("NaiveLLM thinking time: ", naiveLLM_end_time - naiveLLM_start_time, "seconds")
+            elif EXPERIMENT_TYPE == "MCTS":
+                print("Running MCTS")
+                start_time = time.time()
+                self.mcts.run_mcts(10, descriptions) # 10 is the iteration number
+                end_time = time.time()
+                CT = end_time - start_time
+                total_CT += CT
+                print("CT: ", CT, "seconds")
+                print("User-Instructions: ", self.goal)
+                for node in nodes:
+                    node.Q = self.mcts.Q.get(str(node), 0)
+                    check = LLM_checker(node.description, self.goal, model="gpt-4")
+                    print("Goal Found? ", check)
+                    if check.strip() == "Yes":
+                        print("!!! Found GOAL !!!")
+                        self.client.hoverAsync().join()
+                        found = True
+                        break
 
-            # MCTS
-            mcts_start_time = time.time()
-            self.mcts.run_mcts(descriptions)
-            mcts_end_time = time.time()
-            print("MCTS thinking time: ", mcts_end_time - mcts_start_time, "seconds")
+            elif EXPERIMENT_TYPE == "RRT":
+                print("Running RRT")
+                start_time = time.time()
+                self.rrt.run_rrt(descriptions)
+                end_time = time.time()
+                CT = end_time - start_time
+                total_CT += CT
+                print("CT: ", CT, "seconds")
+                print("User-Instructions: ", self.goal)
+                for node in nodes:
+                    node.Q = self.rrt.Q.get(str(node.description), 0)
+                    check = LLM_checker(node.description, self.goal, model="gpt-4")
+                    print("Goal Found? ", check)
+                    if check.strip() == "Yes":
+                        print("!!! Found GOAL !!!")
+                        self.client.hoverAsync().join()
+                        found = True
+                        break
 
-            print("User-Instructions: ", self.goal)
-            for node in nodes:
-                node.Q = self.mcts.Q.get(str(node.description), 0)
-                
-                check = LLM_checker(node.description, self.goal, model="gpt-4")
-                print("Goal Found? ", check)
-                if check.strip() == "Yes" or check.strip =="yes":
-                    print("!!! Found GOAL !!!")
-                    found = True
-                    break
             if found:
                 break
-
 
             action_start_time = time.time()
             self.action()
