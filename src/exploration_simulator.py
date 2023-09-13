@@ -48,7 +48,7 @@ class Exploration:
         self.Q_buffer = {}  # Dictionary to store Q-values for nodes
         self.type = type
         logging.basicConfig(filename='exploration.log', level=logging.INFO, format='%(message)s')
-        sys.stdout = Logger("my_output2.log")
+        sys.stdout = Logger(experiment_name=exp_name)
         # Initialization for robot control
         self.current_node = None  # Track the current position of the agent
         # initialize simulator
@@ -366,9 +366,13 @@ class Exploration:
     #     self.client.takeoffAsync().join()
 import sys
 class Logger(object):
-    def __init__(self, filename="Default.log"):
+    def __init__(self, experiment_name="Default"):
         self.terminal = sys.stdout
-        self.log = open(filename, "a")
+        
+        # Construct filename based on experiment name
+        self.filename = f"{experiment_name}.log"
+        
+        self.log = open(self.filename, "a")
 
     def write(self, message):
         self.terminal.write(message)
@@ -377,4 +381,4 @@ class Logger(object):
     def flush(self):
         # this flush method is needed for python 3 compatibility.
         # this handles the flush command by doing nothing.
-        pass    
+        pass   

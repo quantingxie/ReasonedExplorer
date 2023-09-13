@@ -47,7 +47,7 @@ class Node:
 
 class Exploration:
     next_node_id = 0
-    def __init__(self, exp_name, type, mcts, rrt, x, k, d0, n, fov, rom, goal, model):
+    def __init__(self, exp_name, type, gps, yaw, mcts, rrt, x, k, d0, n, fov, rom, goal, model):
         self.x = x
         self.k = k
         self.d0 = d0
@@ -69,7 +69,7 @@ class Exploration:
         self.step_counter = 0
         self.Q_buffer = {}  # Dictionary to store Q-values for nodes
         logging.basicConfig(filename='exploration.log', level=logging.INFO, format='%(message)s')
-        sys.stdout = Logger("my_output2.log")
+        sys.stdout = Logger(experiment_name=exp_name)
         # Initialization for robot control
         self.current_node = None  # Track the current position of the agent
         # initialize simulator
@@ -85,8 +85,9 @@ class Exploration:
         # self.initial_gps = 40.441975, -79.940444 # basket ball
         # self.initial_gps = 40.4420659, -79.9402534 # find bench
         # self.initial_gps = 40.4420299, -79.9392677 # soccer field
-        self.initial_gps = 40.442332, -79.939648 # find my bag
-        self.initial_yaw = 120   
+        self.initial_gps = gps
+        self.initial_yaw = yaw
+
 
     def adaptive_step_size(self, current_score, min_step, max_step):
         normalized_score = current_score / 5
@@ -359,15 +360,15 @@ class Exploration:
 
         return captured_images
     
-
-
-
-
 import sys
 class Logger(object):
-    def __init__(self, filename="Default.log"):
+    def __init__(self, experiment_name="Default"):
         self.terminal = sys.stdout
-        self.log = open(filename, "a")
+        
+        # Construct filename based on experiment name
+        self.filename = f"{experiment_name}.log"
+        
+        self.log = open(self.filename, "a")
 
     def write(self, message):
         self.terminal.write(message)
@@ -376,4 +377,4 @@ class Logger(object):
     def flush(self):
         # this flush method is needed for python 3 compatibility.
         # this handles the flush command by doing nothing.
-        pass    
+        pass   
