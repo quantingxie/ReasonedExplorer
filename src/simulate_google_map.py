@@ -24,14 +24,16 @@ if __name__ == '__main__':
 
 
 
-    exp_name = "Sim_Exp_RRT_1"
-    exp_type = "MCTS" # baseline, RRT, MCTS
-    initial_gps = (40.442332, -79.939648) # soccer field
+    exp_name = "Real_Exp_RRT_1"
+    exp_type = "RRT" # baseline, RRT, MCTS
+    initial_gps = 40.4312223, -79.9445717 # soccer field
     initial_yaw = 120   
 
     try:
 
-        goal = "Find the orange sports bag I left on the bench of the soccer field"
+        # goal = "Find the orange sports bag I left on the bench of the soccer field"
+        # goal = "Find some place my kids can play with other kids"
+        goal = "find a shelter with a barbecue grill"
         # Initialize MCTS
         mcts_instance = MCTS(ETA, GAMMA, N, L, goal, MODEL)
         rrt_instance = rrt(N, L, goal, MODEL)
