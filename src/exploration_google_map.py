@@ -87,8 +87,7 @@ class Exploration:
         # self.initial_gps = 40.4420299, -79.9392677 # soccer field
         self.initial_gps = gps
         self.initial_yaw = yaw
-        self.initial_gps = 40.442332, -79.939648 # find my bag
-        self.initial_yaw = 120   
+
 
     def adaptive_step_size(self, current_score, min_step, max_step):
         normalized_score = current_score / 5
