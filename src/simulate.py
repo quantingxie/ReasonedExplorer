@@ -34,7 +34,7 @@ if __name__ == '__main__':
 
 
     # Level 2: Find X conditioned on Y
-    exp_name = "Sim_Exp_RRT_1_"
+    exp_name = "Sim_Exp_RRT_5_Fountain_L0_"
     exp_type = "RRT" # baseline, RRT, MCTS
     start_pos = find_fountain_start_pos  
     start_yaw = find_fountain_start_yaw

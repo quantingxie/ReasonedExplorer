@@ -225,7 +225,13 @@ class Exploration:
             if EXPERIMENT_TYPE == "baseline":
                 print("Running Baseline")
                 for node in nodes:
+                    start_time = time.time()
                     node.Q = LLM_evaluator(node.description, goal=self.goal, model="gpt-4")
+                    end_time = time.time()
+                    CT = end_time - start_time
+                    total_CT += CT
+                    print("ComputationalT: ", CT, "seconds")
+
                     check = LLM_checker(node.description, self.goal, model="gpt-4")
                     print("Goal Found? ", check)
                     if check.strip() == "Yes":
@@ -241,7 +247,7 @@ class Exploration:
                 end_time = time.time()
                 CT = end_time - start_time
                 total_CT += CT
-                print("CT: ", CT, "seconds")
+                print("ComputationalT: ", CT, "seconds")
                 print("User-Instructions: ", self.goal)
                 for node in nodes:
                     node.Q = self.mcts.Q.get(str(node), 0)
@@ -260,7 +266,7 @@ class Exploration:
                 end_time = time.time()
                 CT = end_time - start_time
                 total_CT += CT
-                print("CT: ", CT, "seconds")
+                print("ComputationalT: ", CT, "seconds")
                 print("User-Instructions: ", self.goal)
                 for node in nodes:
                     node.Q = self.rrt.Q.get(str(node.description), 0)
@@ -281,10 +287,11 @@ class Exploration:
             self.action(self.k, self.d0)
             action_end_time = time.time()
             TT = action_end_time - action_start_time
-            print("TT: ", TT, "seconds")
+            print("TravelT: ", TT, "seconds")
 
             total_TT += TT
-            print("Total CT", total_CT)
+            print("Total TravelT", total_TT)
+            print("Total ComputationalT", total_CT)
 
             
     """Methods for robot movement"""
