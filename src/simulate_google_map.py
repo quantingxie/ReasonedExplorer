@@ -26,6 +26,9 @@ if __name__ == '__main__':
 
     exp_name = "Sim_Exp_RRT_1"
     exp_type = "MCTS" # baseline, RRT, MCTS
+    initial_gps = 40.442332, -79.939648 # soccer field
+    initial_yaw = 120   
+
     try:
 
         goal = "Find the orange sports bag I left on the bench of the soccer field"
@@ -34,7 +37,7 @@ if __name__ == '__main__':
         rrt_instance = rrt(N, L, goal, MODEL)
         print("MCTS Instance established")
         # Initialize Exploration with the MCTS instance
-        explorer_instance = Exploration(exp_name, exp_type, mcts_instance, rrt_instance, X, K, d0, N, fov, rom, goal, MODEL)
+        explorer_instance = Exploration(exp_name, exp_type, initial_gps, initial_yaw, mcts_instance, rrt_instance, X, K, d0, N, fov, rom, goal, MODEL)
         print("Explorer")
         # Run the exploration process
         explorer_instance.explore()

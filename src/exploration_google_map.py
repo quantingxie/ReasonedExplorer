@@ -47,7 +47,7 @@ class Node:
 
 class Exploration:
     next_node_id = 0
-    def __init__(self, exp_name, type, mcts, rrt, x, k, d0, n, fov, rom, goal, model):
+    def __init__(self, exp_name, type, gps, yaw, mcts, rrt, x, k, d0, n, fov, rom, goal, model):
         self.x = x
         self.k = k
         self.d0 = d0
@@ -85,6 +85,8 @@ class Exploration:
         # self.initial_gps = 40.441975, -79.940444 # basket ball
         # self.initial_gps = 40.4420659, -79.9402534 # find bench
         # self.initial_gps = 40.4420299, -79.9392677 # soccer field
+        self.initial_gps = gps
+        self.initial_yaw = yaw
         self.initial_gps = 40.442332, -79.939648 # find my bag
         self.initial_yaw = 120   
 
