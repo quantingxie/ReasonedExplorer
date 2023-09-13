@@ -22,18 +22,31 @@ if __name__ == '__main__':
     rom = 120 # Range of motion
     explorer_instance = None  # Declare this outside the try block so it can be accessed in the finally block
 
+    # Level 1: Find XS
+    ################################
+    '''L = 1, N = 3'''
+    find_fountain_goal = "Find me a fountain"
+    # Example NED position (N, E, D)
+    find_fountain_start_pos = (-5, 0, -5) 
+    find_fountain_start_yaw = 0
+    #################################
 
 
-    exp_name = "Sim_Exp_RRT_1"
-    exp_type = "MCTS" # baseline, RRT, MCTS
+
+    # Level 2: Find X conditioned on Y
+    exp_name = "Sim_Exp_RRT_5_Fountain_L0_"
+    exp_type = "RRT" # baseline, RRT, MCTS
+    start_pos = find_fountain_start_pos  
+    start_yaw = find_fountain_start_yaw
+    goal = find_fountain_goal
+
     try:
-        goal = "Find me two tables outside of a restaurant"
         # Initialize MCTS
         mcts_instance = MCTS(ETA, GAMMA, N, L, goal, MODEL)
         rrt_instance = rrt(N, L, goal, MODEL)
         print("MCTS Instance established")
         # Initialize Exploration with the MCTS instance
-        explorer_instance = Exploration(exp_name, exp_type, mcts_instance, rrt_instance, X, K, d0, N, fov, rom, goal, MODEL)
+        explorer_instance = Exploration(exp_name, exp_type, start_pos, start_yaw, mcts_instance, rrt_instance, X, K, d0, N, fov, rom, goal, MODEL)
         print("Explorer")
         # Run the exploration process
         explorer_instance.explore()

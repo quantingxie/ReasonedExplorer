@@ -148,7 +148,8 @@ class Exploration:
         self.current_node = self.add_node_to_graph(0, "", self.initial_gps, self.initial_yaw)
         self.current_node.visited = True
         EXPERIMENT_TYPE = self.type  #Experiment type: RRT, MCTS, Baseline
-
+        total_CT = 0
+        total_TT = 0
         while True:
 
             current_gps = self.current_node.gps
@@ -197,7 +198,13 @@ class Exploration:
             if EXPERIMENT_TYPE == "baseline":
                 print("Running Baseline")
                 for node in nodes:
+                    start_time = time.time()
                     node.Q = LLM_evaluator(node.description, goal=self.goal, model="gpt-4")
+                    end_time = time.time()
+                    CT = end_time - start_time
+                    total_CT += CT
+                    print("ComputationalT: ", CT, "seconds")
+
                     check = LLM_checker(node.description, self.goal, model="gpt-4")
                     print("Goal Found? ", check)
                     if check.strip() == "Yes":
@@ -213,7 +220,7 @@ class Exploration:
                 end_time = time.time()
                 CT = end_time - start_time
                 total_CT += CT
-                print("CT: ", CT, "seconds")
+                print("ComputationalT: ", CT, "seconds")
                 print("User-Instructions: ", self.goal)
                 for node in nodes:
                     node.Q = self.mcts.Q.get(str(node), 0)
@@ -232,7 +239,7 @@ class Exploration:
                 end_time = time.time()
                 CT = end_time - start_time
                 total_CT += CT
-                print("CT: ", CT, "seconds")
+                print("ComputationalT: ", CT, "seconds")
                 print("User-Instructions: ", self.goal)
                 for node in nodes:
                     node.Q = self.rrt.Q.get(str(node.description), 0)
@@ -250,7 +257,12 @@ class Exploration:
             action_start_time = time.time()
             self.action()
             action_end_time = time.time()
-            print("Action time: ", action_end_time - action_start_time, "seconds")
+            TT = action_end_time - action_start_time
+            print("TravelT: ", TT, "seconds")
+
+            total_TT += TT
+            print("Total TravelT", total_TT)
+            print("Total ComputationalT", total_CT)
 
 
     """Methods for robot movement"""
@@ -272,7 +284,7 @@ class Exploration:
             node.score = score
         self.chosen_node.visited = True
 
-        self.draw_path(self.initial_gps)
+        self.draw_path(self.exp_name)
 
         print("Press 'enter' to start the action and 'enter again' to end the action.")
 

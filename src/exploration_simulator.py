@@ -27,7 +27,7 @@ class Node:
 
 class Exploration:
     next_node_id = 0
-    def __init__(self, exp_name, type, mcts, rrt, x, k, d0, n, fov, rom, goal, model):
+    def __init__(self, exp_name, type, pos, yaw, mcts, rrt, x, k, d0, n, fov, rom, goal, model):
         self.x = x
         self.k = k
         self.d0 = d0
@@ -47,6 +47,9 @@ class Exploration:
         self.frontier_buffer = []
         self.Q_buffer = {}  # Dictionary to store Q-values for nodes
         self.type = type
+        self.start_pos = pos
+        self.start_yaw = yaw
+
         logging.basicConfig(filename='exploration.log', level=logging.INFO, format='%(message)s')
         sys.stdout = Logger(experiment_name=exp_name)
         # Initialization for robot control
@@ -166,10 +169,10 @@ class Exploration:
         # Initialize current_node at the beginning of exploration
         step_counter = 0
         step_size = 15
-        start_position = (15, -44, -5)  # Example NED position (N, E, D)
-        init_yaw = 0  # Example orientation (roll, pitch, yaw)
+        start_position = self.start_pos 
+        init_yaw = self.start_yaw
         self.set_start_position(start_position, init_yaw)
-        self.stabilize_at_start()
+        self.stabilize_at_start(start_position, init_yaw)
         # self.takeoff()
 
         initial_gps = get_position(self.client)
@@ -222,7 +225,13 @@ class Exploration:
             if EXPERIMENT_TYPE == "baseline":
                 print("Running Baseline")
                 for node in nodes:
+                    start_time = time.time()
                     node.Q = LLM_evaluator(node.description, goal=self.goal, model="gpt-4")
+                    end_time = time.time()
+                    CT = end_time - start_time
+                    total_CT += CT
+                    print("ComputationalT: ", CT, "seconds")
+
                     check = LLM_checker(node.description, self.goal, model="gpt-4")
                     print("Goal Found? ", check)
                     if check.strip() == "Yes":
@@ -238,7 +247,7 @@ class Exploration:
                 end_time = time.time()
                 CT = end_time - start_time
                 total_CT += CT
-                print("CT: ", CT, "seconds")
+                print("ComputationalT: ", CT, "seconds")
                 print("User-Instructions: ", self.goal)
                 for node in nodes:
                     node.Q = self.mcts.Q.get(str(node), 0)
@@ -257,7 +266,7 @@ class Exploration:
                 end_time = time.time()
                 CT = end_time - start_time
                 total_CT += CT
-                print("CT: ", CT, "seconds")
+                print("ComputationalT: ", CT, "seconds")
                 print("User-Instructions: ", self.goal)
                 for node in nodes:
                     node.Q = self.rrt.Q.get(str(node.description), 0)
@@ -278,10 +287,11 @@ class Exploration:
             self.action(self.k, self.d0)
             action_end_time = time.time()
             TT = action_end_time - action_start_time
-            print("TT: ", TT, "seconds")
+            print("TravelT: ", TT, "seconds")
 
             total_TT += TT
-            print("Total CT", total_CT)
+            print("Total TravelT", total_TT)
+            print("Total ComputationalT", total_CT)
 
             
     """Methods for robot movement"""
@@ -342,11 +352,13 @@ class Exploration:
         # self.client.hoverAsync().join()
 
 
-    def stabilize_at_start(self):
+    def stabilize_at_start(self, start_pos, start_yaw):
         # This will ensure the drone stabilizes at the position it starts at
-        self.client.moveToPositionAsync(15, -44, -1, 3, yaw_mode=airsim.YawMode(is_rate=False, yaw_or_rate=0)).join()
+        self.client.moveToPositionAsync(start_pos[0], start_pos[1], -1, 3, 
+                                        yaw_mode=airsim.YawMode(is_rate=False, yaw_or_rate=start_yaw)).join()
         time.sleep(2)
         self.client.hoverAsync().join()
+
 
     # def moveToPosition(self, x, y, z, v):
     #     currentPos = self.client.getMultirotorState().kinematics_estimated.position
