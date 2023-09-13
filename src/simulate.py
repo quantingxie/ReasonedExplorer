@@ -7,9 +7,9 @@ import os
 if __name__ == '__main__':
 
     
-    openai.api_key = "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"
+    openai.api_key = "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"
     MODEL = "gpt-3.5-turbo-16k"
-    os.environ['OPENAI_API_KEY'] = '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'
+    os.environ['OPENAI_API_KEY'] = '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'
     print(os.getenv("OPENAI_API_KEY"))
     ETA = 1 # Scaling factor for exploration
     GAMMA = 3 # N(S_t+1)^gamma

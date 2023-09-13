@@ -283,7 +283,7 @@ class Exploration:
             node.score = score
         self.chosen_node.visited = True
 
-        self.draw_path(self.exp_name)
+        self.draw_path(self.initial_gps, self.exp_name)
 
         print("Press 'enter' to start the action and 'enter again' to end the action.")
 
