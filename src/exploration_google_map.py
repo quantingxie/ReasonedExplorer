@@ -190,7 +190,6 @@ class Exploration:
                 nodes.append(node)
 
        
-            print("Running MCTS")
             descriptions = [node.description for node in nodes]
             # self.mcts.run_mcts(self.k, descriptions) # MCTS real
             found = False
