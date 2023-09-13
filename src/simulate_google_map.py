@@ -16,14 +16,14 @@ if __name__ == '__main__':
     K = 10  # How many iterations to run MCTS at each step
     N = 3 # Action space and tree width
     L = 1  # Tree length
-    fov = 60 # Field of View
+    fov = 120 # Field of View
     rom = 54 # Range of motion
     explorer_instance = None  # Declare this outside the try block so it can be accessed in the finally block
 
     try:
 
-        goal = "Find a red car in the parking lot"
-        # Initialize MCTS
+        goal = "Find the orange sports bag I left on the bench of the soccer field"
+                                                            # Initialize MCTS
         mcts_instance = MCTS(N, L, goal, MODEL)
         print("MCTS Instance established")
         # Initialize Exploration with the MCTS instance

@@ -77,8 +77,12 @@ class Exploration:
         self.state = sdk.HighState()
         self.udp.InitCmdData(self.cmd)
 
-        self.initial_gps = 40.444704, -79.947455
-        self.initial_yaw = 0
+        # self.initial_gps = 40.444704, -79.947455 #TCS
+        # self.initial_gps = 40.441975, -79.940444 # basket ball
+        # self.initial_gps = 40.4420659, -79.9402534 # find bench
+        # self.initial_gps = 40.4420299, -79.9392677 # soccer field
+        self.initial_gps = 40.442332, -79.939648 # find my bag
+        self.initial_yaw = 120   
 
     def adaptive_step_size(self, current_score, min_step, max_step):
         normalized_score = current_score / 5
@@ -145,7 +149,7 @@ class Exploration:
             current_yaw = self.current_node.yaw_angle
             self.current_node.visited = True
             current_score = self.current_node.Q
-            step_size = self.adaptive_step_size(current_score, 3e-5, 5e-5)
+            step_size = self.adaptive_step_size(current_score, 2e-5, 3.5e-5)
             print(step_size)
             print("GLOBAL STEP: ", self.step_counter)
             print("Current_Pos", current_gps)
@@ -161,10 +165,10 @@ class Exploration:
             # Calculate yaw angles and GPS coordinates for each captured image
             nodes = []
             for i, description in enumerate(curr_nodes_data):
-                direction = i * (self.rom / (self.n - 1))
+                direction = i * (120 / (self.n - 1))
 
                 # Incorporating the actual yaw into the calculated yaw angle
-                yaw_angle = current_yaw - direction + self.rom/2  # Adjusting for center of the FOV
+                yaw_angle = current_yaw - direction + 60  # Adjusting for center of the FOV
 
                 # print("Yaw_angle", yaw_angle)
                 dx = step_size * math.cos(math.radians(yaw_angle))
@@ -184,7 +188,7 @@ class Exploration:
             # self.mcts.run_mcts(self.k, descriptions) # MCTS real
             found = False
 
-            #Baseline 1
+            # Baseline 1
             # naiveLLM_start_time = time.time()
             # for node in nodes:
             #     print(self.goal)
@@ -316,7 +320,7 @@ class Exploration:
 
             if(motiontime > 5300 and motiontime < 5302):
                 # Capture image
-                image = capture_image_at_angle(0, self.step_counter)
+                image = capture_image_at_angle(60, self.step_counter)
                 if image is not None:
                     captured_images.append(image)
 
