@@ -36,11 +36,6 @@ class MCTS:
         # Return the description with the highest value and the depth
         return S_t1[np.argmax(values)], depth
         
-        # Otherwise, continue the recursive selection
-        # else:
-        #     selected_node, new_depth = self.selection(max(S_t1, key=lambda desc: self.Q.get(desc, 0)), depth+1)
-        #     return selected_node, new_depth
-
 
     def expansion(self, S_t1_star: List) -> List:
         """Generates a list of possible nodes and selects one based on the probabilities."""
@@ -88,10 +83,6 @@ class MCTS:
         # self.Q[str(S_t1_star)] = (Q_star + pi_mean) / depth
         self.Q[str(S_t1_star)] = pi_mean
         self.N[str(S_t1_star)] = self.N.get(str(S_t1_star), 0) + 1
-
-    # def is_leaf(self, S_t: List) -> bool:
-    #     """Determines if the given node is a leaf node."""
-    #     return not str(S_t) in self.Q
     
     def run_mcts(self, K: int, S_t1_list: List) -> None:
         """Executes the MCTS algorithm."""

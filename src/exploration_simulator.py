@@ -27,9 +27,10 @@ class Node:
 
 class Exploration:
     next_node_id = 0
-    def __init__(self, mcts, x, k, n, fov, rom, goal, model):
+    def __init__(self, exp_name, type, mcts, rrt, x, k, d0, n, fov, rom, goal, model):
         self.x = x
         self.k = k
+        self.d0 = d0
         self.n = n
         self.fov = fov
         self.rom = rom
@@ -39,10 +40,13 @@ class Exploration:
         self.model = model
         self.state = {}
         self.nodes = []
+        self.exp_name = exp_name
         self.H = [[], [], []]  # Hierarchical abstract
         self.mcts = mcts
+        self.rrt = rrt
         self.frontier_buffer = []
         self.Q_buffer = {}  # Dictionary to store Q-values for nodes
+        self.type = type
         logging.basicConfig(filename='exploration.log', level=logging.INFO, format='%(message)s')
         sys.stdout = Logger("my_output2.log")
         # Initialization for robot control
@@ -73,11 +77,13 @@ class Exploration:
         self.client.armDisarm(False)  # Try to disarm the drone
         self.client.enableApiControl(False)
         self.client.reset()
-    def draw_path(self):
+    def draw_path(self, experiment_name: str):
         # Create a directory to save the images if it doesn't exist
-        print("Drawing nodes...!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("Drawing nodes!!!!!!!!!!!!!!!!!!!!!!!!!")
         import os
-        directory = "saved_plots"
+        
+        # Use the provided experiment_number in the directory name
+        directory = f"saved_plots/{experiment_name}"
         if not os.path.exists(directory):
             os.makedirs(directory)
         
@@ -88,10 +94,10 @@ class Exploration:
         for node in self.graph.nodes:
             # Draw node as a point
             color = 'pink' if node.visited else 'green'
-    
+        
             # Draw node as a point
             plt.scatter(node.gps[1], node.gps[0], color=color)  # Note the swapped coordinates here
-    
+        
             # Draw yaw as an arrow (using the node's position and yaw_angle)
             arrow_length = 0.005  # you might want to adjust this for the scale of your graph
             dx = arrow_length * math.sin(math.radians(node.yaw_angle))  # sin for East (from yaw angle)
@@ -99,6 +105,7 @@ class Exploration:
             plt.arrow(node.gps[1], node.gps[0], dx, dy, color='red')  # Note the swapped coordinates here
             if node.score > 0:
                 plt.annotate(f"{node.score:.2f}", (node.gps[1], node.gps[0]), textcoords="offset points", xytext=(0,5), ha='center')
+                
         # Draw edges between nodes
         for edge in self.graph.edges:
             node1, node2 = edge
@@ -114,6 +121,7 @@ class Exploration:
         
         # Increment the iteration count for next call
         self.iteration_count += 1
+
 
     """Methods for graph"""
     def add_node_to_graph(self, Q,  description, gps, yaw_angle):
@@ -168,11 +176,12 @@ class Exploration:
         initial_yaw = init_yaw
         self.current_node = self.add_node_to_graph(0, "", initial_gps, initial_yaw)
         self.current_node.visited = True
+        total_CT = 0  # Computational Time
+        total_TT = 0  # Travel Time
+
+        EXPERIMENT_TYPE = self.type  #Experiment type: RRT, MCTS, Baseline
 
         while True:
-            # current_gps = get_position(self.client)  # Fetching the current position and yaw of the agent
-            # current_yaw = get_yaw(self.client)
-
             current_gps = self.current_node.gps
             current_yaw = self.current_node.yaw_angle
             self.current_node.visited = True
@@ -184,139 +193,129 @@ class Exploration:
             print("GLOBAL STEP: ", step_counter)
             print("Current_Pos", current_gps)
             print("Current_yaw", current_yaw)
-            captured_images = get_image(self.client, step_counter)
+            captured_images = get_image(self.client, step_counter, self.exp_name)
             curr_nodes_data = []
             for image in captured_images:
                 description = VLM_query(image)
                 curr_nodes_data.append((description))
 
-
             step_counter += 1
+
             # Calculate yaw angles and GPS coordinates for each captured image
             nodes = []
             for i, description in enumerate(curr_nodes_data):
                 direction = i * (self.rom / (self.n - 1))
-
-                # Incorporating the actual yaw into the calculated yaw angle
-                yaw_angle = current_yaw - direction + self.rom/2  # Adjusting for center of the FOV
-
-                # print("Yaw_angle", yaw_angle)
+                yaw_angle = current_yaw - direction + self.rom / 2  # Adjusting for center of the FOV
                 dx = step_size * math.cos(math.radians(yaw_angle))
                 dy = step_size * math.sin(math.radians(yaw_angle))
-
                 newX = current_gps[0] + dx
                 newY = current_gps[1] + dy
-              
+
                 node = self.add_node_to_graph(0, description, (newX, newY), yaw_angle)
                 print("node expanded in ", node.gps, "for angle", node.yaw_angle, "Description", node.description, "\n")
                 self.connect_nodes(self.current_node, node)
                 nodes.append(node)
 
-            # S_0 = LLM_abstractor([node.description for node in nodes], model=self.model)
-            # print("abstracted base nodes")
-            # self.H[0].append(S_0)
-            # print("abstracted top nodes")
-            # self.abstract(self.H[0], 1)
-            # G = [h[-1] for h in self.H if h]
-            # # Use LLM_rephraser to get new descriptions for nodes
-            # rephrased_nodes = []
-            # for node in nodes:
-
-            #     rephrased_node = LLM_rephraser(node.description, G, model=self.model)
-
-            #     rephrased_nodes.append(rephrased_node)
-
-            # logging.info("expaned nodes rephrased")
-            # print("expaned nodes rephrased")
-
-            # for i, node in enumerate(nodes):
-            #     node.description = rephrased_nodes[i]
-
-            # logging.info("Running MCTS")
-            print("Running MCTS")
             descriptions = [node.description for node in nodes]
-            # self.mcts.run_mcts(self.k, descriptions) # MCTS real
             found = False
 
-            #Baseline 1
-            # naiveLLM_start_time = time.time()
-            # for node in nodes:
-            #     print(self.goal)
-            #     print("Node Description", node.description)
-            #     node.Q = LLM_evaluator(node.description, goal=self.goal, model="gpt-4")
-            #     print("NodeQ:", node.Q)
-            #     check = LLM_checker(node.description, self.goal, model="gpt-4")
+            if EXPERIMENT_TYPE == "baseline":
+                print("Running Baseline")
+                for node in nodes:
+                    node.Q = LLM_evaluator(node.description, goal=self.goal, model="gpt-4")
+                    check = LLM_checker(node.description, self.goal, model="gpt-4")
+                    print("Goal Found? ", check)
+                    if check.strip() == "Yes":
+                        print("!!! Found GOAL !!!")
+                        self.client.hoverAsync().join()
+                        found = True
+                        break
 
-            #     print("Goal Found? ", check)
-            #     if check.strip() == "Yes":
-            #         print("!!! Found GOAL !!!")
-            #         self.client.hoverAsync().join()
-            #         found = True
-            #         break
-            # if found:
-            #     break
-            # naiveLLM_end_time = time.time()
-            # print("NaiveLLM thinking time: ", naiveLLM_end_time - naiveLLM_start_time, "seconds")
+            elif EXPERIMENT_TYPE == "MCTS":
+                print("Running MCTS")
+                start_time = time.time()
+                self.mcts.run_mcts(10, descriptions) # 10 is the iteration number
+                end_time = time.time()
+                CT = end_time - start_time
+                total_CT += CT
+                print("CT: ", CT, "seconds")
+                print("User-Instructions: ", self.goal)
+                for node in nodes:
+                    node.Q = self.mcts.Q.get(str(node), 0)
+                    check = LLM_checker(node.description, self.goal, model="gpt-4")
+                    print("Goal Found? ", check)
+                    if check.strip() == "Yes":
+                        print("!!! Found GOAL !!!")
+                        self.client.hoverAsync().join()
+                        found = True
+                        break
 
-            # MCTS
-            mcts_start_time = time.time()
-            self.mcts.run_mcts(descriptions)
-            mcts_end_time = time.time()
-            print("MCTS thinking time: ", mcts_end_time - mcts_start_time, "seconds")
+            elif EXPERIMENT_TYPE == "RRT":
+                print("Running RRT")
+                start_time = time.time()
+                self.rrt.run_rrt(descriptions)
+                end_time = time.time()
+                CT = end_time - start_time
+                total_CT += CT
+                print("CT: ", CT, "seconds")
+                print("User-Instructions: ", self.goal)
+                for node in nodes:
+                    node.Q = self.rrt.Q.get(str(node.description), 0)
+                    check = LLM_checker(node.description, self.goal, model="gpt-4")
+                    print("Goal Found? ", check)
+                    if check.strip() == "Yes":
+                        print("!!! Found GOAL !!!")
+                        self.client.hoverAsync().join()
+                        found = True
+                        break
 
-            print("User-Instructions: ", self.goal)
-            for node in nodes:
-                node.Q = self.mcts.Q.get(str(node.description), 0)
-                
-                check = LLM_checker(node.description, self.goal, model="gpt-4")
-                print("Goal Found? ", check)
-                if check.strip() == "Yes":
-                    print("!!! Found GOAL !!!")
-                    self.client.hoverAsync().join()
-                    found = True
-                    break
             if found:
                 break
 
             self.frontier_buffer.extend(nodes)
 
             action_start_time = time.time()
-            self.action()
+            self.action(self.k, self.d0)
             action_end_time = time.time()
-            print("Action time: ", action_end_time - action_start_time, "seconds")
+            TT = action_end_time - action_start_time
+            print("TT: ", TT, "seconds")
 
+            total_TT += TT
+            print("Total CT", total_CT)
 
+            
     """Methods for robot movement"""
-    def action(self) -> None:
+    def action(self, k, d0) -> None:
         """Chooses and executes an action based on the Q-values."""
+        import math  # Ensure you've imported the math library
+
         # Compute distances to frontier nodes using Euclidean distance
         current_node_gps = get_position(self.client)
         print("Curret GPS",current_node_gps)
-        nodes_gps_list = [node.gps for node in self.graph.nodes if not node.visited] # changes
-        # nodes_gps_list = [node.gps for node in self.frontier_buffer]
+        nodes_gps_list = [node.gps for node in self.graph.nodes if not node.visited]
 
-        # nodes_gps_list = [data['position'] for data in self.Q_buffer.values()]
-        d_values = compute_euclidean_distances_from_current(current_node_gps, nodes_gps_list)
+        d_values = compute_euclidean_distances_from_current_sim(current_node_gps, nodes_gps_list)
         print("d values", d_values)
-        # Select node with the highest Q-value adjusted by distance
-        # self.chosen_node = max(self.nodes, key=lambda node: self.Q_buffer[str(node.id)] / d_values[self.nodes.index(node)])
 
-        unvisited_nodes = [node for node in self.graph.nodes if not node.visited] # changes
-        # if unvisited_nodes:
-        #     unvisited_ids = [node.id for node in unvisited_nodes]
-        #     print("Unvisited Nodes ids:", unvisited_ids)
+        # Calculate sigmoid-modulated distances for each node
+        sigma_values = [sigmoid_modulated_distance(d, k, d0) for d in d_values]
+        print("Sigma values", sigma_values)
 
-        scores = [(node, node.Q -  0*d_values[nodes_gps_list.index(node.gps)]) for node in unvisited_nodes] # changes unvisited_nodes
+        # Score nodes based on Q-value adjusted by sigmoid-modulated distance
+        unvisited_nodes = [node for node in self.graph.nodes if not node.visited]
+        scores = [(node, node.Q - sigma_values[nodes_gps_list.index(node.gps)]) for node in unvisited_nodes]
         print("SCORES", scores)
+
         self.chosen_node = max(scores, key=lambda x: x[1])[0]
         for node, score in scores:
             node.score = score
+
 
         # print(f"Before update, chosen_node visited status: {self.chosen_node.visited}")
         self.chosen_node.visited = True
         # print(f"Node Identity: {id(self.chosen_node)}")
         # print(f"After update, chosen_node visited status: {self.chosen_node.visited}")
-        self.draw_path()
+        self.draw_path(self.exp_name)
 
 
         # Make the robot move to the chosen node's location

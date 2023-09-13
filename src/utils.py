@@ -64,7 +64,7 @@ def compute_euclidean_distances_from_current(current_node_gps, nodes_gps_list):
         # print("Coord1:", coord1)
         # print("Coord2:", coord2)
 
-        x1, y1, = coord1
+        x1, y1 = coord1
         x2, y2 = coord2  # Assuming the second coordinate might have an extra value (like altitude) that we want to ignore.
         return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
     
@@ -75,3 +75,7 @@ def compute_euclidean_distance(coord1, coord2):
     x1, y1, _ = coord1
     x2, y2 = coord2  # Also capture the possible third component, though it's ignored in the computation.
     return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+
+def sigmoid_modulated_distance(d, k, d0):
+    """Computes the sigmoid-modulated distance for a given distance."""
+    return 1 / (1 + math.exp(-k * (d - d0)))
