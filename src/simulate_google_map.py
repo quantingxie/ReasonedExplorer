@@ -24,7 +24,7 @@ if __name__ == '__main__':
 
 
 
-    exp_name = "Sim_Exp_RRT_1"
+    exp_name = "Real_Exp_RRT_1"
     exp_type = "MCTS" # baseline, RRT, MCTS
     try:
 

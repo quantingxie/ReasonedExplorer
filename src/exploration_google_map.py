@@ -300,11 +300,11 @@ class Exploration:
                 self.cmd.mode = 2
                 self.cmd.yawSpeed = -0.255433
 
-            if(motiontime > 1000 and motiontime < 2000):
+            if(motiontime > 1000 and motiontime <= 3000):
                 self.cmd.mode = 1
                 self.cmd.euler = [0, 0, math.radians(-25)]
 
-            if(motiontime > 2000 and motiontime < 2002):
+            if(motiontime > 3000 and motiontime < 3002):
                 # Capture image 
                 image = capture_image_at_angle(-60, self.step_counter)
                 if image is not None:
