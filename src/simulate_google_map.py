@@ -32,7 +32,8 @@ if __name__ == '__main__':
     try:
 
         # goal = "Find the orange sports bag I left on the bench of the soccer field"
-        goal = "Find some place my kids can play with other kids"
+        # goal = "Find some place my kids can play with other kids"
+        goal = "find a shelter with a barbecue grill"
         # Initialize MCTS
         mcts_instance = MCTS(ETA, GAMMA, N, L, goal, MODEL)
         rrt_instance = rrt(N, L, goal, MODEL)
