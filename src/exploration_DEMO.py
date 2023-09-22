@@ -37,7 +37,6 @@ def capture_image_at_angle(angle, step_number):
 class Node:
     def __init__(self, Q, id, description, gps, yaw_angle):
         self.id = id  # Unique identifier for the node
-        self.Q = Q
         self.score = 0.0
         self.description = description  # Scene description from VLM or LLM_rephraser
         self.gps = gps  # GPS data
@@ -48,9 +47,7 @@ class Node:
 class Exploration:
     next_node_id = 0
     def __init__(self):
-        self.frontier_buffer = []
         self.step_counter = 0
-        self.Q_buffer = {}  # Dictionary to store Q-values for nodes
         logging.basicConfig(filename='exploration.log', level=logging.INFO, format='%(message)s')
         self.current_node = None  # Track the current position of the agent
         self.HIGHLEVEL = 0xee
@@ -72,7 +69,7 @@ class Exploration:
         total_TT = 0
         while True:
 
-            captured_images = self.capture_images_by_rotate(self.n, self.rom)
+            captured_images = self.capture_images_by_rotate(3, 120)
 
             action_start_time = time.time()
             self.action()
@@ -94,9 +91,6 @@ class Exploration:
 
         input()
         print("Action completed.")
-
-        self.current_node = self.chosen_node
-        self.current_node.visited = True
 
 
     def capture_images_by_rotate(self, n: int, range_of_motion=20) -> list:
