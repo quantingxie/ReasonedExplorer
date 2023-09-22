@@ -136,7 +136,7 @@ class Exploration:
                 self.cmd.euler = [0, 0, math.radians(25)]
             if(motiontime > 5300 and motiontime < 5302):
                 # Capture image
-                image = capture_image_at_angle(0, self.step_counter)
+                image = capture_image_at_angle(60, self.step_counter)
                 if image is not None:
                     captured_images.append(image)
             if(motiontime > 5302 and motiontime < 5500):
