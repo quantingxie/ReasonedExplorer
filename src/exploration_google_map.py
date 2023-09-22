@@ -163,11 +163,12 @@ class Exploration:
             print("Current_yaw", current_yaw)
             captured_images = self.capture_images_by_rotate(self.n, self.rom)
             curr_nodes_data = []
+            print("querying VLM")
             for image in captured_images:
                 description = VLM_query(image)
                 curr_nodes_data.append((description))
 
-
+            print("complete")
             self.step_counter += 1
             # Calculate yaw angles and GPS coordinates for each captured image
             nodes = []
@@ -177,7 +178,7 @@ class Exploration:
                 # Incorporating the actual yaw into the calculated yaw angle
                 yaw_angle = current_yaw - direction + 60  # Adjusting for center of the FOV
 
-                # print("Yaw_angle", yaw_angle)
+                print("Yaw_angle", yaw_angle)
                 dx = step_size * math.cos(math.radians(yaw_angle))
                 dy = step_size * math.sin(math.radians(yaw_angle))
 
