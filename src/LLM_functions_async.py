@@ -51,17 +51,17 @@ async def LLM_evaluator_async(node, goal, model):
     #         """ + str(node)    
     message=[{"role": "user", "content": prompt}]
     request_payload = {
-        "model": "gpt-4-0314",
+        "model": "gpt-4",
         # "model": "gpt-3.5-turbo-16k",
         "messages": message,
         "temperature": 0.8,
-        "max_tokens": 400,
+        "max_tokens": 500,
         "frequency_penalty": 0.0
     }
     url="https://api.openai.com/v1/chat/completions"
     api_key = os.getenv("OPENAI_API_KEY")
     headers = {
-        "Authorization": f"Bearer {api_key}",  # replace with your API key
+        "Authorization": f"Bearer {api_key}", 
         "Content-Type": "application/json"
     }
     async with aiohttp.ClientSession() as session:

@@ -191,7 +191,7 @@ class Exploration:
             self.current_node.visited = True
             current_score = self.current_node.Q
             print(current_score)
-            step_size = self.adaptive_step_size(current_score, 8, 10) # 5 and 20 for L1 L2 L4
+            step_size = self.adaptive_step_size(current_score, 10, 15) # 5 and 20 for L1 L2 L4
             print(step_size)
             # self.current_node = self.add_node_to_graph(0, "", current_gps, current_yaw)
             print("GLOBAL STEP: ", step_counter)
