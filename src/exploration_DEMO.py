@@ -91,6 +91,7 @@ class Exploration:
 
         input()
         print("Action completed.")
+        self.step_counter+=1
 
 
     def capture_images_by_rotate(self, n: int, range_of_motion=20) -> list:
