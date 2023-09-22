@@ -47,24 +47,7 @@ class Node:
 
 class Exploration:
     next_node_id = 0
-    def __init__(self, exp_name, type, gps, yaw, mcts, rrt, x, k, d0, n, fov, rom, goal, model):
-        self.x = x
-        self.k = k
-        self.d0 = d0
-        self.n = n
-        self.fov = fov
-        self.rom = rom
-        self.graph = nx.Graph()
-        self.iteration_count = 0
-        self.goal = goal
-        self.model = model
-        self.state = {}
-        self.type = type
-        self.nodes = []
-        self.H = [[], [], []]  # Hierarchical abstract
-        self.mcts = mcts
-        self.rrt = rrt
-        self.exp_name = exp_name
+    def __init__(self):
         self.frontier_buffer = []
         self.step_counter = 0
         self.Q_buffer = {}  # Dictionary to store Q-values for nodes
@@ -80,8 +63,6 @@ class Exploration:
         # self.initial_gps = 40.441975, -79.940444 # basket ball
         # self.initial_gps = 40.4420659, -79.9402534 # find bench
         # self.initial_gps = 40.4420299, -79.9392677 # soccer field
-        self.initial_gps = gps
-        self.initial_yaw = yaw
 
 
     def explore(self) -> None:
@@ -180,3 +161,5 @@ class Exploration:
             
         return captured_images
     
+explore_instance = Exploration()
+explore_instance.explore()
