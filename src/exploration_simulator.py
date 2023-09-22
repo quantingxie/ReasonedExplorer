@@ -168,6 +168,7 @@ class Exploration:
     def explore(self) -> None:
         # Initialize current_node at the beginning of exploration
         step_counter = 0
+        self.total_distance = 0
         step_size = 15
         start_position = self.start_pos 
         init_yaw = self.start_yaw
@@ -190,7 +191,7 @@ class Exploration:
             self.current_node.visited = True
             current_score = self.current_node.Q
             print(current_score)
-            step_size = self.adaptive_step_size(current_score, 5, 20)
+            step_size = self.adaptive_step_size(current_score, 8, 10) # 5 and 20 for L1 L2 L4
             print(step_size)
             # self.current_node = self.add_node_to_graph(0, "", current_gps, current_yaw)
             print("GLOBAL STEP: ", step_counter)
@@ -250,7 +251,7 @@ class Exploration:
                 print("ComputationalT: ", CT, "seconds")
                 print("User-Instructions: ", self.goal)
                 for node in nodes:
-                    node.Q = self.mcts.Q.get(str(node), 0)
+                    node.Q = self.mcts.Q.get(str(node.description), 0)
                     check = LLM_checker(node.description, self.goal, model="gpt-4")
                     print("Goal Found? ", check)
                     if check.strip() == "Yes":
@@ -292,6 +293,7 @@ class Exploration:
             total_TT += TT
             print("Total TravelT", total_TT)
             print("Total ComputationalT", total_CT)
+            print("Total Distance Traveled: ", self.total_distance)
 
             
     """Methods for robot movement"""
@@ -320,6 +322,8 @@ class Exploration:
         for node, score in scores:
             node.score = score
 
+        distance_to_next_point = math.sqrt((self.chosen_node.gps[0] - current_node_gps[0])**2 + (self.chosen_node.gps[1] - current_node_gps[1])**2)
+        self.total_distance += distance_to_next_point  # Accumulate distance
 
         # print(f"Before update, chosen_node visited status: {self.chosen_node.visited}")
         self.chosen_node.visited = True

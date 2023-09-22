@@ -23,8 +23,8 @@ def LLM_evaluator(node, goal, model):
     response = openai.ChatCompletion.create(
         model="gpt-4",
         messages = message,
-        temperature=0.5,
-        max_tokens=3000,
+        temperature=0.8,
+        max_tokens=500,
         frequency_penalty=0.0
     )
     # print(f"Node: {node}")

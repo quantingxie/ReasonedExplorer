@@ -51,10 +51,11 @@ async def LLM_evaluator_async(node, goal, model):
     #         """ + str(node)    
     message=[{"role": "user", "content": prompt}]
     request_payload = {
-        "model": "gpt-4",
+        "model": "gpt-4-0314",
+        # "model": "gpt-3.5-turbo-16k",
         "messages": message,
         "temperature": 0.8,
-        "max_tokens": 1000,
+        "max_tokens": 400,
         "frequency_penalty": 0.0
     }
     url="https://api.openai.com/v1/chat/completions"
@@ -65,6 +66,7 @@ async def LLM_evaluator_async(node, goal, model):
     }
     async with aiohttp.ClientSession() as session:
         response = await fetch(session, url, headers, request_payload)
+        print("Response", response)
     try:
         score = int(response['choices'][0]['message']['content'].strip())
     except ValueError:

@@ -79,17 +79,16 @@ class MCTS:
         print("\n")
         print("==========Doing back_propagation==========")
 
-        Q_star = self.Q.get(str(S_t1_star), 0)
-        # self.Q[str(S_t1_star)] = (Q_star + pi_mean) / depth
-        self.Q[str(S_t1_star)] = pi_mean
-        self.N[str(S_t1_star)] = self.N.get(str(S_t1_star), 0) + 1
+        n = self.N[str(S_t1_star)]
+        Q_old = self.Q[str(S_t1_star)]
+        self.Q[str(S_t1_star)] = Q_old + (pi_mean - Q_old) / n
     
     def run_mcts(self, K: int, S_t1_list: List) -> None:
         """Executes the MCTS algorithm."""
         
         for k in range(K):
             start_time = time.time()  # start timer
-            
+            print("LLLL", self.l)
             S_t1_star, depth = self.selection(S_t1_list, 1)
             S_t2_sample, expansion_score  = self.expansion(S_t1_star)
             pi_list  = self.simulation(S_t2_sample)
