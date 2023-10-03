@@ -2,8 +2,27 @@
 
 ## Reasoning about the unseen for efficient outdoor object navigation
 
-### Introduction:
-In the realm of outdoor object navigation, understanding and reasoning about unseen objects is of paramount importance. This repository contains the code, datasets, and supplementary materials related to our paper.
+### Abstract:
+— Robots should exist anywhere humans do: indoors, outdoors, and even unmapped environments. In contrast,
+the focus of recent advancements in Object Goal Navigation
+(OGN) has targeted navigating in indoor environments
+by leveraging spatial and semantic cues that do not generalize
+outdoors. While these contributions provide valuable insights
+into indoor scenarios, the broader spectrum of real-world
+robotic applications often extends to outdoor settings. As
+we transition to the vast and complex terrains of outdoor
+environments, new challenges emerge. Unlike the structured
+layouts found indoors, outdoor environments lack clear spatial
+delineations and are riddled with inherent semantic ambiguities.
+Despite this, humans navigate with ease because we can reason
+about the unseen. We introduce a new task OUTDOOR, a new
+mechanism for Large Language Models (LLMs) to accurately
+hallucinate possible futures, and a new computationally aware
+success metric for pushing research forward in this more
+complex domain. Additionally, we show impressive results on
+both a simulated drone and physical quadruped in outdoor
+environments. Our agent has no premapping and our formalism
+outperforms naive LLM-based approaches.
 
 ### The Challenge:
 #### Sensory challenges of deploying current methods in outdoor/real-world navigation:
