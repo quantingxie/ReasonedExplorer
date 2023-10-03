@@ -7,7 +7,6 @@ import sys
 import math
 import serial
 import robot_interface as sdk
-from pyproj import Proj, Transformer, CRS
 sys.path.append('../lib/python/arm64')
 
 

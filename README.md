@@ -12,15 +12,23 @@ In the realm of outdoor object navigation, understanding and reasoning about uns
 (Add more challenges or key points as they appear in your paper.)
 
 ### Repository Structure:
-- `src/`: Contains the source code of MCTS-PPT and Exploration algorithms
-  - `utils/`: Utility scripts and helper functions.
-- `example/`: Usecase Example
-- `robot_src/`: Contains the source code to run this project on a Unitree GO1
+- `src/`: Contains the source code of Reasoned_Explorer
+  - `utils/`: Helper functions.
+  - `simulator_utils/`: Helper functions for Airsim
+  - `LLM_functions`: All llm functions goes here
+  - `LLM_functions_async`: Paralleled LLM functions 
+  - `simulate`: Main script for experiments in simulator, where you specify the goal and the algorithm to run
+  - `real`: An example script for experiments in real environment, need additional local planners/GPS implementation for your own robot setup.
+  - `exploration_simulator` : The logic script for graph building and visualization
+  - `RRT`: The main agent script for Reasoned-Explorer, where hullucination and action happens
+  - `VLM`: Kosmos-2 VLM can be queried on our server
+
+
 
 ### Getting Started:
-1. **Dependencies**: (List the software dependencies and versions here.)
-2. **Setup**: (Provide setup instructions.)
-3. **Running Experiments**: (Provide instructions on how to run experiments or use the code.)
+1. **Install requirements.txt**
+2. **Setup**: Download AirSim and 
+3. **Running Experiments**: Change the script
 
 ### Citation:
 If you find our work useful in your research, please consider citing our paper:

@@ -3,13 +3,11 @@ import time
 import airsim
 import networkx as nx
 import cv2
-from typing import List, Tuple
-from LLM_functions import LLM_abstractor, LLM_rephraser, LLM_checker
+from LLM_functions import LLM_checker
 from VLM import VLM_query
 from utils import *
 from simulator_utils import *
 import matplotlib.pyplot as plt
-import matplotlib.patches as patches
 import logging
 import airsim
 from LLM_functions import LLM_evaluator
@@ -19,7 +17,7 @@ class Node:
         self.id = id  # Unique identifier for the node
         self.Q = Q
         self.score = 0.0
-        self.description = description  # Scene description from VLM or LLM_rephraser
+        self.description = description  # Scene description from VLM 
         self.gps = gps  # GPS data
         self.yaw_angle = yaw_angle  # Yaw angle
         self.visited = False  # Whether the node has been visited or not
@@ -27,8 +25,7 @@ class Node:
 
 class Exploration:
     next_node_id = 0
-    def __init__(self, exp_name, type, pos, yaw, mcts, rrt, x, k, d0, n, fov, rom, goal, model):
-        self.x = x
+    def __init__(self, exp_name, type, pos, yaw, rrt, k, d0, n, fov, rom, goal):
         self.k = k
         self.d0 = d0
         self.n = n
@@ -37,12 +34,10 @@ class Exploration:
         self.graph = nx.Graph()
         self.iteration_count = 0
         self.goal = goal
-        self.model = model
         self.state = {}
         self.nodes = []
         self.exp_name = exp_name
         self.H = [[], [], []]  # Hierarchical abstract
-        self.mcts = mcts
         self.rrt = rrt
         self.frontier_buffer = []
         self.Q_buffer = {}  # Dictionary to store Q-values for nodes
@@ -64,12 +59,11 @@ class Exploration:
         return min_step + (1 - normalized_score) * (max_step - min_step)
 
     def set_start_position(self, position, yaw=None):
-
         if yaw is None:
             # If no orientation is provided, keep it level (no roll, no pitch, and zero yaw).
             orientation = airsim.to_quaternion(0, 0, 0)  # roll, pitch, yaw in radians
         else:
-            print("!!yaw", yaw)
+            print("yaw", yaw)
             orientation = airsim.to_quaternion(0, 0, math.radians(yaw))
             
         pose = airsim.Pose(airsim.Vector3r(*position), orientation)
@@ -82,7 +76,7 @@ class Exploration:
         self.client.reset()
     def draw_path(self, experiment_name: str):
         # Create a directory to save the images if it doesn't exist
-        print("Drawing nodes!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("Drawing nodes!")
         import os
         
         # Use the provided experiment_number in the directory name
@@ -138,14 +132,9 @@ class Exploration:
         weight = self.compute_distance(node1.gps, node2.gps)
         self.graph.add_edge(node1, node2, weight=weight)
 
-    def compute_distance(self, gps1, gps2):
-        # Compute distance between two GPS points (you can use the provided conversion functions)
-        # This is just a placeholder; replace it with an appropriate function
-        lat_diff = gps2[0] - gps1[0]
-        lon_diff = gps2[1] - gps1[1]
-        lat_distance = lat_to_meters(lat_diff)
-        lon_distance = lon_to_meters(lon_diff, gps1[0])
-        return math.sqrt(lat_distance**2 + lon_distance**2)
+    
+    def compute_distance(self, pos1, pos2):
+        return math.sqrt(sum([(a - b) ** 2 for a, b in zip(pos1, pos2)]))
     
     def shortest_distance_to_frontier(self, start_node, goal_node):
         try:
@@ -155,15 +144,6 @@ class Exploration:
         except nx.NetworkXNoPath:
             print("Path does not exist")
             return None
-    
-    """Methods for hierachycal tree"""
-    def abstract(self, n: List, l: int) -> None:
-        """Recursively creates abstract representations of nodes."""
-        if l <= 2 and len(n) == self.x:
-            S_l = LLM_abstractor(n, model=self.model)
-            n.clear()
-            self.H[l].append(S_l)
-            self.abstract(self.H[l], l+1)
 
     def explore(self) -> None:
         # Initialize current_node at the beginning of exploration
@@ -174,7 +154,6 @@ class Exploration:
         init_yaw = self.start_yaw
         self.set_start_position(start_position, init_yaw)
         self.stabilize_at_start(start_position, init_yaw)
-        # self.takeoff()
 
         initial_gps = get_position(self.client)
         initial_yaw = init_yaw
@@ -183,7 +162,7 @@ class Exploration:
         total_CT = 0  # Computational Time
         total_TT = 0  # Travel Time
 
-        EXPERIMENT_TYPE = self.type  #Experiment type: RRT, MCTS, Baseline
+        EXPERIMENT_TYPE = self.type  #Experiment type: RRT, Baseline
 
         while True:
             current_gps = self.current_node.gps
@@ -193,7 +172,6 @@ class Exploration:
             print(current_score)
             step_size = self.adaptive_step_size(current_score, 10, 15) # 5 and 20 for L1 L2 L4
             print(step_size)
-            # self.current_node = self.add_node_to_graph(0, "", current_gps, current_yaw)
             print("GLOBAL STEP: ", step_counter)
             print("Current_Pos", current_gps)
             print("Current_yaw", current_yaw)
@@ -241,25 +219,6 @@ class Exploration:
                         found = True
                         break
 
-            elif EXPERIMENT_TYPE == "MCTS":
-                print("Running MCTS")
-                start_time = time.time()
-                self.mcts.run_mcts(10, descriptions) # 10 is the iteration number
-                end_time = time.time()
-                CT = end_time - start_time
-                total_CT += CT
-                print("ComputationalT: ", CT, "seconds")
-                print("User-Instructions: ", self.goal)
-                for node in nodes:
-                    node.Q = self.mcts.Q.get(str(node.description), 0)
-                    check = LLM_checker(node.description, self.goal, model="gpt-4")
-                    print("Goal Found? ", check)
-                    if check.strip() == "Yes":
-                        print("!!! Found GOAL !!!")
-                        self.client.hoverAsync().join()
-                        found = True
-                        break
-
             elif EXPERIMENT_TYPE == "RRT":
                 print("Running RRT")
                 start_time = time.time()
@@ -273,7 +232,7 @@ class Exploration:
                     node.Q = self.rrt.Q.get(str(node.description), 0)
                     check = LLM_checker(node.description, self.goal, model="gpt-4")
                     print("Goal Found? ", check)
-                    if check.strip() == "Yes":
+                    if check.strip() == "Yes" or check.strip() == "yes":
                         print("!!! Found GOAL !!!")
                         self.client.hoverAsync().join()
                         found = True
@@ -324,36 +283,22 @@ class Exploration:
 
         distance_to_next_point = math.sqrt((self.chosen_node.gps[0] - current_node_gps[0])**2 + (self.chosen_node.gps[1] - current_node_gps[1])**2)
         self.total_distance += distance_to_next_point  # Accumulate distance
-
-        # print(f"Before update, chosen_node visited status: {self.chosen_node.visited}")
         self.chosen_node.visited = True
-        # print(f"Node Identity: {id(self.chosen_node)}")
-        # print(f"After update, chosen_node visited status: {self.chosen_node.visited}")
         self.draw_path(self.exp_name)
 
-
         # Make the robot move to the chosen node's location
-
         self.move_to_next_point(next_position=self.chosen_node.gps, desired_yaw=self.chosen_node.yaw_angle, current_yaw = self.current_node.yaw_angle)
-        # self.client.rotateByYawRateAsync(self.chosen_node.yaw_angle, 1)
 
-        # Update the current node to be the chosen node
-        # self.chosen_node.visited = True
         self.current_node = self.chosen_node
         self.current_node.visited = True
-        # del self.Q_buffer[str(self.chosen_node.id)]
-        # self.frontier_buffer.remove(self.current_node)
-
 
     def move_to_next_point(self, next_position, desired_yaw, current_yaw):
         # Convert the lat-long into NED format (if they aren't already)
         x, y = next_position
         z = -1
         self.client.moveToPositionAsync(x, y, z, 1, yaw_mode=airsim.YawMode(is_rate=False, yaw_or_rate=desired_yaw)).join()
-        # self.moveToPosition(x, y, z, 1)
 
         time.sleep(5)
-        # self.client.hoverAsync().join()
 
 
     def stabilize_at_start(self, start_pos, start_yaw):
@@ -363,23 +308,6 @@ class Exploration:
         time.sleep(2)
         self.client.hoverAsync().join()
 
-
-    # def moveToPosition(self, x, y, z, v):
-    #     currentPos = self.client.getMultirotorState().kinematics_estimated.position
-    #     t = ((currentPos.x_val - x)**2 + (currentPos.y_val - y)**2 + (currentPos.z_val - z)**2)**0.5 / v
-    #     delta_x = x - currentPos.x_val
-    #     delta_y = y - currentPos.y_val
-    #     delta_z = z - currentPos.z_val
-    #     vx = delta_x / t
-    #     vy = delta_y / t
-    #     vz = delta_z / t
-    #     self.client.moveByVelocityAsync(vx, vy, vz, t)
-    #     time.sleep(t)
-    #     self.client.moveByVelocityAsync(0, 0, 0, 5)
-    #     self.client.hoverAsync().join()
-    # def takeoff(self):
-    #     self.client.armDisarm(True)
-    #     self.client.takeoffAsync().join()
 import sys
 class Logger(object):
     def __init__(self, experiment_name="Default"):
@@ -395,6 +323,4 @@ class Logger(object):
         self.log.write(message)  
 
     def flush(self):
-        # this flush method is needed for python 3 compatibility.
-        # this handles the flush command by doing nothing.
         pass   

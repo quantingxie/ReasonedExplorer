@@ -2,22 +2,21 @@
 import asyncio
 import numpy as np
 from typing import List, Tuple
-from LLM_functions_async import LLM_evaluator_async, LLM_world_model_async
+from LLM_functions_async import LLM_evaluator_async, LLM_visionary_async
 
 class rrt:
-    def __init__(self, n, l, goal, model):
+    def __init__(self, n, l, goal):
         self.n = n
         self.l = l
         self.goal = goal
-        self.model = model
         self.Q = {}  # Placeholder for Q-values
     
     async def expansion(self, S_t1: List[str]) -> List[Tuple[str, float]]:
         """Expand on a single node asynchronously for n times."""
-        tasks = [LLM_world_model_async(S_t1, model=self.model) for _ in range(self.n)]
+        tasks = [LLM_visionary_async(S_t1, model="gpt-3.5-turbo-16k") for _ in range(self.n)]
         S_t2_list = await asyncio.gather(*tasks)
 
-        evaluator_tasks = [LLM_evaluator_async(S_t2, self.goal, model=self.model) for S_t2 in S_t2_list]
+        evaluator_tasks = [LLM_evaluator_async(S_t2, self.goal, model="gpt-4") for S_t2 in S_t2_list]
         pi_list = await asyncio.gather(*evaluator_tasks)
 
         return list(zip(S_t2_list, pi_list))
@@ -26,8 +25,8 @@ class rrt:
         """Simulates the outcome for a single node asynchronously."""
         pi_list = []
         for _ in range(self.l):
-            S_t2_plus_l = await LLM_world_model_async(S_t2, model=self.model)
-            pi_t2_plus_l = await LLM_evaluator_async(S_t2_plus_l, self.goal, model=self.model)
+            S_t2_plus_l = await LLM_visionary_async(S_t2, model="gpt-3.5-turbo-16k")
+            pi_t2_plus_l = await LLM_evaluator_async(S_t2_plus_l, self.goal, model="gpt-4")
             pi_list.append(pi_t2_plus_l)
         return pi_list
     

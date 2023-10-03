@@ -2,14 +2,10 @@ import math
 import time
 import networkx as nx
 import cv2
-from typing import List, Tuple
-from LLM_functions import LLM_abstractor, LLM_rephraser, LLM_checker
+from LLM_functions import LLM_checker
 from VLM import VLM_query
 from utils import *
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
 import logging
-import keyboard
 from LLM_functions import LLM_evaluator
 import robot_interface as sdk
 
@@ -47,8 +43,7 @@ class Node:
 
 class Exploration:
     next_node_id = 0
-    def __init__(self, exp_name, type, gps, yaw, mcts, rrt, x, k, d0, n, fov, rom, goal, model):
-        self.x = x
+    def __init__(self, exp_name, type, gps, yaw, rrt, k, d0, n, fov, rom, goal):
         self.k = k
         self.d0 = d0
         self.n = n
@@ -57,12 +52,10 @@ class Exploration:
         self.graph = nx.Graph()
         self.iteration_count = 0
         self.goal = goal
-        self.model = model
         self.state = {}
         self.type = type
         self.nodes = []
         self.H = [[], [], []]  # Hierarchical abstract
-        self.mcts = mcts
         self.rrt = rrt
         self.exp_name = exp_name
         self.frontier_buffer = []
@@ -134,7 +127,6 @@ class Exploration:
 
     def compute_distance(self, gps1, gps2):
         # Compute distance between two GPS points (you can use the provided conversion functions)
-        # This is just a placeholder; replace it with an appropriate function
         lat_diff = gps2[0] - gps1[0]
         lon_diff = gps2[1] - gps1[1]
         lat_distance = lat_to_meters(lat_diff)
@@ -213,24 +205,6 @@ class Exploration:
                         found = True
                         break
 
-            elif EXPERIMENT_TYPE == "MCTS":
-                print("Running MCTS")
-                start_time = time.time()
-                self.mcts.run_mcts(10, descriptions) # 10 is the iteration number
-                end_time = time.time()
-                CT = end_time - start_time
-                total_CT += CT
-                print("ComputationalT: ", CT, "seconds")
-                print("User-Instructions: ", self.goal)
-                for node in nodes:
-                    node.Q = self.mcts.Q.get(str(node), 0)
-                    check = LLM_checker(node.description, self.goal, model="gpt-4")
-                    print("Goal Found? ", check)
-                    if check.strip() == "Yes":
-                        print("!!! Found GOAL !!!")
-                        self.client.hoverAsync().join()
-                        found = True
-                        break
 
             elif EXPERIMENT_TYPE == "RRT":
                 print("Running RRT")
@@ -387,6 +361,4 @@ class Logger(object):
         self.log.write(message)  
 
     def flush(self):
-        # this flush method is needed for python 3 compatibility.
-        # this handles the flush command by doing nothing.
         pass   
