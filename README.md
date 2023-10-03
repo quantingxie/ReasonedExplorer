@@ -31,7 +31,9 @@ In the realm of outdoor object navigation, understanding and reasoning about uns
 3. **Running Experiments**: Change the script
 
 ### Citation:
-If you find our work useful in your research, please consider citing our paper:
+If you find our work useful in your research, please consider citing our paper. Below is the BibTeX entry:
+
+```bibtex
 @misc{xie2023reasoning,
       title={Reasoning about the Unseen for Efficient Outdoor Object Navigation}, 
       author={Quanting Xie and Tianyi Zhang and Kedi Xu and Matthew Johnson-Roberson and Yonatan Bisk},
