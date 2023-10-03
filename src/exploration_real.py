@@ -9,7 +9,7 @@ import logging
 from LLM_functions import LLM_evaluator
 import robot_interface as sdk
 
-MY_API_KEY = "AIzaSyC9vS1own2-T3scUJPZdefXLYBnUQr1pSE"
+MY_API_KEY = "" # Google API key
 
 def capture_image_at_angle(angle, step_number):
     camera = cv2.VideoCapture(0)

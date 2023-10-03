@@ -46,7 +46,7 @@ outperforms naive LLM-based approaches.
 
 ### Getting Started:
 1. **Install requirements.txt**
-2. **Setup**: Download AirSim and 
+2. **Setup**: Download AirSim and , setup google and openai api-key
 3. **Running Experiments**: Change the script
 
 ### Citation:

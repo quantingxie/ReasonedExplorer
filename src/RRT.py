@@ -1,4 +1,3 @@
-
 import asyncio
 import numpy as np
 from typing import List, Tuple
@@ -9,7 +8,7 @@ class rrt:
         self.n = n
         self.l = l
         self.goal = goal
-        self.Q = {}  # Placeholder for Q-values
+        self.Q = {}  
     
     async def expansion(self, S_t1: List[str]) -> List[Tuple[str, float]]:
         """Expand on a single node asynchronously for n times."""
