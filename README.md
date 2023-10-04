@@ -41,13 +41,19 @@ outperforms naive LLM-based approaches.
   - `exploration_simulator` : The logic script for graph building and visualization
   - `RRT`: The main agent script for Reasoned-Explorer, where hullucination and action happens
   - `VLM`: Kosmos-2 VLM can be queried on our server
+  - `settings.json`: Default settings for AirSim's sensors, you could add cameras and add other sensors here.
 
 
 
 ### Getting Started:
 1. **Install requirements.txt**
-2. **Setup**: Download AirSim and , setup google and openai api-key
-3. **Running Experiments**: Change the script
+2. **Setup**: 
+    - Download AirSim: https://microsoft.github.io/AirSim/
+    - Downtown West Modular Pack in Unreal Engine Marketplace under free environments categoty
+    - Setup Google API-key
+    - Setup OpenAI API-key
+3. **Running Experiments**: Change the simulate.py script
+
 
 ### Citation:
 If you find our work useful in your research, please consider citing our paper. Below is the BibTeX entry:
