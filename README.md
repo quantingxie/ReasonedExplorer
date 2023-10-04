@@ -3,7 +3,7 @@
 ## Reasoning about the unseen for efficient outdoor object navigation
 
 ### Abstract:
-— Robots should exist anywhere humans do: indoors, outdoors, and even unmapped environments. In contrast,
+Robots should exist anywhere humans do: indoors, outdoors, and even unmapped environments. In contrast,
 the focus of recent advancements in Object Goal Navigation
 (OGN) has targeted navigating in indoor environments
 by leveraging spatial and semantic cues that do not generalize
@@ -24,11 +24,6 @@ both a simulated drone and physical quadruped in outdoor
 environments. Our agent has no premapping and our formalism
 outperforms naive LLM-based approaches.
 
-### The Challenge:
-#### Sensory challenges of deploying current methods in outdoor/real-world navigation:
-- **Poor depth perception**: This makes VSLAM nearly unusable in outdoor environments.
-
-(Add more challenges or key points as they appear in your paper.)
 
 ### Repository Structure:
 - `src/`: Contains the source code of Reasoned_Explorer
