@@ -1,10 +1,15 @@
 import time
 import cv2
 import logging
+import networkx as nx
+import robot_interface as sdk
+
 from VLM_inference import phi2_query, GPT4V_query, GPT4V_checker, parse_response, GPT4V_baseline
 from process_image import process_images, color_code_paths
-import robot_interface as sdk
-from robot_utils import capture_images_from_realsense
+from robot_utils import capture_images_from_realsense, get_current_position, get_current_yaw_angle
+from graph_manager import GraphManager, expand_node_in_directions
+from robot_wrapper import Custom, PathPoint
+
 
 
 class Exploration:
@@ -17,6 +22,8 @@ class Exploration:
         self.rrt = rrt
         self.exp_name = exp_name
         self.step_counter = 0
+        self.graph = GraphManager()
+
 
         # Initialization for robot control
         self.HIGHLEVEL = 0xee
@@ -35,17 +42,22 @@ class Exploration:
         while not found:
             print(f"GLOBAL STEP: {self.step_counter}")
             try:
-                image1, image2 = capture_images_from_realsense()
+                image1, image2, image3 = capture_images_from_realsense()
             except Exception as e:
                 logging.error(f"Error capturing images: {e}")
                 break
 
-            processed_image = process_images(image1, image2)
+            processed_image = process_images(image1, image2, image3)
 
             print("Querying VLM")
-            response = GPT4V_query(processed_image, self.openai_api_key)
 
-            path_dict = parse_response(response)
+            # Descriptions for each image
+            desc1 = phi2_query(image1)
+            desc2 = phi2_query(image2)
+            desc3 = phi2_query(image3)
+
+            desc_list = [desc1, desc2, desc3]
+
             scores = []  
 
             if EXPERIMENT_TYPE == "baseline":
@@ -69,7 +81,7 @@ class Exploration:
 
             elif EXPERIMENT_TYPE == "RRT":
                 print("Running RRT")
-                for path_description in path_dict.values():
+                for path_description in desc_list:
                     start_time = time.time()
                     self.rrt.run_rrt(path_description)
                     end_time = time.time()
@@ -94,7 +106,8 @@ class Exploration:
                 cv2.imwrite(images_save_path, scored_path_images)
 
             action_start_time = time.time()
-            self.action()
+
+            self.action(self.graph, scores)
             action_end_time = time.time()
             TT = action_end_time - action_start_time
             total_TT += TT
@@ -106,16 +119,26 @@ class Exploration:
             if found:
                 break
 
-    def action(self) -> None:
-        """Chooses and executes an action based on the Q-values."""
-        from robot_wrapper import Custom, PathPoint
+    def action(self, graph_manager, scores):
+        """Chooses and executes an action based on the scores"""
 
-        # Create a Custom control object
-        custom = Custom()
+        # Get current state from SLAM system
+        current_position = get_current_position()
+        current_yaw = get_current_yaw_angle()
+
+        # Expand nodes in the graph in the given directions with the scores
+        graph_manager = expand_node_in_directions(graph_manager, current_position, current_yaw, scores)
+
+        # Find the lowest score node to move to
+        target_node_id = graph_manager.find_lowest_score_node()
+        target_node_data = graph_manager.graph.nodes[target_node_id]
+
+        # Extract the path point for the robot's control system
+        target_path_point = PathPoint(x=target_node_data['position'][0],
+                                    y=target_node_data['position'][1],
+                                    yaw=target_node_data['yaw'])
         
-        # Convert goal_points from Python to the C++ PathPoint structure
-        goal_points = []
-        path_points = [PathPoint(x=point[0], y=point[1], yaw=point[2]) for point in goal_points]
-        
-        # Call the control method with the path points
+        path_points = [target_path_point]
+
+        # Call the CPP control method with the path points
         custom.control(path_points)

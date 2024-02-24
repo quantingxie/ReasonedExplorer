@@ -26,29 +26,48 @@ def capture_images_from_realsense():
     config_2.enable_device('serial_number_2')  # Replace with the actual serial number of your second camera
     config_2.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
 
+    # Configure the second camera
+    pipeline_3 = rs.pipeline()
+    config_3 = rs.config()
+    config_3.enable_device('serial_number_3')  # Replace with the actual serial number of your second camera
+    config_3.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+
     # Start the configured pipelines to begin streaming
     pipeline_1.start(config_1)
     pipeline_2.start(config_2)
+    pipeline_3.start(config_3)
 
     try:
         # Wait for a coherent pair of frames: depth and color
         frames_1 = pipeline_1.wait_for_frames()
         frames_2 = pipeline_2.wait_for_frames()
-        
+        frames_3 = pipeline_3.wait_for_frames()
+
         # Get color frames
         color_frame_1 = frames_1.get_color_frame()
         color_frame_2 = frames_2.get_color_frame()
+        color_frame_3 = frames_3.get_color_frame()
 
         # Convert images to numpy arrays
         image_1 = np.asanyarray(color_frame_1.get_data())
         image_2 = np.asanyarray(color_frame_2.get_data())
+        image_3 = np.asanyarray(color_frame_3.get_data())
 
-        return image_1, image_2
+        return image_1, image_2, image_3
+
     finally:
         # Stop streaming
         pipeline_1.stop()
         pipeline_2.stop()
+        pipeline_3.stop()
 
+def get_current_position():
+    # Mock implementation. Replace with actual SLAM system integration.
+    return (0, 0)  # Return the current (x, y) position of the robot.
+
+def get_current_yaw_angle():
+    # Mock implementation. Replace with actual SLAM system integration.
+    return 0  # Return the current yaw angle of the robot in radians.
 
 def socket_client_thread():
     global current_lat, current_lon

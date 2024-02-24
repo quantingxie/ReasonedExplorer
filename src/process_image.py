@@ -1,10 +1,10 @@
 import cv2
 import numpy as np
 
-def stitch_images(image1, image2):
+def stitch_images(image1, image2, image3):
     # Use OpenCV's createStitcher function to stitch images
     stitcher = cv2.Stitcher_create()
-    (status, stitched) = stitcher.stitch([image1, image2])
+    (status, stitched) = stitcher.stitch([image1, image2, image3])
 
     if status != cv2.Stitcher_OK:
         print("Can't stitch images, error code = %d" % status)
@@ -12,7 +12,7 @@ def stitch_images(image1, image2):
     
     return stitched
 
-def draw_paths_on_ground(stitched_image, num_paths=10):
+def draw_paths_on_ground(stitched_image, num_paths=3):
     height, width = stitched_image.shape[:2]
     horizon_line = height // 2
     start_point = (width // 2, height)  # Middle bottom of the image
@@ -108,8 +108,8 @@ def color_code_paths(stitched_image, scores):
 
     return stitched_image
 
-def process_images(image1, image2, scores):
-    stitched = stitch_images(image1, image2)
+def process_images(image1, image2, image3, scores):
+    stitched = stitch_images(image1, image2, image3)
     if stitched is None:
         return None, None  # Return None if stitching failed
 
@@ -119,11 +119,12 @@ def process_images(image1, image2, scores):
 
 # Testing
 # Replace 'left.png' and 'right.png' with your actual image paths
-image1 = cv2.imread('images/left.png')
-image2 = cv2.imread('images/right.png')
+image1 = cv2.imread('VLM/images/left2.png')
+image2 = cv2.imread('VLM/images/mid2.png')
+image3 = cv2.imread('VLM/images/right2.png')
 
 # Stitch images
-stitched = stitch_images(image1, image2)
+stitched = stitch_images(image1, image2, image3)
 
 if stitched is not None:
     # Draw the initial paths in the same color
@@ -133,7 +134,7 @@ if stitched is not None:
     cv2.imwrite('stitched_paths_uniform.png', stitched_with_ground_paths)
 
     # Hypothetical scores for demonstration
-    scores = [1, 2, 3, 4, 5, 1, 2, 4, 4, 5]
+    scores = [1, 2, 5]
     
     # Apply color coding based on the scores
     result_image = color_code_paths(stitched_with_ground_paths, scores)
