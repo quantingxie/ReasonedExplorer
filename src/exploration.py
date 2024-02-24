@@ -108,6 +108,14 @@ class Exploration:
 
     def action(self) -> None:
         """Chooses and executes an action based on the Q-values."""
-        # Implementation of robot action logic goes here
+        from robot_wrapper import Custom, PathPoint
 
-        # TODO: Need to read GO2
+        # Create a Custom control object
+        custom = Custom()
+        
+        # Convert goal_points from Python to the C++ PathPoint structure
+        goal_points = []
+        path_points = [PathPoint(x=point[0], y=point[1], yaw=point[2]) for point in goal_points]
+        
+        # Call the control method with the path points
+        custom.control(path_points)
