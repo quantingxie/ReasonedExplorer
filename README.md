@@ -43,11 +43,10 @@ outperforms naive LLM-based approaches.
 ### Getting Started:
 1. **Install requirements.txt**
 2. **Setup**: 
-    - Download AirSim: https://microsoft.github.io/AirSim/
-    - Downtown West Modular Pack in Unreal Engine Marketplace under free environments categoty
     - Setup Google API-key
     - Setup OpenAI API-key
-3. **Running Experiments**: Change the simulate.py script
+3. **Example Use**: python your_script_name.py --exp_name "Forest Exploration" --type RRT --goal "Find the river" --n 5 --rounds 3
+
 
 
 ### Citation:
