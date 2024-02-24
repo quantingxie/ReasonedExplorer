@@ -10,23 +10,45 @@ import robot_interface as sdk
 sys.path.append('../lib/python/arm64')
 
 
-def capture_image_at_angle(angle):
-    camera = cv2.VideoCapture(1)
-    if not camera.isOpened():
-        print("Error: Could not open camera.")
-        return
-    
-    ret, frame = camera.read()
-    frame = cv2.flip(frame, 0)
-    frame = cv2.flip(frame, 1)
+import pyrealsense2 as rs
+import numpy as np
 
-    cv2.imwrite(f"{angle}_degrees.jpg", frame)
+def capture_images_from_realsense():
+    # Configure the first camera
+    pipeline_1 = rs.pipeline()
+    config_1 = rs.config()
+    config_1.enable_device('serial_number_1')  # Replace with the actual serial number of your first camera
+    config_1.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
 
-    if not ret:
-        print(f"Error: Couldn't capture image at angle {angle}.")
-        return None
+    # Configure the second camera
+    pipeline_2 = rs.pipeline()
+    config_2 = rs.config()
+    config_2.enable_device('serial_number_2')  # Replace with the actual serial number of your second camera
+    config_2.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
 
-    return f"{angle}_degrees.jpg"
+    # Start the configured pipelines to begin streaming
+    pipeline_1.start(config_1)
+    pipeline_2.start(config_2)
+
+    try:
+        # Wait for a coherent pair of frames: depth and color
+        frames_1 = pipeline_1.wait_for_frames()
+        frames_2 = pipeline_2.wait_for_frames()
+        
+        # Get color frames
+        color_frame_1 = frames_1.get_color_frame()
+        color_frame_2 = frames_2.get_color_frame()
+
+        # Convert images to numpy arrays
+        image_1 = np.asanyarray(color_frame_1.get_data())
+        image_2 = np.asanyarray(color_frame_2.get_data())
+
+        return image_1, image_2
+    finally:
+        # Stop streaming
+        pipeline_1.stop()
+        pipeline_2.stop()
+
 
 def socket_client_thread():
     global current_lat, current_lon
@@ -48,77 +70,10 @@ def get_GPS():
     global current_lat, current_lon
     return current_lat, current_lon
 
-def adjust_heading(heading):
-    if 0 <= heading <= 180:
-        return -heading
-    elif 180 < heading <= 360:
-        return -(heading - 360)
-
-def get_yaw(port='/dev/ttyUSB0', baudrate=9600, timeout=1):
-    with serial.Serial(port, baudrate, timeout=timeout) as ser:
-        while True:
-            line = ser.readline()  # read a line terminated with a newline (\n)
-            try:
-                decoded_line = line.decode('utf-8').strip()
-                if decoded_line.startswith('$PRDID'):
-                    # Split the line by commas
-                    parts = decoded_line.split(',')
-                    # Heading (relative to true north) is the third value in the list
-                    heading = float(parts[2])  # changed from parts[3] to parts[2] as lists are 0-indexed
-                    adjusted_heading = adjust_heading(heading)
-                    yield adjusted_heading
-            except UnicodeDecodeError:
-                # Silently ignore decoding errors
-                pass
-            except Exception as e:
-                print(f"Unexpected error: {e}")
-
-
-def calculate_velocity_yaw(current_pos, current_yaw, waypoint, desired_node_yaw):
-    Kp_yaw = 0.4
-    Ki_yaw = 0.2
-    Kd_yaw = 0.02
-    EPSILON = 1e-6
-    position_error = haversine_distance(current_pos, waypoint)
-    dlat = waypoint[0] - current_pos[0]
-    dlon = waypoint[1] - current_pos[1]
-
-    if position_error > 1:  # If the robot is further than 1 unit from the waypoint
-        desired_yaw = math.atan2(dlat, dlon)
-        desired_yaw = desired_yaw - np.pi/2 
-    else:
-        desired_yaw = desired_node_yaw  # Set desired yaw to the node's yaw as the robot gets closer
-
-    desired_yaw = (desired_yaw + np.pi) % (2 * np.pi) - np.pi
-
-    yaw_error = desired_yaw - current_yaw
-    yaw_error = (yaw_error + np.pi) % (2 * np.pi) - np.pi
-    
-    yaw_integral = 0  # Initialize this in your global scope if you want integral action
-    previous_yaw_error = 0  # Initialize this in your global scope
-
-    dt = 0.01  # Consider adjusting this as per your needs
-    yaw_integral += yaw_error * dt
-    yaw_derivative = (yaw_error - previous_yaw_error) / (dt + EPSILON)
-    yaw_speed = Kp_yaw * yaw_error + Ki_yaw * yaw_integral + Kd_yaw * yaw_derivative
-    return 0.2, yaw_speed, yaw_error, position_error, desired_yaw
-
 
 def calculate_distance(pos1, pos2):
     dist = math.sqrt((pos1[0]-pos2[0])**2 + (pos1[1]-pos2[1])**2)
     return dist
 
-def haversine_distance(current, waypoint):
-    lat1, lon1 = current
-    lat2, lon2 = waypoint
-    
-    R = 6371e3  # Earth radius in meters
-    d_lat = math.radians(lat2 - lat1)
-    d_lon = math.radians(lon2 - lon1)
-    
-    a = math.sin(d_lat / 2) * math.sin(d_lat / 2) + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(d_lon / 2) * math.sin(d_lon / 2)
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-    
-    return R * c
 
 
