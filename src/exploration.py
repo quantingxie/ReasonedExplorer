@@ -97,13 +97,13 @@ class Exploration:
         total_CT = 0
         total_TT = 0
         found = False
-        images_save_path = '/Users/danielxie/Desktop/Python Code/ReasonedExplorer/src/visualization/egocentric'
+        images_save_path = '/Users/danielxie/Desktop/Python_Code/ReasonedExplorer/src/visualization/egocentric'
 
         while not found:
             print(f"GLOBAL STEP: {self.step_counter}")
             try:
                 # image1, image2, image3 = capture_images_from_realsense()
-                image1, image2, image3, path1, path2, path3 = mock_capture_images_from_realsense("/Users/danielxie/Desktop/Python Code/ReasonedExplorer/src/VLM/images")
+                image1, image2, image3, path1, path2, path3 = mock_capture_images_from_realsense("/Users/danielxie/Desktop/Python_Code/ReasonedExplorer/src/VLM/images")
             except Exception as e:
                 logging.error(f"Error capturing images: {e}")
                 break

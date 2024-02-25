@@ -27,7 +27,7 @@ Exploration Mode: If no node with high enough semantic similarity is found, the 
 2. **Setup**: 
     - Setup Google API-key
     - Setup OpenAI API-key
-3. **Example Use**: `python run.py --exp_name "Forest Exploration" --type RRT --goal "Find the river" --n 5 --rounds 3`
+3. **Example Use**: `python run.py --exp_name "Forest Exploration" --type RRT --goal "Find the river" --branches 2 --rounds 3`
 
 
 ### If Using Habitat

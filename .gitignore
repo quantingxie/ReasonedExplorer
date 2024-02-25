@@ -1,6 +1,6 @@
 *.pyc 
 *.log
-*.png
+# *.png
 *.jpg
 *.html
 *hallucinations.txt
