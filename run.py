@@ -2,7 +2,7 @@ import argparse
 from src.exploration import Exploration 
 
 
-OPENAI_API_KEY = "1Uk1lDxQW4Zg9zG6u3qcT3BlbkFJqFqclakGCEDaTFu91piW"
+OPENAI_API_KEY = "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"
 
 def get_args():
     parser = argparse.ArgumentParser(description="Run robot exploration using RRT or Baseline methods.")

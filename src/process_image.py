@@ -108,12 +108,12 @@ def color_code_paths(stitched_image, scores):
 
     return stitched_image
 
-def process_images(image1, image2, image3, scores):
+def process_images(image1, image2, image3):
     stitched = stitch_images(image1, image2, image3)
     if stitched is None:
         return None, None  # Return None if stitching failed
 
-    stitched_with_ground_paths = draw_paths_on_ground(stitched.copy(), num_paths=len(scores))
+    stitched_with_ground_paths = draw_paths_on_ground(stitched.copy(), 3)
     return stitched_with_ground_paths
 
 

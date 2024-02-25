@@ -159,10 +159,11 @@ def GPT4V_query(image_path, openai_api_key):
 
 def phi2_query(image_path):
     
-    app_url = "https://a7de-128-237-82-9.ngrok-free.app"
+    app_url = "https://a7de-128-237-82-9.ngrok-free.app/vlm"
 
     # Hardcoded prompt
-    prompt = "Identify the grey paths in the image, describe the space in the end point, specifying whether it leads to with logical inference using visual cues. Structure your response as follows: 'Path [Number]: [Destination description]"
+    # prompt = "Identify the grey paths in the image, describe the space in the end point, specifying whether it leads to with logical inference using visual cues. Structure your response as follows: 'Path [Number]: [Destination description]"
+    prompt = "Describe the objects in the scene"
     # Define the image file to upload
     image_file = {'image': open(image_path, 'rb')}
     
@@ -170,9 +171,7 @@ def phi2_query(image_path):
         # Send a POST request with the image file and the hardcoded prompt
         response = requests.post(app_url, files=image_file, data={'text': prompt})
         data = response.json()
-        if 'result' in data:
-            print("Extracted Text:", data['result'])
-        elif 'error' in data:
+        if 'error' in data:
             print("Error:", data['error'])
     except requests.exceptions.RequestException as e:
         print("Request Error:", e)
@@ -181,7 +180,7 @@ def phi2_query(image_path):
         # Ensure the file is closed after the request
         image_file['image'].close()
     
-    return data
+    return data['response']
 
 
 def parse_response(response_text):
@@ -205,6 +204,28 @@ def parse_response(response_text):
             parsed_data[path.strip()] = answer.strip()
     
     return parsed_data
+
+def success_checker(image_path, goal_obj):
+    app_url = "https://a7de-128-237-82-9.ngrok-free.app/vlm"
+
+    prompt = f"Is the object '{goal_obj}' present in the image in a reachable distance? Please only answer with 'yes' or 'no'."
+    # Define the image file to upload
+    image_file = {'image': open(image_path, 'rb')}
+    
+    try:
+        # Send a POST request with the image file and the hardcoded prompt
+        response = requests.post(app_url, files=image_file, data={'text': prompt})
+        data = response.json()
+        if 'error' in data:
+            print("Error:", data['error'])
+    except requests.exceptions.RequestException as e:
+        print("Request Error:", e)
+        data = {'error': str(e)}
+    finally:
+        # Ensure the file is closed after the request
+        image_file['image'].close()
+    
+    return data['response']
 
 def GPT4V_checker(image_path, goal_obj, openai_api_key):
     """

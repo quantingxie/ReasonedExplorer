@@ -9,13 +9,13 @@ from openai import OpenAI
 from sklearn.metrics.pairwise import cosine_similarity
 import os
 
-from .VLM_inference import phi2_query, GPT4V_query, GPT4V_checker, parse_response, GPT4V_baseline
+from .VLM_inference import phi2_query, GPT4V_query, GPT4V_checker, success_checker, parse_response, GPT4V_baseline
 from .llm_rrt import RRT
 from .process_image import process_images, color_code_paths
 from .robot_utils import capture_images_from_realsense, get_current_position, get_current_yaw_angle, calculate_new_position_and_yaw
 from .graph_manager import GraphManager
-from .speech_utils import SpeechUtils, record_until_silence
-from robot_wrapper import Custom, PathPoint
+# from .speech_utils import SpeechUtils, record_until_silence
+# from robot_wrapper import Custom, PathPoint
 
 _simulated_current_position = (0, 0)  # Starting at the origin
 _simulated_current_yaw = 0  # Facing "north"
@@ -28,7 +28,7 @@ class Exploration:
         self.openai_api_key = openai_api_key        
         self.rrt = RRT(model, goal, branches, rounds, openai_api_key)
         self.graph_manager = GraphManager()
-        self.speech_utils = SpeechUtils(openai_api_key=openai_api_key)
+        # self.speech_utils = SpeechUtils(openai_api_key=openai_api_key)
         self.step_counter = 0
         self.iteration_count = 0
 
@@ -47,15 +47,15 @@ class Exploration:
         text = text.replace("\n", " ")
         return self.client.embeddings.create(input = [text], model=model).data[0].embedding
 
-    def listen_for_goal(self):
-        print("Listening for the next goal...")
-        mp3_file = record_until_silence()
-        goal = self.speech_utils.speech_to_text(mp3_file)
-        if goal:
-            print("Heard goal:", goal)
-        else:
-            print("Could not understand audio")
-        return goal
+    # def listen_for_goal(self):
+    #     print("Listening for the next goal...")
+    #     mp3_file = record_until_silence()
+    #     goal = self.speech_utils.speech_to_text(mp3_file)
+    #     if goal:
+    #         print("Heard goal:", goal)
+    #     else:
+    #         print("Could not understand audio")
+    #     return goal
 
     def announce_goal_found(self):
         response_text = "Goal found, what's next?"
@@ -63,13 +63,14 @@ class Exploration:
         self.speech_utils.text_to_speech(response_text, output_file_path)
 
     def search_or_explore(self):
-        goal = self.listen_for_goal()
+        # goal = self.listen_for_goal()
+        goal = self.goal
         if goal:
             self.goal = goal
             best_node_id = self.search_for_goal()
             if best_node_id is not None:
                 self.move_to_node(best_node_id)
-                self.announce_goal_found()
+                # self.announce_goal_found()
             else:
                 print("Exploring for new goals...")
                 self.explore()
@@ -96,28 +97,28 @@ class Exploration:
         total_CT = 0
         total_TT = 0
         found = False
-        images_save_path = 'images'
+        images_save_path = '/Users/danielxie/Desktop/Python Code/ReasonedExplorer/src/visualization/egocentric'
 
         while not found:
             print(f"GLOBAL STEP: {self.step_counter}")
             try:
                 # image1, image2, image3 = capture_images_from_realsense()
-                image1, image2, image3 = mock_capture_images_from_realsense("/Users/danielxie/Desktop/Python Code/ReasonedExplorer/src/VLM/images")
+                image1, image2, image3, path1, path2, path3 = mock_capture_images_from_realsense("/Users/danielxie/Desktop/Python Code/ReasonedExplorer/src/VLM/images")
             except Exception as e:
                 logging.error(f"Error capturing images: {e}")
                 break
-
+            image_paths = [path1, path2, path3] 
             processed_image = process_images(image1, image2, image3)
 
             print("Querying VLM")
 
             # Descriptions for each image
-            desc1 = phi2_query(image1)
-            desc2 = phi2_query(image2)
-            desc3 = phi2_query(image3)
+            desc1 = phi2_query(path1)
+            desc2 = phi2_query(path2)
+            desc3 = phi2_query(path3)
 
             desc_list = [desc1, desc2, desc3]
-
+            print(desc_list)
             scores = []  
 
             if EXPERIMENT_TYPE == "baseline":
@@ -144,17 +145,17 @@ class Exploration:
                 current_yaw = get_current_yaw_angle()
                 directions = [-60, 0, 60]
                 fixed_path_length = 1.0
-                for path_description, angle in zip(desc_list, directions):
+                for path_description, angle, image_path in zip(desc_list, directions, image_paths):
                     new_position, new_yaw = calculate_new_position_and_yaw(current_position, current_yaw, angle,fixed_path_length)
                     start_time = time.time()
-                    score, hulucinations = self.rrt.run_rrt(path_description)
+                    score, hullucinations = self.rrt.run_rrt(path_description)
                     end_time = time.time()
                     CT = end_time - start_time
                     total_CT += CT
                     print(f"ComputationalT: {CT} seconds")
                     print(f"User-Instructions: {self.goal}")
 
-                    check = GPT4V_checker(path_description, self.goal, self.openai_api_key)
+                    check = success_checker(image_path, self.goal)
                     print(f"Goal Found? {check}")
                     if check.strip().lower() == "yes":
                         print("!!! Found GOAL !!!")
@@ -169,13 +170,19 @@ class Exploration:
 
                     print(f"New position: {new_position}, New yaw: {math.degrees(new_yaw)} degrees")
 
-                    with open(f"node_{node_id}_hulucinations.txt", "w") as file:
-                        file.write(hulucinations + "\n")
+                    with open(f"node_{node_id}_hallucinations.txt", "w") as file:
+                        for hallucination in hullucinations:
+                            file.write(f"{hallucination}\n")
                 
             # Visualize path in red
-            if scores:
-                scored_path_images = color_code_paths(processed_image, scores)
-                cv2.imwrite(images_save_path, scored_path_images)
+                if scores:
+                    scored_path_images = color_code_paths(processed_image, scores)
+
+                    output_file_path = os.path.join(images_save_path, f"scored_path_image_{self.step_counter}.png")
+                    success = cv2.imwrite(output_file_path, scored_path_images)
+
+                    if not success:
+                        print(f"Failed to save the image to {output_file_path}")
 
             action_start_time = time.time()
 
@@ -240,4 +247,4 @@ def mock_capture_images_from_realsense(images_folder="image"):
     if left_img is None or mid_img is None or right_img is None:
         raise FileNotFoundError("One or more images could not be loaded. Check the paths.")
 
-    return left_img, mid_img, right_img
+    return left_img, mid_img, right_img, left_img_path, mid_img_path, right_img_path
