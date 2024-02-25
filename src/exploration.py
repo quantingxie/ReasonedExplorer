@@ -9,12 +9,12 @@ from openai import OpenAI
 from sklearn.metrics.pairwise import cosine_similarity
 import os
 
-from llm_rrt import RRT
-from VLM_inference import phi2_query, GPT4V_query, GPT4V_checker, parse_response, GPT4V_baseline
-from process_image import process_images, color_code_paths
-from robot_utils import capture_images_from_realsense, get_current_position, get_current_yaw_angle, calculate_new_position_and_yaw
-from graph_manager import GraphManager, expand_node_in_directions
-from speech_utils import SpeechUtils, record_until_silence
+from .VLM_inference import phi2_query, GPT4V_query, GPT4V_checker, parse_response, GPT4V_baseline
+from .llm_rrt import RRT
+from .process_image import process_images, color_code_paths
+from .robot_utils import capture_images_from_realsense, get_current_position, get_current_yaw_angle, calculate_new_position_and_yaw
+from .graph_manager import GraphManager
+from .speech_utils import SpeechUtils, record_until_silence
 from robot_wrapper import Custom, PathPoint
 
 _simulated_current_position = (0, 0)  # Starting at the origin
@@ -35,12 +35,13 @@ class Exploration:
         self.client = OpenAI(api_key=openai_api_key)
 
 
-        # Initialization for robot control
-        self.HIGHLEVEL = 0xee
-        self.udp = sdk.UDP(self.HIGHLEVEL, 8080, "192.168.123.161", 8082)
-        self.cmd = sdk.HighCmd()
-        self.state = sdk.HighState()
-        self.udp.InitCmdData(self.cmd)
+        ## to change back
+        # # Initialization for robot control
+        # self.HIGHLEVEL = 0xee
+        # self.udp = sdk.UDP(self.HIGHLEVEL, 8080, "192.168.123.161", 8082)
+        # self.cmd = sdk.HighCmd()
+        # self.state = sdk.HighState()
+        # self.udp.InitCmdData(self.cmd)
 
     def get_embedding(self, text, model="text-embedding-3-small"):
         text = text.replace("\n", " ")

@@ -5,9 +5,9 @@ import time
 import sys
 import math
 import serial
-import robot_interface as sdk
+# import robot_interface as sdk
 sys.path.append('../lib/python/arm64')
-import pyrealsense2 as rs
+# import pyrealsense2 as rs
 import numpy as np
 import random
 # Initialize global variables to keep track of the simulated robot's state

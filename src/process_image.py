@@ -117,27 +117,27 @@ def process_images(image1, image2, image3, scores):
     return stitched_with_ground_paths
 
 
-# Testing
-# Replace 'left.png' and 'right.png' with your actual image paths
-image1 = cv2.imread('VLM/images/left2.png')
-image2 = cv2.imread('VLM/images/mid2.png')
-image3 = cv2.imread('VLM/images/right2.png')
+# # Testing
+# # Replace 'left.png' and 'right.png' with your actual image paths
+# image1 = cv2.imread('VLM/images/left2.png')
+# image2 = cv2.imread('VLM/images/mid2.png')
+# image3 = cv2.imread('VLM/images/right2.png')
 
-# Stitch images
-stitched = stitch_images(image1, image2, image3)
+# # Stitch images
+# stitched = stitch_images(image1, image2, image3)
 
-if stitched is not None:
-    # Draw the initial paths in the same color
-    stitched_with_ground_paths = draw_paths_on_ground(stitched.copy())
+# if stitched is not None:
+#     # Draw the initial paths in the same color
+#     stitched_with_ground_paths = draw_paths_on_ground(stitched.copy())
 
-    # Save the image with uniform paths
-    cv2.imwrite('stitched_paths_uniform.png', stitched_with_ground_paths)
+#     # Save the image with uniform paths
+#     cv2.imwrite('stitched_paths_uniform.png', stitched_with_ground_paths)
 
-    # Hypothetical scores for demonstration
-    scores = [1, 2, 5]
+#     # Hypothetical scores for demonstration
+#     scores = [1, 2, 5]
     
-    # Apply color coding based on the scores
-    result_image = color_code_paths(stitched_with_ground_paths, scores)
+#     # Apply color coding based on the scores
+#     result_image = color_code_paths(stitched_with_ground_paths, scores)
 
-    # Save the image with color-coded paths
-    cv2.imwrite('stitched_paths_scored.png', result_image)
+#     # Save the image with color-coded paths
+#     cv2.imwrite('stitched_paths_scored.png', result_image)
