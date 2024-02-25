@@ -109,7 +109,7 @@ class Exploration:
             print(f"GLOBAL STEP: {self.step_counter}")
             try:
                 # image1, image2, image3 = capture_images_from_realsense()
-                image1, image2, image3, path1, path2, path3 = mock_capture_images_from_realsense("ReasonedExplorer/src/VLM/images")
+                image1, image2, image3, path1, path2, path3 = mock_capture_images_from_realsense("src/VLM/images")
             except Exception as e:
                 logging.error(f"Error capturing images: {e}")
                 break

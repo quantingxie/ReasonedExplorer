@@ -31,6 +31,7 @@ Exploration Mode: If no node with high enough semantic similarity is found, the 
     - `nano ~/.bashrc`
     - `export OPENAI_API_KEY="your_api_key_here"`
     - `source ~/.bashrc`
+    - `conda activate reasoned #reactivate conda environment`
     - `echo $OPENAI_API_KEY #Test if your API keys is added correctly` 
 
 4. **Example Use**: `python run.py --exp_name "Forest Exploration" --type RRT --goal "Find the river" --branches 2 --rounds 3`
