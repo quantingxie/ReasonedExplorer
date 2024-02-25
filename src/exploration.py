@@ -104,13 +104,12 @@ class Exploration:
         total_CT = 0
         total_TT = 0
         found = False
-        images_save_path = 'visualization/egocentric'
 
         while not found:
             print(f"GLOBAL STEP: {self.step_counter}")
             try:
                 # image1, image2, image3 = capture_images_from_realsense()
-                image1, image2, image3, path1, path2, path3 = mock_capture_images_from_realsense("/Users/danielxie/Desktop/Python_Code/ReasonedExplorer/src/VLM/images")
+                image1, image2, image3, path1, path2, path3 = mock_capture_images_from_realsense("ReasonedExplorer/src/VLM/images")
             except Exception as e:
                 logging.error(f"Error capturing images: {e}")
                 break
@@ -182,17 +181,29 @@ class Exploration:
                     
                     self.graph_manager.add_edge(parent_node_id, new_node_id)
 
-                    with open(f"log/node_{new_node_id}_hallucinations.txt", "w") as file:
-                        for hallucination in hullucinations:
+                    log_file_path = f"log/node_{new_node_id}_hallucinations.txt"
+                    directory = os.path.dirname(log_file_path)
+                    if not os.path.exists(directory):
+                        os.makedirs(directory)
+                    with open(log_file_path, "w") as file:
+                        for hallucination in hullucinations:  
                             file.write(f"{hallucination}\n")
-            
-                self.graph_manager.visualize_graph(save_path=f"visualization/graph/step_{self.step_counter}.png")
+
+                graph_save_path = f"visualization/graph/step_{self.step_counter}.png"
+                directory = os.path.dirname(graph_save_path)
+                if not os.path.exists(directory):
+                    os.makedirs(directory)
+                self.graph_manager.visualize_graph(save_path=graph_save_path)
+
 
             # Visualize path in red
                 if scores:
                     scored_path_images = color_code_paths(processed_image, scores)
 
-                    output_file_path = os.path.join(images_save_path, f"scored_path_image_{self.step_counter}.png")
+                    ego_images_save_path = 'visualization/egocentric'
+                    if not os.path.exists(ego_images_save_path):
+                        os.makedirs(ego_images_save_path)
+                    output_file_path = os.path.join(ego_images_save_path, f"scored_path_image_{self.step_counter}.png")
                     success = cv2.imwrite(output_file_path, scored_path_images)
 
                     if not success:
