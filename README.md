@@ -30,6 +30,14 @@ Exploration Mode: If no node with high enough semantic similarity is found, the 
 3. **Example Use**: `python run.py --exp_name "Forest Exploration" --type RRT --goal "Find the river" --n 5 --rounds 3`
 
 
+### If Using Habitat
+1. **Install habitat follows**
+`conda install cmake=3.14.0`
+`conda install habitat-sim withbullet -c conda-forge -c aihabitat`
+`git clone --branch stable https://github.com/facebookresearch/habitat-lab.git`
+`cd habitat-lab`
+`pip install -e .`
+
 
 ### Citation:
 If you find our work useful in your research, please consider citing our paper. Below is the BibTeX entry:
