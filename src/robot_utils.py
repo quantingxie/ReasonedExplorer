@@ -1,4 +1,3 @@
-import cv2
 import numpy as np
 import threading
 import socket
@@ -8,10 +7,25 @@ import math
 import serial
 import robot_interface as sdk
 sys.path.append('../lib/python/arm64')
-
-
 import pyrealsense2 as rs
 import numpy as np
+import random
+# Initialize global variables to keep track of the simulated robot's state
+_simulated_x, _simulated_y, _simulated_yaw = 0.0, 0.0, 0.0
+
+def get_current_position():
+    global _simulated_x, _simulated_y
+    # Simulate movement by adding a small random value to the position
+    _simulated_x += random.uniform(-0.5, 0.5)  # Simulate movement in X direction
+    _simulated_y += random.uniform(-0.5, 0.5)  # Simulate movement in Y direction
+    return (_simulated_x, _simulated_y)
+
+def get_current_yaw_angle():
+    global _simulated_yaw
+    # Simulate rotation by adding a small random value to the yaw angle
+    _simulated_yaw += random.uniform(-math.radians(10), math.radians(10))  # Simulate rotation
+    _simulated_yaw = _simulated_yaw % (2 * math.pi)  # Ensure yaw stays within a 0 to 2π range
+    return _simulated_yaw
 
 def capture_images_from_realsense():
     # Configure the first camera
@@ -61,13 +75,13 @@ def capture_images_from_realsense():
         pipeline_2.stop()
         pipeline_3.stop()
 
-def get_current_position():
-    # Mock implementation. Replace with actual SLAM system integration.
-    return (0, 0)  # Return the current (x, y) position of the robot.
+# def get_current_position():
+#     # Mock implementation. Replace with actual SLAM system integration.
+#     return (0, 0)  # Return the current (x, y) position of the robot.
 
-def get_current_yaw_angle():
-    # Mock implementation. Replace with actual SLAM system integration.
-    return 0  # Return the current yaw angle of the robot in radians.
+# def get_current_yaw_angle():
+#     # Mock implementation. Replace with actual SLAM system integration.
+#     return 0  # Return the current yaw angle of the robot in radians.
 
 def socket_client_thread():
     global current_lat, current_lon
@@ -96,3 +110,9 @@ def calculate_distance(pos1, pos2):
 
 
 
+def calculate_new_position_and_yaw(current_position, current_yaw, angle, path_length):
+    angle_rad = math.radians(angle)
+    new_x = current_position[0] + path_length * math.cos(current_yaw + angle_rad)
+    new_y = current_position[1] + path_length * math.sin(current_yaw + angle_rad)
+    new_yaw = (current_yaw + angle_rad) % (2 * math.pi)
+    return (new_x, new_y), new_yaw

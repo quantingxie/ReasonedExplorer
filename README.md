@@ -2,27 +2,9 @@
 
 ## Reasoning about the unseen for efficient outdoor object navigation
 
-### Abstract:
-Robots should exist anywhere humans do: indoors, outdoors, and even unmapped environments. In contrast,
-the focus of recent advancements in Object Goal Navigation
-(OGN) has targeted navigating in indoor environments
-by leveraging spatial and semantic cues that do not generalize
-outdoors. While these contributions provide valuable insights
-into indoor scenarios, the broader spectrum of real-world
-robotic applications often extends to outdoor settings. As
-we transition to the vast and complex terrains of outdoor
-environments, new challenges emerge. Unlike the structured
-layouts found indoors, outdoor environments lack clear spatial
-delineations and are riddled with inherent semantic ambiguities.
-Despite this, humans navigate with ease because we can reason
-about the unseen. We introduce a new task OUTDOOR, a new
-mechanism for Large Language Models (LLMs) to accurately
-hallucinate possible futures, and a new computationally aware
-success metric for pushing research forward in this more
-complex domain. Additionally, we show impressive results on
-both a simulated drone and physical quadruped in outdoor
-environments. Our agent has no premapping and our formalism
-outperforms naive LLM-based approaches.
+### Exploration Modes:
+Search Mode: Search through the graph for a node with a description that has high semantic similarity to the goal. If such a node is found and the similarity is above a threshold, the robot will move directly to that node.
+Exploration Mode: If no node with high enough semantic similarity is found, the robot will continue to explore by expanding nodes and assessing their scores and descriptions relative to the goal.
 
 
 ### Repository Structure:
@@ -45,7 +27,7 @@ outperforms naive LLM-based approaches.
 2. **Setup**: 
     - Setup Google API-key
     - Setup OpenAI API-key
-3. **Example Use**: `python your_script_name.py --exp_name "Forest Exploration" --type RRT --goal "Find the river" --n 5 --rounds 3`
+3. **Example Use**: `python run.py --exp_name "Forest Exploration" --type RRT --goal "Find the river" --n 5 --rounds 3`
 
 
 
