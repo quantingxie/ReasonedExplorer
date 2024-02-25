@@ -1,8 +1,6 @@
 import argparse
 from src.exploration import Exploration 
-
-
-OPENAI_API_KEY = "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"
+import os
 
 def get_args():
     parser = argparse.ArgumentParser(description="Run robot exploration using RRT or Baseline methods.")
@@ -12,7 +10,7 @@ def get_args():
     parser.add_argument("--branches", type=int, default=5, help="Number of branches for RRT exploration.")
     parser.add_argument("--rounds", type=int, default=3, help="Number of rounds for RRT exploration.")
     parser.add_argument("--model", type=str, default="text-davinci-003", help="Model to use for GPT queries.")
-    parser.add_argument("--api_key", type=str, default=OPENAI_API_KEY, help="OpenAI API key.")
+    parser.add_argument("--api_key", type=str, default=os.getenv('OPENAI_API_KEY'), help="OpenAI API key.")
     
     args = parser.parse_args()
     return args

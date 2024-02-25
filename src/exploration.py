@@ -34,6 +34,13 @@ class Exploration:
 
         self.client = OpenAI(api_key=openai_api_key)
 
+        # Initialize the first node
+        initial_position = get_current_position()
+        initial_yaw = get_current_yaw_angle()
+        initial_score = 0
+        initial_embedding = None
+        self.graph_manager.add_node(initial_position, initial_yaw, initial_score, initial_embedding)
+
 
         ## to change back
         # # Initialization for robot control
@@ -97,7 +104,7 @@ class Exploration:
         total_CT = 0
         total_TT = 0
         found = False
-        images_save_path = '/Users/danielxie/Desktop/Python_Code/ReasonedExplorer/src/visualization/egocentric'
+        images_save_path = 'visualization/egocentric'
 
         while not found:
             print(f"GLOBAL STEP: {self.step_counter}")
@@ -143,8 +150,11 @@ class Exploration:
                 print("Running RRT")
                 current_position = get_current_position()
                 current_yaw = get_current_yaw_angle()
+                print(f"=========Current Position: {current_position}, Current Yaw: {current_yaw}")
+
                 directions = [-60, 0, 60]
                 fixed_path_length = 1.0
+                parent_node_id = self.graph_manager.current_node_id - 1
                 for path_description, angle, image_path in zip(desc_list, directions, image_paths):
                     new_position, new_yaw = calculate_new_position_and_yaw(current_position, current_yaw, angle,fixed_path_length)
                     start_time = time.time()
@@ -166,14 +176,18 @@ class Exploration:
                     # Embed the descriptions
                     desc_embedding = self.get_embedding(path_description)
                     # Creating child nodes
-                    node_id = self.graph_manager.add_node(new_position, new_yaw, score, desc_embedding)
+                    
+                    new_node_id = self.graph_manager.add_node(new_position, new_yaw, score, desc_embedding)
+                    print(f"Child_{new_node_id}_position: {new_position}, Child_{new_node_id}_yaw: {math.degrees(new_yaw)} degrees")
+                    
+                    self.graph_manager.add_edge(parent_node_id, new_node_id)
 
-                    print(f"New position: {new_position}, New yaw: {math.degrees(new_yaw)} degrees")
-
-                    with open(f"node_{node_id}_hallucinations.txt", "w") as file:
+                    with open(f"log/node_{new_node_id}_hallucinations.txt", "w") as file:
                         for hallucination in hullucinations:
                             file.write(f"{hallucination}\n")
-                
+            
+                self.graph_manager.visualize_graph(save_path=f"visualization/graph/step_{self.step_counter}.png")
+
             # Visualize path in red
                 if scores:
                     scored_path_images = color_code_paths(processed_image, scores)
@@ -232,7 +246,7 @@ def mock_move_to_node(target_node_data):
     _simulated_current_position = target_position
     _simulated_current_yaw = target_yaw
     
-    print(f"Mock moving to position: {target_position}, Yaw: {math.degrees(target_yaw)} degrees")
+    print(f"Mock moving to position: {target_position}, Yaw: {target_yaw} radians")
 
 def mock_capture_images_from_realsense(images_folder="image"):
     left_img_path = os.path.join(images_folder, "left.png")

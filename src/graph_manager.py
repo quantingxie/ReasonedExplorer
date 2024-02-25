@@ -1,10 +1,13 @@
 import networkx as nx
 import math
+import matplotlib.pyplot as plt
+
 
 class GraphManager:
     def __init__(self):
         self.graph = nx.Graph()
         self.current_node_id = 0
+        # self.add_node(position=(0, 0), yaw=0, score=0, embedding=None)
 
     def add_node(self, position, yaw, score, embedding):
         # Adds a node to the graph with the given position, yaw, score, and description.
@@ -26,24 +29,28 @@ class GraphManager:
                 min_node_id = node_id
         return min_node_id
 
+    def visualize_graph(self, show_labels=True, save_path=None):
+        """
+        Visualizes the graph with nodes and edges.
+        Option to show labels with node scores and positions, and to save the visualization to a file.
+        """
+        plt.figure(figsize=(15, 15))  # Set the figure size (optional)
+        pos = {node: (data['position'][0], data['position'][1]) for node, data in self.graph.nodes(data=True)}
+        labels = {node: f"ID: {node}\nScore: {data['score']}" for node, data in self.graph.nodes(data=True)} if show_labels else None
+        # Draw nodes
+        nx.draw(self.graph, pos, with_labels=True, node_color='skyblue', node_size=700, font_size=10)
+        # Draw node labels (e.g., scores)
+        if labels:
+            nx.draw_networkx_labels(self.graph, pos, labels, font_size=8)
+        # Draw edges
+        nx.draw_networkx_edges(self.graph, pos)
 
-# def expand_node_in_directions(graph_manager, current_position, current_yaw, scores, descriptions):
-#     directions = [30, 90, 120]  # Angles in degrees
-#     fixed_length = 1  # Replace with the actual length of each step.
-#     concatenated_description = ' '.join(descriptions)  # Concatenate descriptions for the current node
+        plt.gca().set_aspect('equal', adjustable='box')
+        plt.title("Graph Visualization")
+        plt.xlabel("X Position")
+        plt.ylabel("Y Position")
+        plt.tight_layout()
 
-#     current_node_id = graph_manager.add_node(current_position, current_yaw, 0, concatenated_description)  # Assuming current node has a score of 0
 
-#     for angle, score in zip(directions, scores):
-#         new_yaw = current_yaw + math.radians(angle)
-#         new_position = (current_position[0] + fixed_length * math.cos(new_yaw),
-#                         current_position[1] + fixed_length * math.sin(new_yaw))
-
-#         # Generate the description for the new node in the given direction
-#         new_description = generate_description_for_direction(angle)  # Implement this function based on your requirements
-
-#         # Add the new node to the graph with the calculated position, yaw, score, and description
-#         new_node_id = graph_manager.add_node(new_position, new_yaw, score, new_description)
-#         graph_manager.add_edge(current_node_id, new_node_id)
-
-#     return graph_manager
+        if save_path:
+            plt.savefig(save_path) 

@@ -78,7 +78,7 @@ def color_code_paths(stitched_image, scores):
 
     for i, score in enumerate(scores):
         # Normalize the score to range [0,1]
-        normalized_score = (score - min_score) / (max_score - min_score)
+        normalized_score = (score - min_score) / (max_score - min_score + 1e-5)
         
         # Interpolate the color and thickness based on the normalized score
         color = (weak_color * (1 - normalized_score) + strong_color * normalized_score).astype(np.uint8).tolist()
