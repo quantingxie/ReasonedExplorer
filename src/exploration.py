@@ -18,7 +18,7 @@ from .graph_manager import GraphManager
 # from robot_wrapper import Custom, PathPoint
 
 _simulated_current_position = (0, 0)  # Starting at the origin
-_simulated_current_yaw = 0  # Facing "north"
+_simulated_current_yaw = 90  # Facing "north"
 
 class Exploration:
     def __init__(self, exp_name, type, model, branches, rounds, goal, openai_api_key):
@@ -37,6 +37,8 @@ class Exploration:
         # Initialize the first node
         initial_position = get_current_position()
         initial_yaw = get_current_yaw_angle()
+
+
         initial_score = 0
         initial_embedding = None
         self.graph_manager.add_node(initial_position, initial_yaw, initial_score, initial_embedding)
@@ -104,7 +106,8 @@ class Exploration:
         total_CT = 0
         total_TT = 0
         found = False
-
+        best_node_id = 0
+        # path_to_lowest_score_node = [0]
         while not found:
             print(f"GLOBAL STEP: {self.step_counter}")
             try:
@@ -147,15 +150,17 @@ class Exploration:
 
             elif EXPERIMENT_TYPE == "RRT":
                 print("Running RRT")
-                # current_position = (get_current_position())
-                current_position = (0, 0)
+                # current_position = get_current_position()
                 # current_yaw = get_current_yaw_angle()
-                current_yaw = 0
+                # Mock 
+                current_position = self.graph_manager.graph.nodes[best_node_id]["position"]
+                current_yaw = self.graph_manager.graph.nodes[best_node_id]["yaw"]
                 print(f"Current Position: {current_position}, Current Yaw: {current_yaw}")
 
                 directions = [-60, 0, 60]
                 fixed_path_length = 1.0
-                parent_node_id = self.graph_manager.current_node_id - 1
+                parent_node_id = best_node_id
+                print(f"****parent_node_id{parent_node_id}")
                 for path_description, angle, image_path in zip(desc_list, directions, image_paths):
                     new_position, new_yaw = calculate_new_position_and_yaw(current_position, current_yaw, angle,fixed_path_length)
                     start_time = time.time()
@@ -177,9 +182,8 @@ class Exploration:
                     # Embed the descriptions
                     desc_embedding = self.get_embedding(path_description)
                     # Creating child nodes
-                    
                     new_node_id = self.graph_manager.add_node(new_position, new_yaw, score, desc_embedding)
-                    print(f"Child_{new_node_id}_position: {new_position}, Child_{new_node_id}_yaw: {math.degrees(new_yaw)} degrees")
+                    print(f"node_{new_node_id}_position: {new_position}, yaw: {math.degrees(new_yaw)} degrees")
                     
                     self.graph_manager.add_edge(parent_node_id, new_node_id)
 
@@ -190,13 +194,6 @@ class Exploration:
                     with open(log_file_path, "w") as file:
                         for hallucination in hullucinations:  
                             file.write(f"{hallucination}\n")
-
-                graph_save_path = f"visualization/graph/step_{self.step_counter}.png"
-                directory = os.path.dirname(graph_save_path)
-                if not os.path.exists(directory):
-                    os.makedirs(directory)
-                self.graph_manager.visualize_graph(save_path=graph_save_path)
-
 
             # Visualize path in red
                 if scores:
@@ -213,11 +210,19 @@ class Exploration:
 
             action_start_time = time.time()
 
-            
-            best_node_id = self.graph_manager.find_lowest_score_node()
+            # best_node_id +=1
+            best_node_id = self.graph_manager.find_highest_score_unvisited_node()
 
+            path_to_lowest_score_node = self.graph_manager.find_shortest_path_to_highest_score_node(parent_node_id)
+            graph_save_path = f"visualization/graph/step_{self.step_counter}.png"
+            directory = os.path.dirname(graph_save_path)
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+            self.graph_manager.visualize_graph(path=path_to_lowest_score_node, show_labels=True, save_path=graph_save_path)
+
+            print(f"Path_to_lowest_score{path_to_lowest_score_node}")
             self.move_to_node(best_node_id)
-        
+            self.graph_manager.mark_node_as_visited(best_node_id)
 
             action_end_time = time.time()
             TT = action_end_time - action_start_time

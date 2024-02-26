@@ -97,7 +97,9 @@ class RRT:
         # Function to score the scene description
         messages=[
             # {"role": "system", "content": f"How likely is this scene related to the goal: '{self.goal}'? Scene: '{scene_description}'"},
-            {"role": "user", "content": f"How likely is this scene related to the goal: '{self.goal}'? Scene: '{scene_description}. Score the relevance on a scale of 1 to 5. Output the score in this format: <<<score>>>"},
+            # {"role": "user", "content": f"How likely is this scene related to the goal: '{self.goal}'? Scene: '{scene_description}. Score the relevance on a scale of 1 to 5. Output the score in this format: <<<score>>>"},
+            {"role": "user", "content": f"Generate a score randomly from 1 to 5. "},
+
         ]
 
         headers = {'Content-Type': 'application/json'}
