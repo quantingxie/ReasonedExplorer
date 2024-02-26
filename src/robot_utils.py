@@ -111,6 +111,7 @@ def calculate_distance(pos1, pos2):
 
 
 def calculate_new_position_and_yaw(current_position, current_yaw, angle, path_length):
+    print(f"========angle{angle}, current pos{current_position}, current yaw {current_yaw}")
     angle_rad = math.radians(angle)
     new_x = current_position[0] + path_length * math.cos(current_yaw + angle_rad)
     new_y = current_position[1] + path_length * math.sin(current_yaw + angle_rad)

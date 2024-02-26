@@ -124,7 +124,7 @@ class Exploration:
             desc3 = phi2_query(path3)
 
             desc_list = [desc1, desc2, desc3]
-            print(desc_list)
+            print("description_list:", desc_list)
             scores = []  
 
             if EXPERIMENT_TYPE == "baseline":
@@ -147,9 +147,11 @@ class Exploration:
 
             elif EXPERIMENT_TYPE == "RRT":
                 print("Running RRT")
-                current_position = get_current_position()
-                current_yaw = get_current_yaw_angle()
-                print(f"=========Current Position: {current_position}, Current Yaw: {current_yaw}")
+                # current_position = (get_current_position())
+                current_position = (0, 0)
+                # current_yaw = get_current_yaw_angle()
+                current_yaw = 0
+                print(f"Current Position: {current_position}, Current Yaw: {current_yaw}")
 
                 directions = [-60, 0, 60]
                 fixed_path_length = 1.0
@@ -242,7 +244,7 @@ class Exploration:
 
         # # Call the CPP control method with the path points
         # custom.control(path_points)
-
+        print(f"Move to Node:{target_node_id}")
         target_node_data = self.graph_manager.graph.nodes[target_node_id]
         mock_move_to_node(target_node_data)
 

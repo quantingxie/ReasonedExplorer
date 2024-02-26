@@ -7,7 +7,6 @@ class GraphManager:
     def __init__(self):
         self.graph = nx.Graph()
         self.current_node_id = 0
-        # self.add_node(position=(0, 0), yaw=0, score=0, embedding=None)
 
     def add_node(self, position, yaw, score, embedding):
         # Adds a node to the graph with the given position, yaw, score, and description.
