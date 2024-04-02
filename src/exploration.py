@@ -12,10 +12,14 @@ import os
 from .VLM_inference import phi2_query, GPT4V_query, GPT4V_checker, success_checker, parse_response, GPT4V_baseline
 from .llm_rrt import RRT
 from .process_image import process_images, color_code_paths
-from .robot_utils import capture_images_from_realsense, get_current_position, get_current_yaw_angle, calculate_new_position_and_yaw
+from .robot_utils import *
 from .graph_manager import GraphManager
 # from .speech_utils import SpeechUtils, record_until_silence
-# from robot_wrapper import Custom, PathPoint
+
+import sys
+sys.path.append('/home/droplab/unitree_sdk2/python_bindings/build')
+# print(sys.path) 
+import robot_wrapper
 
 _simulated_current_position = (0, 0)  # Starting at the origin
 _simulated_current_yaw = 90  # Facing "north"
@@ -42,16 +46,14 @@ class Exploration:
         initial_score = 0
         initial_embedding = None
         self.graph_manager.add_node(initial_position, initial_yaw, initial_score, initial_embedding)
-
-
-        ## to change back
-        # # Initialization for robot control
-        # self.HIGHLEVEL = 0xee
-        # self.udp = sdk.UDP(self.HIGHLEVEL, 8080, "192.168.123.161", 8082)
-        # self.cmd = sdk.HighCmd()
-        # self.state = sdk.HighState()
-        # self.udp.InitCmdData(self.cmd)
-
+        
+        self.serial_numbers = ['936322070007', '238722073643', '242322077802']
+        self.pipelines = initialize_cameras(self.serial_numbers)
+        print("111")
+        robot_wrapper.Custom.initialize()
+        self.custom = robot_wrapper.Custom()
+        self.custom.dt = 0.002
+        print("222")
     def get_embedding(self, text, model="text-embedding-3-small"):
         text = text.replace("\n", " ")
         return self.client.embeddings.create(input = [text], model=model).data[0].embedding
@@ -107,27 +109,24 @@ class Exploration:
         total_TT = 0
         found = False
         best_node_id = 0
+        average_depths = []
+        image_paths = []
         # path_to_lowest_score_node = [0]
         while not found:
             print(f"GLOBAL STEP: {self.step_counter}")
-            try:
-                # image1, image2, image3 = capture_images_from_realsense()
-                image1, image2, image3, path1, path2, path3 = mock_capture_images_from_realsense("src/VLM/images")
-            except Exception as e:
-                logging.error(f"Error capturing images: {e}")
-                break
-            image_paths = [path1, path2, path3] 
-            processed_image = process_images(image1, image2, image3)
-
+            
+            for i, pipeline in enumerate(self.pipelines):
+                image, avg_depth, path = capture_image_and_average_depth(pipeline, self.serial_numbers[i])
+                if path:
+                    image_paths.append(path)
+                    average_depths.append(avg_depth)
+            if len(image_paths) == len(self.pipelines):  # Ensure all images were captured
+                processed_images = process_images(*[cv2.imread(p) for p in image_paths])
+            
             print("Querying VLM")
-
-            # Descriptions for each image
-            desc1 = phi2_query(path1)
-            desc2 = phi2_query(path2)
-            desc3 = phi2_query(path3)
-
-            desc_list = [desc1, desc2, desc3]
-            print("description_list:", desc_list)
+            print("image_paths", image_paths)
+            descriptions = [phi2_query(path) for path in image_paths]
+            print("description_list:", descriptions)
             scores = []  
 
             if EXPERIMENT_TYPE == "baseline":
@@ -158,13 +157,17 @@ class Exploration:
                 print(f"Current Position: {current_position}, Current Yaw: {current_yaw}")
 
                 directions = [-60, 0, 60]
-                fixed_path_length = 1.0
+                fixed_offset = 1.0
                 parent_node_id = best_node_id
                 print(f"****parent_node_id{parent_node_id}")
-                for path_description, angle, image_path in zip(desc_list, directions, image_paths):
-                    new_position, new_yaw = calculate_new_position_and_yaw(current_position, current_yaw, angle,fixed_path_length)
+                for path_description, angle, image_path in zip(descriptions, directions, image_paths):
+
+                    dynamic_path_length = calculate_path_length_based_on_depth(avg_depth)
+
+                    new_position, new_yaw = calculate_new_position_and_yaw(
+                        current_position, current_yaw, angle, dynamic_path_length)
                     start_time = time.time()
-                    score, hullucinations = self.rrt.run_rrt(path_description)
+                    score, hallucinations = self.rrt.run_rrt(path_description)
                     end_time = time.time()
                     CT = end_time - start_time
                     total_CT += CT
@@ -192,12 +195,12 @@ class Exploration:
                     if not os.path.exists(directory):
                         os.makedirs(directory)
                     with open(log_file_path, "w") as file:
-                        for hallucination in hullucinations:  
+                        for hallucination in hallucinations:  
                             file.write(f"{hallucination}\n")
 
             # Visualize path in red
                 if scores:
-                    scored_path_images = color_code_paths(processed_image, scores)
+                    scored_path_images = color_code_paths(processed_images, scores)
 
                     ego_images_save_path = 'visualization/egocentric'
                     if not os.path.exists(ego_images_save_path):
@@ -236,47 +239,7 @@ class Exploration:
                 break
 
     def move_to_node(self, target_node_id):
-        """Chooses and executes an action based on the scores"""
-
-        # target_node_data = self.graph_manager.graph.nodes[target_node_id]
-
-        # # Extract the path point for the robot's control system
-        # target_path_point = PathPoint(x=target_node_data['position'][0],
-        #                             y=target_node_data['position'][1],
-        #                             yaw=target_node_data['yaw'])
-        
-        # path_points = [target_path_point]
-
-        # # Call the CPP control method with the path points
-        # custom.control(path_points)
-        print(f"Move to Node:{target_node_id}")
         target_node_data = self.graph_manager.graph.nodes[target_node_id]
-        mock_move_to_node(target_node_data)
-
-def mock_move_to_node(target_node_data):
-    global _simulated_current_position, _simulated_current_yaw
-    
-    # Extract target position and yaw from the node data
-    target_position = target_node_data['position']
-    target_yaw = target_node_data['yaw']
-    
-    # Simulate moving by updating the global variables
-    _simulated_current_position = target_position
-    _simulated_current_yaw = target_yaw
-    
-    print(f"Mock moving to position: {target_position}, Yaw: {target_yaw} radians")
-
-def mock_capture_images_from_realsense(images_folder="image"):
-    left_img_path = os.path.join(images_folder, "left.png")
-    mid_img_path = os.path.join(images_folder, "mid.png")
-    right_img_path = os.path.join(images_folder, "right.png")
-
-    # Read images using OpenCV
-    left_img = cv2.imread(left_img_path)
-    mid_img = cv2.imread(mid_img_path)
-    right_img = cv2.imread(right_img_path)
-
-    if left_img is None or mid_img is None or right_img is None:
-        raise FileNotFoundError("One or more images could not be loaded. Check the paths.")
-
-    return left_img, mid_img, right_img, left_img_path, mid_img_path, right_img_path
+        self.custom.moveToPositionAndYaw(target_node_data['position'][0], 
+                                        target_node_data['position'][1], 
+                                        target_node_data['yaw'])

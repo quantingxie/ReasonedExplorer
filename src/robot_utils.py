@@ -7,9 +7,10 @@ import math
 import serial
 # import robot_interface as sdk
 sys.path.append('../lib/python/arm64')
-# import pyrealsense2 as rs
-import numpy as np
+import pyrealsense2 as rs
 import random
+import cv2
+import os
 # Initialize global variables to keep track of the simulated robot's state
 _simulated_x, _simulated_y, _simulated_yaw = 0.0, 0.0, 0.0
 
@@ -27,53 +28,58 @@ def get_current_yaw_angle():
     _simulated_yaw = _simulated_yaw % (2 * math.pi)  # Ensure yaw stays within a 0 to 2π range
     return _simulated_yaw
 
-def capture_images_from_realsense():
-    # Configure the first camera
-    pipeline_1 = rs.pipeline()
-    config_1 = rs.config()
-    config_1.enable_device('serial_number_1')  # Replace with the actual serial number of your first camera
-    config_1.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
 
-    # Configure the second camera
-    pipeline_2 = rs.pipeline()
-    config_2 = rs.config()
-    config_2.enable_device('serial_number_2')  # Replace with the actual serial number of your second camera
-    config_2.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+def initialize_cameras(serial_numbers, delay=5):
+    pipelines = []
+    for serial_number in serial_numbers:
+        pipeline = rs.pipeline()
+        config = rs.config()
+        config.enable_device(serial_number)
+        config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 6)
+        config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 6)
+        pipeline.start(config)
+        pipelines.append(pipeline)
+        
+    print("Cameras initialized. Waiting for auto-exposure adjustment for 5s...")
+    time.sleep(delay)
+    return pipelines
 
-    # Configure the second camera
-    pipeline_3 = rs.pipeline()
-    config_3 = rs.config()
-    config_3.enable_device('serial_number_3')  # Replace with the actual serial number of your second camera
-    config_3.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+def capture_image_from_camera(pipeline):
+    frames = pipeline.wait_for_frames()
+    color_frame = frames.get_color_frame()
+    if not color_frame:
+        return None
+    color_image = np.asanyarray(color_frame.get_data())
+    return color_image
 
-    # Start the configured pipelines to begin streaming
-    pipeline_1.start(config_1)
-    pipeline_2.start(config_2)
-    pipeline_3.start(config_3)
-
+def capture_image_and_average_depth(pipeline, serial_number, image_folder="log_images"):
     try:
-        # Wait for a coherent pair of frames: depth and color
-        frames_1 = pipeline_1.wait_for_frames()
-        frames_2 = pipeline_2.wait_for_frames()
-        frames_3 = pipeline_3.wait_for_frames()
+        os.makedirs(image_folder, exist_ok=True)  # Ensure the directory exists
+        frames = pipeline.wait_for_frames()
+        depth_frame = frames.get_depth_frame()
+        color_frame = frames.get_color_frame()
 
-        # Get color frames
-        color_frame_1 = frames_1.get_color_frame()
-        color_frame_2 = frames_2.get_color_frame()
-        color_frame_3 = frames_3.get_color_frame()
+        if not depth_frame or not color_frame:
+            return None, None, None
 
-        # Convert images to numpy arrays
-        image_1 = np.asanyarray(color_frame_1.get_data())
-        image_2 = np.asanyarray(color_frame_2.get_data())
-        image_3 = np.asanyarray(color_frame_3.get_data())
+        # Process depth frame
+        depth_image = np.asanyarray(depth_frame.get_data())
+        non_zero_depths = depth_image[depth_image != 0]
+        average_depth = np.mean(non_zero_depths) if non_zero_depths.size > 0 else 0
 
-        return image_1, image_2, image_3
+        # Process color frame and save image
+        color_image = np.asanyarray(color_frame.get_data())
+        filename = f"camera_{serial_number}.jpg"
+        filepath = os.path.join(image_folder, filename)
+        print("filepath", filepath)
 
-    finally:
-        # Stop streaming
-        pipeline_1.stop()
-        pipeline_2.stop()
-        pipeline_3.stop()
+        cv2.imwrite(filepath, color_image)
+
+        return color_image, average_depth, filepath
+    except Exception as e:
+        print(f"Failed to capture images: {e}")
+        return None, None, None
+
 
 # def get_current_position():
 #     # Mock implementation. Replace with actual SLAM system integration.
@@ -117,3 +123,14 @@ def calculate_new_position_and_yaw(current_position, current_yaw, angle, path_le
     new_y = current_position[1] + path_length * math.sin(current_yaw + angle_rad)
     new_yaw = (current_yaw + angle_rad) % (2 * math.pi)
     return (new_x, new_y), new_yaw
+
+
+def calculate_path_length_based_on_depth(avg_depth):
+    max_depth_threshold = 3.0  # Example threshold
+    min_path_length = 0.5
+    max_path_length = 2.0
+
+    if avg_depth > max_depth_threshold:
+        return max_path_length
+    else:
+        return min_path_length + (avg_depth / max_depth_threshold) * (max_path_length - min_path_length)

@@ -45,7 +45,8 @@ Exploration Mode: If no node with high enough semantic similarity is found, the 
 `cd habitat-lab`
 `pip install -e .`
 
-
+### Hardware Wrapper
+1. **Activate conda environment**
 ### Citation:
 If you find our work useful in your research, please consider citing our paper. Below is the BibTeX entry:
 

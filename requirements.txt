@@ -28,3 +28,4 @@ tqdm==4.66.2
 typing-extensions==4.9.0
 urllib3==2.2.1
 matplotlib==3.8.3
+pyrealsense2==2.54.2

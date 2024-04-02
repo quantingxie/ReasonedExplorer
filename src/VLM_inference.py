@@ -157,30 +157,30 @@ def GPT4V_query(image_path, openai_api_key):
 
 
 
-def phi2_query(image_path):
-    
-    app_url = "https://a7de-128-237-82-9.ngrok-free.app/vlm"
 
-    # Hardcoded prompt
-    # prompt = "Identify the grey paths in the image, describe the space in the end point, specifying whether it leads to with logical inference using visual cues. Structure your response as follows: 'Path [Number]: [Destination description]"
+def phi2_query(image_path):
+    print("Querying for image:", image_path)
+    app_url = "https://a7de-128-237-82-9.ngrok-free.app/vlm"
     prompt = "Describe the objects in the scene"
-    # Define the image file to upload
     image_file = {'image': open(image_path, 'rb')}
-    
     try:
-        # Send a POST request with the image file and the hardcoded prompt
         response = requests.post(app_url, files=image_file, data={'text': prompt})
-        data = response.json()
-        if 'error' in data:
-            print("Error:", data['error'])
+        if response.status_code == 200:
+            print("The request was successful!")
+            data = response.json()
+            if 'error' in data:
+                print("Error processing the image:", data['error'])
+            else:
+                # Assuming 'response' key in JSON contains the result
+                return data.get('response', 'No response field in data')
+        else:
+            print(f"Request failed with status code: {response.status_code}")
+            return f"Request failed with status code: {response.status_code}"
     except requests.exceptions.RequestException as e:
         print("Request Error:", e)
-        data = {'error': str(e)}
+        return f"Request Error: {str(e)}"
     finally:
-        # Ensure the file is closed after the request
         image_file['image'].close()
-    
-    return data['response']
 
 
 def parse_response(response_text):
